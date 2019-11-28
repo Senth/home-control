@@ -1,14 +1,9 @@
 from pytradfri import Gateway
 from pytradfri.device import Device
+from pytradfri.group import Group
 from pytradfri.api.libcoap_api import APIFactory, _LOGGER
 from .config import HOST, IDENTITY, KEY
 
-import logging
-
-
-_LOGGER.setLevel(logging.DEBUG)
-print(HOST)
-print(IDENTITY)
 
 api_factory = APIFactory(host=HOST, psk_id=IDENTITY, psk=KEY)
 
@@ -17,56 +12,92 @@ gateway = Gateway()
 
 
 class Lights:
-    WINDOW = "Window lights"
-    BALL = "Ball lights"
-    CEILING = "Ceiling light"
-    EMMA = "Emma"
-    LED_STRIP = "LED strip"
-    MONITOR = "Monitor lights"
-    DARK_SOULS = "Dark Souls lights"
-    BAMBOO = "Bamboo lamp"
-    SUN = "Sun lamp"
+    window = "Window lights"
+    ball = "Ball lights"
+    ceiling = "Ceiling light"
+    emma = "Fönster"
+    led_strip = "LED strip"
+    monitor = "Monitor lights"
+    dark_souls = "Dark Souls lights"
+    bamboo = "Bamboo lamp"
+    hall = "Hall light"
 
     """Bind all lights to the correct pytradfri light"""
     @staticmethod
-    def update_lights():
+    def update():
         command = api(gateway.get_devices())
         devices = api(command)
 
         for device in devices:
-            if Lights.WINDOW == device.name or (isinstance(Lights.WINDOW, Device) and Lights.WINDOW.has_socket_control and Lights.WINDOW.id == device.id):
-                Lights.WINDOW = device
-            elif Lights.BALL == device.name or (isinstance(Lights.BALL, Device) and Lights.BALL.has_socket_control and Lights.BALL.id == device.id):
-                Lights.BALL = device
-            elif Lights.CEILING == device.name or (isinstance(Lights.CEILING, Device) and Lights.CEILING.has_light_control and Lights.CEILING.id == device.id):
-                Lights.CEILING = device
-            elif Lights.EMMA == device.name or (isinstance(Lights.EMMA, Device) and Lights.EMMA.has_socket_control and Lights.EMMA.id == device.id):
-                Lights.EMMA = device
-            elif Lights.LED_STRIP == device.name or (isinstance(Lights.LED_STRIP, Device) and Lights.LED_STRIP.has_socket_control and Lights.LED_STRIP.id == device.id):
-                Lights.LED_STRIP = device
-            elif Lights.MONITOR == device.name or (isinstance(Lights.MONITOR, Device) and Lights.MONITOR.has_socket_control and Lights.MONITOR.id == device.id):
-                Lights.MONITOR = device
-            elif Lights.DARK_SOULS == device.name or (isinstance(Lights.DARK_SOULS, Device) and Lights.DARK_SOULS.has_socket_control and Lights.DARK_SOULS.id == device.id):
-                Lights.DARK_SOULS = device
-            elif Lights.BAMBOO == device.name or (isinstance(Lights.BAMBOO, Device) and Lights.BAMBOO.has_light_control and Lights.BAMBOO.id == device.id):
-                Lights.BAMBOO = device
-            elif Lights.SUN == device.name or (isinstance(Lights.SUN, Device) and Lights.SUN.has_socket_control and Lights.SUN.id == device.id):
-                Lights.SUN = device
+            if Lights.window == device.name or (isinstance(Lights.window, Device) and Lights.window.has_socket_control and Lights.window.id == device.id):
+                Lights.window = device
+            elif Lights.ball == device.name or (isinstance(Lights.ball, Device) and Lights.ball.has_socket_control and Lights.ball.id == device.id):
+                Lights.ball = device
+            elif Lights.ceiling == device.name or (isinstance(Lights.ceiling, Device) and Lights.ceiling.has_light_control and Lights.ceiling.id == device.id):
+                Lights.ceiling = device
+            elif Lights.emma == device.name or (isinstance(Lights.emma, Device) and Lights.emma.has_socket_control and Lights.emma.id == device.id):
+                Lights.emma = device
+            elif Lights.led_strip == device.name or (isinstance(Lights.led_strip, Device) and Lights.led_strip.has_socket_control and Lights.led_strip.id == device.id):
+                Lights.led_strip = device
+            elif Lights.monitor == device.name or (isinstance(Lights.monitor, Device) and Lights.monitor.has_socket_control and Lights.monitor.id == device.id):
+                Lights.monitor = device
+            elif Lights.dark_souls == device.name or (isinstance(Lights.dark_souls, Device) and Lights.dark_souls.has_socket_control and Lights.dark_souls.id == device.id):
+                Lights.dark_souls = device
+            elif Lights.bamboo == device.name or (isinstance(Lights.bamboo, Device) and Lights.bamboo.has_light_control and Lights.bamboo.id == device.id):
+                Lights.bamboo = device
+            elif Lights.hall == device.name or (isinstance(Lights.hall, Device) and Lights.hall.has_socket_control and Lights.hall.id == device.id):
+                Lights.hall = device
             elif device.has_light_control or device.has_socket_control:
                 print("Didn't update/bind device: " + str(device))
 
-class Groups:
-    MATTEUS = "Matteus"
-    COZY = "Vardagsrum (mys)"
 
-# 
-# class TradfriGateway:
-#     def turn_on(light_or_set):
-#         pass
-# 
-#     def turn_off(light_or_set):
-#         pass
-# 
-#     def toggle(light_or_set):
-#         pass
-# 
+class Groups:
+    matteus = "Matteus"
+    cozy = "Vardagsrum (mys)"
+
+    @staticmethod
+    def update():
+        command = api(gateway.get_groups())
+        groups = api(command)
+
+        for group in groups:
+            if Groups.matteus == group.name or (isinstance(Groups.matteus, Group) and Groups.matteus.id == group.id):
+                Groups.matteus = group
+            elif Groups.cozy == group.name or (isinstance(Groups.cozy, Group) and Groups.cozy.id == group.id):
+                Groups.cozy = group
+            else:
+                print("Didn't update/bind group: " + str(group))
+
+
+class TradfriGateway:
+    @staticmethod
+    def turn_on(light_or_group):
+
+        if isinstance(light_or_group, Device) and light_or_group.has_light_control:
+            api(light_or_group.light_control.set_state(1))
+        elif isinstance(light_or_group, Device) and light_or_group.has_socket_control:
+            api(light_or_group.socket_control.set_state(1))
+        else:
+            api(light_or_group.set_state(1))
+
+    @staticmethod
+    def turn_off(light_or_group):
+        if isinstance(light_or_group, Device) and light_or_group.has_light_control:
+            api(light_or_group.light_control.set_state(0))
+        elif isinstance(light_or_group, Device) and light_or_group.has_socket_control:
+            api(light_or_group.socket_control.set_state(0))
+        else:
+            api(light_or_group.set_state(0))
+
+    @staticmethod
+    def toggle(light_or_group):
+        if isinstance(light_or_group, Device) and light_or_group.has_light_control:
+            newState = not bool(light_or_group.light_control.lights[0].state)
+            api(light_or_group.light_control.set_state(newState))
+        elif isinstance(light_or_group, Device) and light_or_group.has_socket_control:
+            newState = not bool(light_or_group.socket_control.sockets[0].state)
+            api(light_or_group.socket_control.set_state(newState))
+        else:
+            newState = not bool(light_or_group.state)
+            api(light_or_group.set_state(newState))
+
