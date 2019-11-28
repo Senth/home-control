@@ -9,38 +9,28 @@ logger = logging.getLogger(__name__)
 
 
 class NetworkDevice:
-    """Checks if a device is on or not. It will save the last 5 states and only if all 5 states are equal to off
-    the is_on() function will return False."""
+    """Checks if a device is on or not."""
     def __init__(self, ip):
         self.ip = ip
-        self.on = False
-        self.states = []
+        self.off_times = 5
         devices.append(self)
 
     def is_on(self):
         """
         Check if the device is turned on
-        :return: False if the 5 last pings were unsuccessful (read device turned off or unavailable.
+        :return: False if the 5 or more last pings were unsuccessful (read device turned off or unavailable.
         Otherwise return True. This is used since sometimes a Wifi device will won't respond before the timeout.
         """
-        for state in self.states:
-            if state:
-                return True
-        return False
+        return self.off_times < 5
 
     def ping_device(self):
         try:
             run(['ping', '-c', '1', '-W', '3', self.ip], check=True)
-            self.states.clear()
-            self.states.append(True)
+            self.off_times = 0
         except CalledProcessError:
-            self.states.append(False)
+            self.off_times += 1
 
-            # Only save last 5 states
-            if len(self.states) > 5:
-                self.states.pop(0)
-
-        logger.debug('NetworkDevice: ' + self.ip + ' ' + str(self.states))
+        logger.debug('NetworkDevice: ' + self.ip + ' ' + str(self.off_times))
 
 
 class NetworkDevices:
