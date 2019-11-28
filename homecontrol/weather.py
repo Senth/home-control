@@ -19,7 +19,6 @@ class Weather:
     @staticmethod
     def _set_weather_info():
         parameters = Weather._weather_info['timeSeries'][0]['parameters']
-        print(parameters)
 
         for parameter in parameters:
             name = parameter['name']
