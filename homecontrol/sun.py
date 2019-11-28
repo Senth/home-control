@@ -22,12 +22,10 @@ class Sun:
         now = datetime.datetime.now(tz.tzlocal())
 
         if now > Sun._sunrise:
-            print('Sunrise has passed')
             Sun._last_sunrise = Sun._sunrise
             Sun._sunrise = sun.get_local_sunrise_time(tomorrow())
 
         if now > Sun._sunset:
-            print('Sunset has passed')
             Sun._sunset = sun.get_local_sunset_time(tomorrow())
 
     @staticmethod
@@ -40,6 +38,10 @@ class Sun:
     def is_up():
         Sun.update()
         return Sun._sunrise > Sun._sunset
+
+    @staticmethod
+    def is_down():
+        return not Sun.is_up()
 
     @staticmethod
     def is_bright():
@@ -55,3 +57,7 @@ class Sun:
         else:
             sunrise = Sun._last_sunrise + DIFF_TIME
             return now > sunrise
+
+    @staticmethod
+    def is_dark():
+        return not Sun.is_bright()

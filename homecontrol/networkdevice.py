@@ -1,6 +1,11 @@
 from subprocess import run, CalledProcessError
+import logging
+
 
 devices = []
+
+
+logger = logging.getLogger(__name__)
 
 
 class NetworkDevice:
@@ -11,10 +16,11 @@ class NetworkDevice:
 
     def ping_device(self):
         try:
-            run(['ping', '-c', '1', '-W', '1', self.ip], check=True)
+            run(['ping', '-c', '1', '-W', '4', self.ip], check=True)
             self.on = True
         except CalledProcessError:
             self.on = False
+        logger.debug('NetworkDevice: ' + self.ip + ' ' + str(self.on))
 
 
 class NetworkDevices:
@@ -24,7 +30,7 @@ class NetworkDevices:
     mobile_emma = NetworkDevice("192.168.0.201")
 
     @staticmethod
-    def someone_is_home():
+    def is_someone_home():
         return NetworkDevices.mobile_matteus.on or NetworkDevices.mobile_emma.on
 
     @staticmethod

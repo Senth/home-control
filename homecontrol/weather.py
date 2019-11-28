@@ -30,6 +30,10 @@ class Weather:
                 Weather.temperature = value
 
     @staticmethod
+    def is_cloudy():
+        return Weather.cloud_cover >= 5
+
+    @staticmethod
     def update():
         Weather._get_weather_info()
         Weather._set_weather_info()

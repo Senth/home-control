@@ -72,32 +72,52 @@ class Groups:
 class TradfriGateway:
     @staticmethod
     def turn_on(light_or_group):
-
-        if isinstance(light_or_group, Device) and light_or_group.has_light_control:
+        """
+        Turn on a light or group
+        :param light_or_group: Can be either a light or group. Can be a list of lights and groups
+        """
+        if isinstance(light_or_group, list):
+            for i in light_or_group:
+                TradfriGateway.turn_on(i)
+        elif isinstance(light_or_group, Device) and light_or_group.has_light_control:
             api(light_or_group.light_control.set_state(1))
         elif isinstance(light_or_group, Device) and light_or_group.has_socket_control:
             api(light_or_group.socket_control.set_state(1))
-        else:
+        elif isinstance(light_or_group, Group):
             api(light_or_group.set_state(1))
 
     @staticmethod
     def turn_off(light_or_group):
-        if isinstance(light_or_group, Device) and light_or_group.has_light_control:
+        """
+        Turn off a light or group
+        :param light_or_group: Can be either a light or group. Can be a list of lights and groups
+        """
+        if isinstance(light_or_group, list):
+            for i in light_or_group:
+                TradfriGateway.turn_off(i)
+        elif isinstance(light_or_group, Device) and light_or_group.has_light_control:
             api(light_or_group.light_control.set_state(0))
         elif isinstance(light_or_group, Device) and light_or_group.has_socket_control:
             api(light_or_group.socket_control.set_state(0))
-        else:
+        elif isinstance(light_or_group, Group):
             api(light_or_group.set_state(0))
 
     @staticmethod
     def toggle(light_or_group):
-        if isinstance(light_or_group, Device) and light_or_group.has_light_control:
-            newState = not bool(light_or_group.light_control.lights[0].state)
-            api(light_or_group.light_control.set_state(newState))
+        """
+        Toggle a light or group
+        :param light_or_group: Can be either a light or group. Can be a list of lights and groups
+        """
+        if isinstance(light_or_group, list):
+            for i in light_or_group:
+                TradfriGateway.toggle(i)
+        elif isinstance(light_or_group, Device) and light_or_group.has_light_control:
+            new_state = not bool(light_or_group.light_control.lights[0].state)
+            api(light_or_group.light_control.set_state(new_state))
         elif isinstance(light_or_group, Device) and light_or_group.has_socket_control:
-            newState = not bool(light_or_group.socket_control.sockets[0].state)
-            api(light_or_group.socket_control.set_state(newState))
-        else:
-            newState = not bool(light_or_group.state)
-            api(light_or_group.set_state(newState))
+            new_state = not bool(light_or_group.socket_control.sockets[0].state)
+            api(light_or_group.socket_control.set_state(new_state))
+        elif isinstance(light_or_group, Group):
+            new_state = not bool(light_or_group.state)
+            api(light_or_group.set_state(new_state))
 
