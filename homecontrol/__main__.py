@@ -24,4 +24,9 @@ scheduler.add_job(NetworkDevices.update, 'interval', seconds=15)
 # Schedule events/commands
 scheduler.add_job(Controller.update_all, 'interval', seconds=5)
 
+# from .sun import Sun
+# Sun.update()
+# Sun.is_bright()
+
+
 scheduler.start()

@@ -61,7 +61,7 @@ class ControlMatteus(Controller):
 
     def update(self):
         # Only when Matteus is home
-        if NetworkDevices.mobile_matteus.on:
+        if NetworkDevices.mobile_matteus.is_on():
             logger.debug('ControlMatteus.update(): Matteus is home')
             # Always on when it's dark outside
             if Sun.is_dark():
@@ -70,7 +70,7 @@ class ControlMatteus(Controller):
             else: # Bright outside
                 logger.debug('ControlMatteus.update(): Sun is up')
                 # Only turn on when it's cloudy and matteus is by the computer
-                if NetworkDevices.mina.on and Weather.is_cloudy():
+                if NetworkDevices.mina.is_on() and Weather.is_cloudy():
                     logger.debug('ControlMatteus.update(): Matteus computer is on and it\'s cloudy')
                     self.state = STATE_ON
 
@@ -106,7 +106,7 @@ class ControlEmma(Controller):
 
     def update(self):
         # Only when Emma's home
-        if NetworkDevices.mobile_emma:
+        if NetworkDevices.mobile_emma.is_on():
             # Between 14 and 22 + sun has set
             if Time.between(time(14), time(22)) and Sun.is_dark():
                 self.state = STATE_ON
