@@ -1,5 +1,9 @@
 import requests
+import logging
 from .config import WEATHER_URL
+
+
+logger = logging.getLogger(__name__)
 
 
 class Weather:
@@ -26,8 +30,10 @@ class Weather:
 
             if name == 'tcc':
                 Weather.cloud_cover = value
+                logger.info("Weather.cloud_cover = " + value)
             if name == 't':
                 Weather.temperature = value
+                logger.info("Weather.temperature = " + value)
 
     @staticmethod
     def is_cloudy():
