@@ -16,7 +16,7 @@ NetworkDevices.update()
 scheduler = BlockingScheduler()
 
 # Update information
-scheduler.add_job(Weather.update, 'cron', hour='*', minute=2)
+scheduler.add_job(Weather.update, 'cron', hour='*', minute=42)
 scheduler.add_job(Lights.update, 'interval', minutes=5)
 scheduler.add_job(Groups.update, 'interval', minutes=5)
 scheduler.add_job(NetworkDevices.update, 'interval', seconds=15)

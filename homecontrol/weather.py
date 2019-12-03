@@ -30,10 +30,10 @@ class Weather:
 
             if name == 'tcc':
                 Weather.cloud_cover = value
-                logger.info("Weather.cloud_cover = " + value)
+                logger.info("Weather.cloud_cover = " + str(value))
             if name == 't':
                 Weather.temperature = value
-                logger.info("Weather.temperature = " + value)
+                logger.info("Weather.temperature = " + str(value))
 
     @staticmethod
     def is_cloudy():
