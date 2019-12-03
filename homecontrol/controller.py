@@ -60,8 +60,8 @@ class ControlMatteus(Controller):
         return Groups.matteus
 
     def update(self):
-        # Only when Matteus is home
-        if NetworkDevices.mobile_matteus.is_on():
+        # Only when Matteus is home and between 10 and 03
+        if NetworkDevices.mobile_matteus.is_on() and Time.between(time(10), time(3)):
             logger.debug('ControlMatteus.update(): Matteus is home')
             # Always on when it's dark outside
             if Sun.is_dark():
@@ -112,8 +112,25 @@ class ControlEmma(Controller):
                 self.state = STATE_ON
 
 
+class ControlLEDStrip(Controller):
+    """Will only turn off the LED strip if I leave home. Will never turn it back on."""
+    def __init__(self):
+        super().__init__('LED Strip')
+
+    def _get_light_or_group(self):
+        return Lights.led_strip
+
+    def update(self):
+        if NetworkDevices.mobile_matteus.is_on():
+            self.state = STATE_ON
+
+    def _turn_on(self):
+        pass
+
+
 controllers = [
     ControlMatteus(),
     ControlCozyWinter(),
     ControlEmma(),
+    ControlLEDStrip(),
 ]
