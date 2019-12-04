@@ -128,9 +128,27 @@ class ControlLEDStrip(Controller):
         pass
 
 
+class ControlHall(Controller):
+    def __init__(self):
+        super().__init__('Hall')
+
+    def _get_light_or_group(self):
+        return Lights.hall
+
+    def update(self):
+        # Someone's home
+        if NetworkDevices.is_someone_home():
+            # 7.30-10.00
+            if Time.between(time(7, 30), time(10)):
+                # Sun is down or cloudy
+                if Sun.is_dark() or Weather.is_cloudy():
+                    self.state = STATE_ON
+
+
 controllers = [
     ControlMatteus(),
     ControlCozyWinter(),
     ControlEmma(),
     ControlLEDStrip(),
+    ControlHall(),
 ]
