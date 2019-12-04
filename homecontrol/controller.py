@@ -74,6 +74,11 @@ class ControlMatteus(Controller):
                     logger.debug('ControlMatteus.update(): Matteus computer is on and it\'s cloudy')
                     self.state = STATE_ON
 
+    def _turn_on(self):
+        # Don't turn off between 8 and 10
+        if not Time.between(time(8), time(10)):
+            super()._turn_off()
+
 
 class ControlCozyWinter(Controller):
     def __init__(self):
