@@ -32,15 +32,15 @@ class Controller:
             if control.state != last_state:
                 logger.debug('State changed from ' + last_state + ' -> ' + control.state)
                 if control.state == STATE_ON:
-                    control._turn_on()
+                    control.turn_on()
                 elif control.state == STATE_OFF:
-                    control._turn_off()
+                    control.turn_off()
 
-    def _turn_on(self):
+    def turn_on(self):
         logger.info('Turning on ' + self.name)
         TradfriGateway.turn_on(self._get_light_or_group())
 
-    def _turn_off(self):
+    def turn_off(self):
         logger.info('Turning off ' + self.name)
         TradfriGateway.turn_off(self._get_light_or_group())
 
@@ -74,10 +74,10 @@ class ControlMatteus(Controller):
                     logger.debug('ControlMatteus.update(): Matteus computer is on and it\'s cloudy')
                     self.state = STATE_ON
 
-    def _turn_on(self):
+    def turn_off(self):
         # Don't turn off between 8 and 10
         if not Time.between(time(8), time(10)):
-            super()._turn_off()
+            super().turn_off()
 
 
 class ControlCozyWinter(Controller):
@@ -129,7 +129,7 @@ class ControlLEDStrip(Controller):
         if NetworkDevices.mobile_matteus.is_on():
             self.state = STATE_ON
 
-    def _turn_on(self):
+    def turn_on(self):
         pass
 
 
