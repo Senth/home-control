@@ -164,6 +164,13 @@ class ControlHall(Controller):
                     if Sun.is_dark() or Weather.is_cloudy():
                         self.state = STATE_ON
 
+    def turn_off(self):
+        # Skip turning off some hours (interferes with ControlCozyWinter)
+        if Day.is_day(Day.MONDAY, Day.TUESDAY, Day.WEDNESDAY, Day.THURSDAY, Day.FRIDAY):
+            if Time.between(time(7), time(10, 30)):
+                super().turn_off()
+
+
 
 controllers = [
     ControlMatteus(),
