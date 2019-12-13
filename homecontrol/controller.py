@@ -3,6 +3,7 @@ from .sun import Sun
 from .networkdevice import NetworkDevices
 from .weather import Weather
 from .time import Time
+from .time import Day
 from datetime import time
 
 import logging
@@ -90,16 +91,28 @@ class ControlCozyWinter(Controller):
     def update(self):
         # Only when someone's home
         if NetworkDevices.is_someone_home():
-            # Between 13:00 and 02:00
-            if Time.between(time(13), time(2)):
-                # When the sun has set
-                if Sun.is_dark():
-                    self.state = STATE_ON
-                # Sun is up
-                else:
-                    # Cloudy outside
-                    if Weather.is_cloudy():
+            # Weekends
+            if Day.is_day(Day.SATURDAY, Day.SUNDAY):
+                if Time.between(time(9), time(2)):
+                    # Sun has set
+                    if Sun.is_dark():
                         self.state = STATE_ON
+                    # Sun is up
+                    else:
+                        # Cloudy outside
+                        if Weather.is_cloudy():
+                            self.state = STATE_ON
+            else: # Weekdays
+                # Between 13:00 and 02:00
+                if Time.between(time(13), time(2)):
+                    # When the sun has set
+                    if Sun.is_dark():
+                        self.state = STATE_ON
+                    # Sun is up
+                    else:
+                        # Cloudy outside
+                        if Weather.is_cloudy():
+                            self.state = STATE_ON
 
 
 class ControlEmma(Controller):
@@ -143,11 +156,13 @@ class ControlHall(Controller):
     def update(self):
         # Someone's home
         if NetworkDevices.is_someone_home():
-            # 7.30-10.00
-            if Time.between(time(7, 30), time(10)):
-                # Sun is down or cloudy
-                if Sun.is_dark() or Weather.is_cloudy():
-                    self.state = STATE_ON
+            # Weekdays
+            if Day.is_day(Day.MONDAY, Day.TUESDAY, Day.WEDNESDAY, Day.THURSDAY, Day.FRIDAY):
+                # 7.30-10.00
+                if Time.between(time(7, 30), time(10)):
+                    # Sun is down or cloudy
+                    if Sun.is_dark() or Weather.is_cloudy():
+                        self.state = STATE_ON
 
 
 controllers = [
