@@ -2,6 +2,7 @@ from .tradfri_gateway import Lights, Groups, TradfriGateway
 from .networkdevice import NetworkDevices
 from .weather import Weather
 from .controller import Controller
+from .schedule_runner import run_scheduled_actions
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 
@@ -24,9 +25,8 @@ scheduler.add_job(NetworkDevices.update, 'interval', seconds=15)
 # Schedule events/commands
 scheduler.add_job(Controller.update_all, 'interval', seconds=5)
 
-# from .sun import Sun
-# Sun.update()
-# Sun.is_bright()
+# Schedule checking of scheduled actions
+scheduler.add_job(run_scheduled_actions, 'interval', seconds=5)
 
 
 scheduler.start()
