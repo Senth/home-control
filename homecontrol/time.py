@@ -2,6 +2,7 @@ from time import time
 from datetime import datetime, date
 from dateutil import tz
 
+
 class Time:
     @staticmethod
     def between(start, end):
@@ -29,3 +30,16 @@ class Day:
             if date.today().weekday() == day:
                 return True
         return False
+
+
+class Date:
+    @staticmethod
+    def between(start, end):
+        now = datetime.now(tz.tzlocal())
+        now = (now.month, now.day)
+
+        # Same year
+        if start <= end:
+            return start <= now <= end
+        else: # Across the year
+            return start <= now or now <= end

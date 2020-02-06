@@ -2,8 +2,7 @@ from .tradfri_gateway import TradfriGateway, Lights, Groups
 from .sun import Sun
 from .networkdevice import NetworkDevices
 from .weather import Weather
-from .time import Time
-from .time import Day
+from .time import Time, Day, Date
 from datetime import time
 
 import logging
@@ -70,8 +69,8 @@ class ControlMatteus(Controller):
                 self.state = STATE_ON
             else: # Bright outside
                 logger.debug('ControlMatteus.update(): Sun is up')
-                # Only turn on when it's cloudy and matteus is by the computer
-                if NetworkDevices.mina.is_on() and Weather.is_cloudy():
+                # Only turn on when it's cloudy and matteus is by the computer and during winter
+                if NetworkDevices.mina.is_on() and Weather.is_cloudy() and Date.between((10, 14), (3, 14)):
                     logger.debug('ControlMatteus.update(): Matteus computer is on and it\'s cloudy')
                     self.state = STATE_ON
 
@@ -103,8 +102,7 @@ class ControlCozyWinter(Controller):
                         if Weather.is_cloudy():
                             self.state = STATE_ON
             else: # Weekdays
-                # Between 13:00 and 02:00
-                if Time.between(time(13), time(2)):
+                if Time.between(time(7, 30), time(2)):
                     # When the sun has set
                     if Sun.is_dark():
                         self.state = STATE_ON
@@ -130,16 +128,32 @@ class ControlEmma(Controller):
                 self.state = STATE_ON
 
 
-class ControlLEDStrip(Controller):
-    """Will only turn off the LED strip if I leave home. Will never turn it back on."""
+class ControlMatteusTurnOff(Controller):
+    """Will only turn off lights in Matteus if I leave home. Will never turn it back on."""
     def __init__(self):
-        super().__init__('LED Strip')
+        super().__init__('Turn off Matteus')
 
     def _get_light_or_group(self):
-        return Lights.led_strip
+        return [Lights.led_strip, Groups.matteus, Lights.bamboo]
 
     def update(self):
         if NetworkDevices.mobile_matteus.is_on():
+            self.state = STATE_ON
+
+    def turn_on(self):
+        pass
+
+
+class ControlTurnOffLights(Controller):
+    """Will only turn off lights (when we leave home if some lights were turned on manually)"""
+    def __init__(self):
+        super().__init__('Turn off all lights')
+
+    def _get_light_or_group(self):
+        return [Groups.cozy, Lights.hall, Lights.ceiling]
+
+    def update(self):
+        if NetworkDevices.is_someone_home():
             self.state = STATE_ON
 
     def turn_on(self):
@@ -171,11 +185,27 @@ class ControlHall(Controller):
                 super().turn_off()
 
 
+class ControlSunLamp(Controller):
+    def __init__(self):
+        super().__init__('Sun Lamp')
+
+    def _get_light_or_group(self):
+        return Lights.sun_lamp
+
+    def update(self):
+        # 4 - 8
+        if Time.between(time(4), time(8)):
+            # If sun is not up or cloudy
+            if Sun.is_down() or Weather.is_cloudy():
+                self.state = STATE_ON
+
 
 controllers = [
     ControlMatteus(),
     ControlCozyWinter(),
-    ControlEmma(),
-    ControlLEDStrip(),
-    ControlHall(),
+    # ControlEmma(),
+    # ControlHall(),
+    ControlSunLamp(),
+    ControlMatteusTurnOff(),
+    ControlTurnOffLights(),
 ]
