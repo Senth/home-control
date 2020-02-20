@@ -1,0 +1,29 @@
+from .executor import Executor
+import logging
+import json
+import socket
+
+
+logger = logging.getLogger(__name__)
+
+
+class SocketServer:
+    @staticmethod
+    def run():
+        logger.debug("SocketServer.run() Starting server")
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.bind(('localhost', 10200))
+            sock.listen(10)
+            while True:
+                try:
+                    conn, address = sock.accept()
+                    with conn:
+                        logger.debug("SocketServer.run() Connected by " + str(address))
+                        json_string = conn.recv(4096)
+                        data = json.loads(json_string)
+                        logger.debug("SocketServer.run() Json: " + str(data))
+                        executor = Executor(data)
+                        executor.execute()
+                except (RuntimeError, json.JSONDecodeError, KeyError):
+                    logger.warning("SocketServer.run() Error parsing json")
+                    pass

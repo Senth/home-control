@@ -3,6 +3,7 @@ from .networkdevice import NetworkDevices
 from .weather import Weather
 from .controller import Controller
 from .schedule_runner import run_scheduled_actions
+from .socket_server import SocketServer
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 
@@ -28,5 +29,8 @@ scheduler.add_job(Controller.update_all, 'interval', seconds=5)
 # Schedule checking of scheduled actions
 scheduler.add_job(run_scheduled_actions, 'interval', seconds=5)
 
+# Start the socket interface
+scheduler.add_job(SocketServer.run)
+# scheduler.add_job(SocketServer.test)
 
 scheduler.start()

@@ -37,7 +37,7 @@ class Weather:
 
     @staticmethod
     def is_cloudy():
-        return Weather.cloud_cover >= 3
+        return Weather.cloud_cover >= 4
 
     @staticmethod
     def update():

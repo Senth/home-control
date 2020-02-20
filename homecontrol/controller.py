@@ -15,6 +15,33 @@ STATE_OFF = "off"
 logger = logging.getLogger(__name__)
 
 
+def _calculate_ambient():
+    # Only when someone's home
+    if NetworkDevices.is_someone_home():
+        # Weekends
+        if Day.is_day(Day.SATURDAY, Day.SUNDAY):
+            if Time.between(time(9), time(2)):
+                # Sun has set
+                if Sun.is_dark():
+                    return STATE_ON
+                # Sun is up
+                else:
+                    # Cloudy outside
+                    if Weather.is_cloudy():
+                        return STATE_ON
+        else:  # Weekdays
+            if Time.between(time(7, 30), time(2)):
+                # When the sun has set
+                if Sun.is_dark():
+                    return STATE_ON
+                # Sun is up
+                else:
+                    # Cloudy outside
+                    if Weather.is_cloudy():
+                        return STATE_ON
+    return STATE_OFF
+
+
 class Controller:
     def __init__(self, name):
         self.state = STATE_NA
@@ -23,18 +50,18 @@ class Controller:
     @staticmethod
     def update_all():
         logger.debug('Updating controllers')
-        for control in controllers:
-            logger.debug('Updating control: ' + control.name)
-            last_state = control.state
-            control.state = STATE_OFF
-            control.update()
+        for controller in controllers:
+            logger.debug('Updating controller: ' + controller.name)
+            last_state = controller.state
+            controller.state = STATE_OFF
+            controller.update()
 
-            if control.state != last_state:
-                logger.debug('State changed from ' + last_state + ' -> ' + control.state)
-                if control.state == STATE_ON:
-                    control.turn_on()
-                elif control.state == STATE_OFF:
-                    control.turn_off()
+            if controller.state != last_state:
+                logger.debug('State changed from ' + last_state + ' -> ' + controller.state)
+                if controller.state == STATE_ON:
+                    controller.turn_on()
+                elif controller.state == STATE_OFF:
+                    controller.turn_off()
 
     def turn_on(self):
         logger.info('Turning on ' + self.name)
@@ -57,7 +84,7 @@ class ControlMatteus(Controller):
         super().__init__('Matteus')
 
     def _get_light_or_group(self):
-        return Groups.matteus
+        return [Lights.cylinder, Lights.billy]
 
     def update(self):
         # Only when Matteus is home and between 10 and 03
@@ -67,11 +94,33 @@ class ControlMatteus(Controller):
             if Sun.is_dark():
                 logger.debug('ControlMatteus.update(): Sun is down')
                 self.state = STATE_ON
-            else: # Bright outside
-                logger.debug('ControlMatteus.update(): Sun is up')
+
+    def turn_off(self):
+        # Don't turn off between 8 and 10
+        if not Time.between(time(8), time(10)):
+            super().turn_off()
+
+
+class ControlMonitor(Controller):
+    def __init__(self):
+        super().__init__('Monitor')
+
+    def _get_light_or_group(self):
+        return Lights.monitor
+
+    def update(self):
+        # Only when Matteus is home and between 10 and 03
+        if NetworkDevices.mobile_matteus.is_on() and Time.between(time(10), time(3)):
+            logger.debug('ControlMonitor.update(): Matteus is home')
+            # Always on when it's dark outside
+            if Sun.is_dark():
+                logger.debug('ControlMonitor.update(): Sun is down')
+                self.state = STATE_ON
+            else:  # Bright outside
+                logger.debug('ControlMonitor.update(): Sun is up')
                 # Only turn on when it's cloudy and matteus is by the computer and during winter
                 if NetworkDevices.mina.is_on() and Weather.is_cloudy() and Date.between((10, 14), (3, 14)):
-                    logger.debug('ControlMatteus.update(): Matteus computer is on and it\'s cloudy')
+                    logger.debug('ControlMonitor.update(): Matteus computer is on and it\'s cloudy')
                     self.state = STATE_ON
 
     def turn_off(self):
@@ -80,37 +129,33 @@ class ControlMatteus(Controller):
             super().turn_off()
 
 
-class ControlCozyWinter(Controller):
+class ControlAmbient(Controller):
     def __init__(self):
-        super().__init__('Cozy')
+        super().__init__('Ambient')
 
     def _get_light_or_group(self):
-        return [Groups.cozy, Lights.hall]
+        # Winter lights
+        if Date.between((11, 28), (1, 31)):
+            return [Groups.cozy, Lights.hall, Lights.micro]
+        else: # Regular lights
+            return [Lights.hall, Lights.ball]
 
     def update(self):
-        # Only when someone's home
-        if NetworkDevices.is_someone_home():
-            # Weekends
-            if Day.is_day(Day.SATURDAY, Day.SUNDAY):
-                if Time.between(time(9), time(2)):
-                    # Sun has set
-                    if Sun.is_dark():
-                        self.state = STATE_ON
-                    # Sun is up
-                    else:
-                        # Cloudy outside
-                        if Weather.is_cloudy():
-                            self.state = STATE_ON
-            else: # Weekdays
-                if Time.between(time(7, 30), time(2)):
-                    # When the sun has set
-                    if Sun.is_dark():
-                        self.state = STATE_ON
-                    # Sun is up
-                    else:
-                        # Cloudy outside
-                        if Weather.is_cloudy():
-                            self.state = STATE_ON
+        self.state = _calculate_ambient()
+
+
+class ControlWindows(Controller):
+    def __init__(self):
+        super().__init__('Windows')
+
+    def _get_light_or_group(self):
+        return [Lights.window, Lights.micro]
+
+    def update(self):
+        # Only active when it's not winter
+        if Date.between((2, 1), (11, 27)):
+            if Sun.is_dark():
+                self.state = _calculate_ambient()
 
 
 class ControlEmma(Controller):
@@ -144,6 +189,27 @@ class ControlMatteusTurnOff(Controller):
         pass
 
 
+class ControlLedStripOff(Controller):
+    """Will only turn off the LED strip if TV is on and Matteus is the only one home"""
+    def __init__(self):
+        super().__init__('Turn off LED Strip')
+
+    def _get_light_or_group(self):
+        return Lights.led_strip
+
+    def update(self):
+        self.state = STATE_ON
+
+        # Only if Matteus is alone home
+        if NetworkDevices.mobile_matteus.is_on() and not NetworkDevices.mobile_emma.is_on():
+            # Only if TV is on
+            if NetworkDevices.tv.is_on():
+                self.state = STATE_OFF
+
+    def turn_on(self):
+        pass
+
+
 class ControlTurnOffLights(Controller):
     """Will only turn off lights (when we leave home if some lights were turned on manually)"""
     def __init__(self):
@@ -160,31 +226,6 @@ class ControlTurnOffLights(Controller):
         pass
 
 
-class ControlHall(Controller):
-    def __init__(self):
-        super().__init__('Hall')
-
-    def _get_light_or_group(self):
-        return Lights.hall
-
-    def update(self):
-        # Someone's home
-        if NetworkDevices.is_someone_home():
-            # Weekdays
-            if Day.is_day(Day.MONDAY, Day.TUESDAY, Day.WEDNESDAY, Day.THURSDAY, Day.FRIDAY):
-                # 7.30-10.00
-                if Time.between(time(7, 30), time(10)):
-                    # Sun is down or cloudy
-                    if Sun.is_dark() or Weather.is_cloudy():
-                        self.state = STATE_ON
-
-    def turn_off(self):
-        # Skip turning off some hours (interferes with ControlCozyWinter)
-        if Day.is_day(Day.MONDAY, Day.TUESDAY, Day.WEDNESDAY, Day.THURSDAY, Day.FRIDAY):
-            if Time.between(time(7), time(10, 30)):
-                super().turn_off()
-
-
 class ControlSunLamp(Controller):
     def __init__(self):
         super().__init__('Sun Lamp')
@@ -193,7 +234,6 @@ class ControlSunLamp(Controller):
         return Lights.sun_lamp
 
     def update(self):
-        # 4 - 8
         if Time.between(time(4), time(8)):
             # If sun is not up or cloudy
             if Sun.is_down() or Weather.is_cloudy():
@@ -202,10 +242,12 @@ class ControlSunLamp(Controller):
 
 controllers = [
     ControlMatteus(),
-    ControlCozyWinter(),
+    ControlMonitor(),
+    ControlAmbient(),
+    ControlWindows(),
     # ControlEmma(),
-    # ControlHall(),
     ControlSunLamp(),
     ControlMatteusTurnOff(),
+    ControlLedStripOff(),
     ControlTurnOffLights(),
 ]

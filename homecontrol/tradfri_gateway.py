@@ -28,13 +28,15 @@ class Lights:
     cylinder = "Cylinder lamp"
     micro = "Micro lights"
 
+    devices = []
+
     """Bind all lights to the correct pytradfri light"""
     @staticmethod
     def update():
         command = api(gateway.get_devices())
-        devices = api(command)
+        Lights.devices = api(command)
 
-        for device in devices:
+        for device in Lights.devices:
             if Lights.window == device.name or (isinstance(Lights.window, Device) and Lights.window.has_socket_control and Lights.window.id == device.id):
                 Lights.window = device
             elif Lights.ball == device.name or (isinstance(Lights.ball, Device) and Lights.ball.has_socket_control and Lights.ball.id == device.id):
@@ -60,25 +62,41 @@ class Lights:
             elif Lights.micro == device.name or (isinstance(Lights.micro, Device) and Lights.micro.has_socket_control and Lights.micro.id == device.id):
                 Lights.micro = device
             elif device.has_light_control or device.has_socket_control:
-                logger.warn("Didn't update/bind device: " + str(device))
+                logger.warning("Didn't update/bind device: " + str(device))
+
+    @staticmethod
+    def find_light(name):
+        for device in Lights.devices:
+            if device.name.lower() == name.lower():
+                return device
+        return None
 
 
 class Groups:
     matteus = "Matteus"
     cozy = "Vardagsrum (mys)"
 
+    groups = []
+
     @staticmethod
     def update():
         command = api(gateway.get_groups())
-        groups = api(command)
+        Groups.groups = api(command)
 
-        for group in groups:
+        for group in Groups.groups:
             if Groups.matteus == group.name or (isinstance(Groups.matteus, Group) and Groups.matteus.id == group.id):
                 Groups.matteus = group
             elif Groups.cozy == group.name or (isinstance(Groups.cozy, Group) and Groups.cozy.id == group.id):
                 Groups.cozy = group
             else:
-                logger.warn("Didn't update/bind group: " + str(group))
+                logger.warning("Didn't update/bind group: " + str(group))
+
+    @staticmethod
+    def find_group(name):
+        for group in Groups.groups:
+            if group.name.lower() == name.lower():
+                return group
+        return None
 
 
 class TradfriGateway:
@@ -120,6 +138,7 @@ class TradfriGateway:
         Toggle a light or group
         :param light_or_group: Can be either a light or group. Can be a list of lights and groups
         """
+
         if isinstance(light_or_group, list):
             for i in light_or_group:
                 TradfriGateway.toggle(i)
@@ -133,3 +152,23 @@ class TradfriGateway:
             new_state = not bool(light_or_group.state)
             api(light_or_group.set_state(new_state))
 
+    @staticmethod
+    def dim(light_or_group, value, transition_time=10):
+        """
+        Dim a light or group
+        :param light_or_group: Can be either a light or group. Can be a list of lights and groups
+        :param value the dim value between 0 and 254
+        :param transition_time time in 100ms for it to transition
+        """
+        if isinstance(light_or_group, Device):
+            logger.debug("TradfriGateway.dim() Dim {} to {} with transition time {}."
+                         .format(light_or_group.name, value, transition_time))
+
+        if isinstance(light_or_group, list):
+            for i in light_or_group:
+                TradfriGateway.dim(i, value, transition_time)
+        elif isinstance(light_or_group, Device) and light_or_group.has_light_control:
+            if light_or_group.light_control.can_set_dimmer:
+                api(light_or_group.light_control.set_dimmer(value, transition_time=transition_time))
+        elif isinstance(light_or_group, Group):
+            api(light_or_group.set_dimmer(value, transition_time=transition_time))
