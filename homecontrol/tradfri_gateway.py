@@ -1,7 +1,10 @@
+from time import sleep
+
 from pytradfri import Gateway
 from pytradfri.device import Device
 from pytradfri.group import Group
 from pytradfri.api.libcoap_api import APIFactory, _LOGGER
+from pytradfri.error import RequestTimeout
 from .config import HOST, IDENTITY, KEY
 import logging
 
@@ -12,6 +15,24 @@ api_factory = APIFactory(host=HOST, psk_id=IDENTITY, psk=KEY)
 
 api = api_factory.request
 gateway = Gateway()
+
+
+def try_several_times(command, recursive=False, max_tries=10):
+    try_count = 1
+    while True:
+        try:
+            response = api(command)
+            if recursive:
+                response = api(response)
+            return response
+        except RequestTimeout:
+            try_count += 1
+            logger.info('try_several_times() Failed to run command, trying again... (try #{})'.format(try_count))
+            sleep(1)
+
+            if try_count > max_tries:
+                TradfriGateway.reboot()
+                raise
 
 
 class Lights:
@@ -30,11 +51,10 @@ class Lights:
 
     devices = []
 
-    """Bind all lights to the correct pytradfri light"""
     @staticmethod
     def update():
-        command = api(gateway.get_devices())
-        Lights.devices = api(command)
+        """Bind all lights to the correct pytradfri light"""
+        Lights.devices = try_several_times(gateway.get_devices(), recursive=True)
 
         for device in Lights.devices:
             if Lights.window == device.name or (isinstance(Lights.window, Device) and Lights.window.has_socket_control and Lights.window.id == device.id):
@@ -69,25 +89,47 @@ class Lights:
         for device in Lights.devices:
             if device.name.lower() == name.lower():
                 return device
-        return None
 
 
 class Groups:
     matteus = "Matteus"
+    living_room = "Vardagsrum"
     cozy = "Vardagsrum (mys)"
+    bamboo = "Bamboo"
+    emma = "Emma"
+    hall = "Hallen"
+    matteus_led_strip = "Matteus (LED strip)"
+    sun = "Sun"
+    kitchen = "Köket"
 
     groups = []
+    moods = {}
 
     @staticmethod
     def update():
-        command = api(gateway.get_groups())
-        Groups.groups = api(command)
+        Groups.groups = try_several_times(gateway.get_groups(), recursive=True)
 
         for group in Groups.groups:
+            Groups.moods[group.id] = try_several_times(group.moods(), recursive=True)
+
             if Groups.matteus == group.name or (isinstance(Groups.matteus, Group) and Groups.matteus.id == group.id):
                 Groups.matteus = group
+            elif Groups.living_room == group.name or (isinstance(Groups.living_room, Group) and Groups.living_room.id == group.id):
+                Groups.living_room = group
             elif Groups.cozy == group.name or (isinstance(Groups.cozy, Group) and Groups.cozy.id == group.id):
                 Groups.cozy = group
+            elif Groups.bamboo == group.name or (isinstance(Groups.bamboo, Group) and Groups.bamboo.id == group.id):
+                Groups.bamboo = group
+            elif Groups.emma == group.name or (isinstance(Groups.emma, Group) and Groups.emma.id == group.id):
+                Groups.emma = group
+            elif Groups.hall == group.name or (isinstance(Groups.hall, Group) and Groups.hall.id == group.id):
+                Groups.hall = group
+            elif Groups.matteus_led_strip == group.name or (isinstance(Groups.matteus_led_strip, Group) and Groups.matteus_led_strip.id == group.id):
+                Groups.matteus_led_strip = group
+            elif Groups.sun == group.name or (isinstance(Groups.sun, Group) and Groups.sun.id == group.id):
+                Groups.sun = group
+            elif Groups.kitchen == group.name or (isinstance(Groups.kitchen, Group) and Groups.kitchen.id == group.id):
+                Groups.kitchen = group
             else:
                 logger.warning("Didn't update/bind group: " + str(group))
 
@@ -96,10 +138,43 @@ class Groups:
         for group in Groups.groups:
             if group.name.lower() == name.lower():
                 return group
-        return None
+
+    @staticmethod
+    def find_mood(group, mood_name=None, mood_id=None):
+        moods = Groups.moods[group.id]
+
+        if mood_id:
+            for mood in moods:
+                if mood_id == mood.id:
+                    return mood
+
+        if mood_name:
+            for mood in moods:
+                if mood_name.lower() == mood.name.lower():
+                    return mood
+
+    @staticmethod
+    def set_mood(group, mood_name=None, mood_id=None):
+        # Get mood id
+        if mood_name and not mood_id:
+            mood = Groups.find_mood(group, mood_name=mood_name)
+
+            if mood:
+                mood_id = mood.id
+            else:
+                logger.warning("Groups.set_mood() No mood found with the name {}.".format(mood_name))
+
+        if mood_id:
+            logger.debug("Groups.set_mood() Setting mood to {} in {}.".format(mood_name, group.name))
+            api(group.activate_mood(mood_id))
 
 
 class TradfriGateway:
+    @staticmethod
+    def reboot():
+        """Reboot the gateway"""
+        try_several_times(gateway.reboot())
+
     @staticmethod
     def turn_on(light_or_group):
         """

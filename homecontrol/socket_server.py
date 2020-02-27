@@ -24,6 +24,5 @@ class SocketServer:
                         logger.debug("SocketServer.run() Json: " + str(data))
                         executor = Executor(data)
                         executor.execute()
-                except (RuntimeError, json.JSONDecodeError, KeyError):
-                    logger.warning("SocketServer.run() Error parsing json")
-                    pass
+                except (Exception, RuntimeError) as e:
+                    logger.exception("SocketServer.run() Error parsing json or running command " + repr(e))

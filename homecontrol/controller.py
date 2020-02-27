@@ -1,6 +1,6 @@
 from .tradfri_gateway import TradfriGateway, Lights, Groups
 from .sun import Sun
-from .networkdevice import NetworkDevices
+from .network import Network
 from .weather import Weather
 from .time import Time, Day, Date
 from datetime import time
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 def _calculate_ambient():
     # Only when someone's home
-    if NetworkDevices.is_someone_home():
+    if Network.is_someone_home():
         # Weekends
         if Day.is_day(Day.SATURDAY, Day.SUNDAY):
             if Time.between(time(9), time(2)):
@@ -88,7 +88,7 @@ class ControlMatteus(Controller):
 
     def update(self):
         # Only when Matteus is home and between 10 and 03
-        if NetworkDevices.mobile_matteus.is_on() and Time.between(time(10), time(3)):
+        if (Network.mobile_matteus.is_on() or Network.is_guest_home()) and Time.between(time(10), time(3)):
             logger.debug('ControlMatteus.update(): Matteus is home')
             # Always on when it's dark outside
             if Sun.is_dark():
@@ -110,7 +110,7 @@ class ControlMonitor(Controller):
 
     def update(self):
         # Only when Matteus is home and between 10 and 03
-        if NetworkDevices.mobile_matteus.is_on() and Time.between(time(10), time(3)):
+        if (Network.mobile_matteus.is_on() or Network.is_guest_home()) and Time.between(time(8), time(3)):
             logger.debug('ControlMonitor.update(): Matteus is home')
             # Always on when it's dark outside
             if Sun.is_dark():
@@ -119,7 +119,7 @@ class ControlMonitor(Controller):
             else:  # Bright outside
                 logger.debug('ControlMonitor.update(): Sun is up')
                 # Only turn on when it's cloudy and matteus is by the computer and during winter
-                if NetworkDevices.mina.is_on() and Weather.is_cloudy() and Date.between((10, 14), (3, 14)):
+                if Network.mina.is_on() and Weather.is_cloudy() and Date.between((10, 14), (3, 14)):
                     logger.debug('ControlMonitor.update(): Matteus computer is on and it\'s cloudy')
                     self.state = STATE_ON
 
@@ -167,7 +167,7 @@ class ControlEmma(Controller):
 
     def update(self):
         # Only when Emma's home
-        if NetworkDevices.mobile_emma.is_on():
+        if Network.mobile_emma.is_on() or Network.is_guest_home():
             # Between 14 and 22 + sun has set
             if Time.between(time(14), time(22)) and Sun.is_dark():
                 self.state = STATE_ON
@@ -182,7 +182,7 @@ class ControlMatteusTurnOff(Controller):
         return [Lights.led_strip, Groups.matteus, Lights.bamboo]
 
     def update(self):
-        if NetworkDevices.mobile_matteus.is_on():
+        if Network.mobile_matteus.is_on() or Network.is_guest_home():
             self.state = STATE_ON
 
     def turn_on(self):
@@ -201,9 +201,9 @@ class ControlLedStripOff(Controller):
         self.state = STATE_ON
 
         # Only if Matteus is alone home
-        if NetworkDevices.mobile_matteus.is_on() and not NetworkDevices.mobile_emma.is_on():
+        if Network.mobile_matteus.is_on() and not Network.mobile_emma.is_on() and not Network.is_guest_home():
             # Only if TV is on
-            if NetworkDevices.tv.is_on():
+            if Network.tv.is_on():
                 self.state = STATE_OFF
 
     def turn_on(self):
@@ -219,7 +219,7 @@ class ControlTurnOffLights(Controller):
         return [Groups.cozy, Lights.hall, Lights.ceiling]
 
     def update(self):
-        if NetworkDevices.is_someone_home():
+        if Network.is_someone_home():
             self.state = STATE_ON
 
     def turn_on(self):
@@ -246,7 +246,7 @@ controllers = [
     ControlAmbient(),
     ControlWindows(),
     # ControlEmma(),
-    ControlSunLamp(),
+#     ControlSunLamp(),
     ControlMatteusTurnOff(),
     ControlLedStripOff(),
     ControlTurnOffLights(),

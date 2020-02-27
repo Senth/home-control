@@ -23,14 +23,22 @@ class Executor:
         if 'name' in self._data:
             names = self._data['name'].split(';')
             for name in names:
-                trimmed_name = name.strip()
-                light = Lights.find_light(trimmed_name)
+                # Remove 'the ' that we get from IFTTT google assistant
+                fixed_name = name.lower().replace('the', '')
+                fixed_name = fixed_name.strip()
+
+                light = Lights.find_light(fixed_name)
                 if light:
                     self._lights_and_groups.append(light)
                     continue
 
-                group = Groups.find_group(trimmed_name)
+                group = Groups.find_group(fixed_name)
                 if group:
+                    # Special case, moods can only handle one group
+                    if 'mood' in self._data:
+                        self._lights_and_groups = group
+                        return
+
                     self._lights_and_groups.append(group)
                     continue
 
@@ -89,10 +97,15 @@ class Executor:
             else:
                 return TradfriGateway.dim, [self._lights_and_groups, value], {}
 
-        # TODO Set Scene
+        # Set Mood
+        elif action == 'mood' and 'mood' in self._data:
+            mood_name = self._data['mood']
+            logger.debug('Executor.get_action_function() Turn on mood: ' + mood_name)
+            return Groups.set_mood, [self._lights_and_groups], {"mood_name": mood_name}
 
         # TODO Start Effect
 
+        logger.warning("Executor.get_action_function() Action {} not found/implemented.".format(action))
         return None
 
     def is_delay(self):
