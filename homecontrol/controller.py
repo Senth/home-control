@@ -158,21 +158,6 @@ class ControlWindows(Controller):
                 self.state = _calculate_ambient()
 
 
-class ControlEmma(Controller):
-    def __init__(self):
-        super().__init__('Emma')
-
-    def _get_light_or_group(self):
-        return Lights.emma
-
-    def update(self):
-        # Only when Emma's home
-        if Network.mobile_emma.is_on() or Network.is_guest_home():
-            # Between 14 and 22 + sun has set
-            if Time.between(time(14), time(22)) and Sun.is_dark():
-                self.state = STATE_ON
-
-
 class ControlMatteusTurnOff(Controller):
     """Will only turn off lights in Matteus if I leave home. Will never turn it back on."""
     def __init__(self):
@@ -205,6 +190,22 @@ class ControlLedStripOff(Controller):
             # Only if TV is on
             if Network.tv.is_on():
                 self.state = STATE_OFF
+
+    def turn_on(self):
+        pass
+
+
+class ControlTurnOffEmma(Controller):
+    def __init__(self):
+        super().__init__('Turn off Emma lights')
+
+    def _get_light_or_group(self):
+        return Groups.emma
+
+    def update(self):
+        # Turn off if Emma isn't home and there's no guest
+        if Network.mobile_emma.is_on() or Network.is_guest_home():
+            self.state = STATE_ON
 
     def turn_on(self):
         pass
@@ -245,9 +246,9 @@ controllers = [
     ControlMonitor(),
     ControlAmbient(),
     ControlWindows(),
-    # ControlEmma(),
 #     ControlSunLamp(),
     ControlMatteusTurnOff(),
     ControlLedStripOff(),
+    ControlTurnOffEmma(),
     ControlTurnOffLights(),
 ]

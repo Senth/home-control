@@ -17,12 +17,14 @@ class Device:
         Device._devices.append(self)
 
     def turned_on(self):
-        logger.info('Device: {} turned on'.format(self.name))
-        self._on = True
+        if not self._on:
+            logger.info('Device: {} turned on'.format(self.name))
+            self._on = True
 
     def turned_off(self):
-        logger.info('Device: {} turned off'.format(self.name))
-        self._on = False
+        if self._on:
+            logger.info('Device: {} turned off'.format(self.name))
+            self._on = False
 
     def is_on(self):
         return self._on
@@ -116,7 +118,10 @@ class UnifiApi:
 
     def get_client(self, mac_address):
         """Tries to find the client with the specified mac address. Returns None if it hasn't been active yet"""
-        return self.clients[mac_address]
+        if mac_address in self.clients:
+            return self.clients[mac_address]
+        else:
+            return None
 
     def is_guest_active(self):
         """Checks the last 5 minutes"""
@@ -137,11 +142,12 @@ class UnifiApi:
                     else:
                         logger.info('Guest went away')
 
+
 class Network:
     _unifi = UnifiApi()
 
     mina = NetworkDevice("192.168.0.248", 'Cerina', updates_every=10, off_times=2, timeout=1)
-    tv = UnifiDevice('TV', '74:40:be:5a:2d:5e', _unifi, max_off_time=60)
+    tv = NetworkDevice("192.168.0.2", "TV", updates_every=30, off_times=3, timeout=4)
     mobile_matteus = UnifiDevice('Mobile Matteus', '04:d6:aa:62:d5:ae', _unifi, max_off_time=240)
     mobile_emma = UnifiDevice('Mobile Emma', '6c:c7:ec:ee:e2:7f', _unifi, max_off_time=420)
 

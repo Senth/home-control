@@ -39,7 +39,6 @@ class Lights:
     window = "Window lights"
     ball = "Ball lights"
     ceiling = "Ceiling light"
-    emma = "Emma"
     sun_lamp = "Sun lamp"
     led_strip = "LED strip"
     monitor = "Monitor lights"
@@ -48,6 +47,10 @@ class Lights:
     hall = "Hall light"
     cylinder = "Cylinder lamp"
     micro = "Micro lights"
+    emma_star = "Stjärnan lampa"
+    emma_billy = "Bokhylla lampa"
+    emma_salt = "Salt lampa"
+    emma_slinga = "Ljusslinga lampa"
 
     devices = []
 
@@ -63,8 +66,6 @@ class Lights:
                 Lights.ball = device
             elif Lights.ceiling == device.name or (isinstance(Lights.ceiling, Device) and Lights.ceiling.has_light_control and Lights.ceiling.id == device.id):
                 Lights.ceiling = device
-            elif Lights.emma == device.name or (isinstance(Lights.emma, Device) and Lights.emma.has_socket_control and Lights.emma.id == device.id):
-                Lights.emma = device
             elif Lights.sun_lamp == device.name or (isinstance(Lights.sun_lamp, Device) and Lights.sun_lamp.has_socket_control and Lights.sun_lamp.id == device.id):
                 Lights.sun_lamp = device
             elif Lights.led_strip == device.name or (isinstance(Lights.led_strip, Device) and Lights.led_strip.has_socket_control and Lights.led_strip.id == device.id):
@@ -81,6 +82,14 @@ class Lights:
                 Lights.cylinder = device
             elif Lights.micro == device.name or (isinstance(Lights.micro, Device) and Lights.micro.has_socket_control and Lights.micro.id == device.id):
                 Lights.micro = device
+            elif Lights.emma_star == device.name or (isinstance(Lights.emma_star, Device) and Lights.emma_star.has_socket_control and Lights.emma_star.id == device.id):
+                Lights.emma_star = device
+            elif Lights.emma_billy == device.name or (isinstance(Lights.emma_billy, Device) and Lights.emma_billy.has_socket_control and Lights.emma_billy.id == device.id):
+                Lights.emma_billy = device
+            elif Lights.emma_salt == device.name or (isinstance(Lights.emma_salt, Device) and Lights.emma_salt.has_socket_control and Lights.emma_salt.id == device.id):
+                Lights.emma_salt = device
+            elif Lights.emma_slinga == device.name or (isinstance(Lights.emma_slinga, Device) and Lights.emma_slinga.has_socket_control and Lights.emma_slinga.id == device.id):
+                Lights.emma_slinga = device
             elif device.has_light_control or device.has_socket_control:
                 logger.warning("Didn't update/bind device: " + str(device))
 
@@ -166,7 +175,7 @@ class Groups:
 
         if mood_id:
             logger.debug("Groups.set_mood() Setting mood to {} in {}.".format(mood_name, group.name))
-            api(group.activate_mood(mood_id))
+            try_several_times(group.activate_mood(mood_id))
 
 
 class TradfriGateway:
@@ -185,65 +194,60 @@ class TradfriGateway:
             for i in light_or_group:
                 TradfriGateway.turn_on(i)
         elif isinstance(light_or_group, Device) and light_or_group.has_light_control:
-            api(light_or_group.light_control.set_state(1))
+            try_several_times(light_or_group.light_control.set_state(1))
         elif isinstance(light_or_group, Device) and light_or_group.has_socket_control:
-            api(light_or_group.socket_control.set_state(1))
+            try_several_times(light_or_group.socket_control.set_state(1))
         elif isinstance(light_or_group, Group):
-            api(light_or_group.set_state(1))
+            try_several_times(light_or_group.set_state(1))
 
     @staticmethod
     def turn_off(light_or_group):
-        """
-        Turn off a light or group
-        :param light_or_group: Can be either a light or group. Can be a list of lights and groups
-        """
+        """ Turn off a light or group
+        :param light_or_group: Can be either a light or group. Can be a list of
+        lights and groups """
+        
         if isinstance(light_or_group, list):
-            for i in light_or_group:
-                TradfriGateway.turn_off(i)
-        elif isinstance(light_or_group, Device) and light_or_group.has_light_control:
-            api(light_or_group.light_control.set_state(0))
+            for i in light_or_group: TradfriGateway.turn_off(i)
+        elif isinstance(light_or_group,Device) and light_or_group.has_light_control:
+            try_several_times(light_or_group.light_control.set_state(0))
         elif isinstance(light_or_group, Device) and light_or_group.has_socket_control:
-            api(light_or_group.socket_control.set_state(0))
+            try_several_times(light_or_group.socket_control.set_state(0))
         elif isinstance(light_or_group, Group):
-            api(light_or_group.set_state(0))
+                try_several_times(light_or_group.set_state(0))
 
     @staticmethod
     def toggle(light_or_group):
-        """
-        Toggle a light or group
-        :param light_or_group: Can be either a light or group. Can be a list of lights and groups
-        """
+        """ Toggle a light or group
+        :param light_or_group: Can be either a light or group. Can be a list of
+        lights and groups """
 
         if isinstance(light_or_group, list):
             for i in light_or_group:
                 TradfriGateway.toggle(i)
         elif isinstance(light_or_group, Device) and light_or_group.has_light_control:
             new_state = not bool(light_or_group.light_control.lights[0].state)
-            api(light_or_group.light_control.set_state(new_state))
+            try_several_times(light_or_group.light_control.set_state(new_state))
         elif isinstance(light_or_group, Device) and light_or_group.has_socket_control:
             new_state = not bool(light_or_group.socket_control.sockets[0].state)
-            api(light_or_group.socket_control.set_state(new_state))
+            try_several_times(light_or_group.socket_control.set_state(new_state))
         elif isinstance(light_or_group, Group):
             new_state = not bool(light_or_group.state)
-            api(light_or_group.set_state(new_state))
+            try_several_times(light_or_group.set_state(new_state))
 
     @staticmethod
     def dim(light_or_group, value, transition_time=10):
-        """
-        Dim a light or group
-        :param light_or_group: Can be either a light or group. Can be a list of lights and groups
-        :param value the dim value between 0 and 254
-        :param transition_time time in 100ms for it to transition
-        """
+        """ Dim a light or group :param light_or_group: Can be either a light or group. Can
+        be a list of lights and groups :param value the dim value between 0 and 254
+        :param transition_time time in 100ms for it to transition """
         if isinstance(light_or_group, Device):
-            logger.debug("TradfriGateway.dim() Dim {} to {} with transition time {}."
-                         .format(light_or_group.name, value, transition_time))
+            logger.debug("TradfriGateway.dim() Dim{} to {} with transition time {}.".format(light_or_group.name, value, transition_time))
 
         if isinstance(light_or_group, list):
             for i in light_or_group:
                 TradfriGateway.dim(i, value, transition_time)
         elif isinstance(light_or_group, Device) and light_or_group.has_light_control:
             if light_or_group.light_control.can_set_dimmer:
-                api(light_or_group.light_control.set_dimmer(value, transition_time=transition_time))
+                try_several_times(light_or_group.light_control.set_dimmer(value, transition_time=transition_time))
         elif isinstance(light_or_group, Group):
-            api(light_or_group.set_dimmer(value, transition_time=transition_time))
+            try_several_times(light_or_group.set_dimmer(value, transition_time=transition_time))
+
