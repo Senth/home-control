@@ -1,6 +1,7 @@
 import requests
 import logging
 from .config import WEATHER_URL
+from .time import Date
 
 
 logger = logging.getLogger(__name__)
@@ -37,7 +38,15 @@ class Weather:
 
     @staticmethod
     def is_cloudy():
-        return Weather.cloud_cover >= 4
+        # Winter
+        if Date.between((11,1), (2,15)):
+            return Weather.cloud_cover >= 3
+        # Spring / Autumn
+        elif Date.between((2, 15), (3,20)) or Date.between((9, 20), (11, 1)):
+            return Weather.cloud_cover >= 4
+        # Summer
+        else:
+            return Weather.cloud_cover >= 5
 
     @staticmethod
     def update():
