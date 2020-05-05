@@ -3,6 +3,7 @@ from dateutil import tz
 import datetime
 import logging
 from .config import LONG, LAT
+from .time import Date
 
 DIFF_TIME = datetime.timedelta(minutes=30)
 sun = Sun(LAT, LONG)
@@ -51,6 +52,10 @@ class Sun:
     @staticmethod
     def is_bright():
         """Like isUp(), but checks some returns false some time before the sunset and after sunrise"""
+        # During summer half year use is_up() directly instead
+        if Date.between((3,20), (9,20)):
+            return Sun.is_up()
+
         Sun.update()
 
         # Because we change the time, there are some situations where sunrise > sunset could mean that

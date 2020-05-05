@@ -1,4 +1,5 @@
 from .tradfri_gateway import TradfriGateway, Lights, Groups
+from .info_wrapper import InfoWrapper
 import logging
 import threading
 import time
@@ -17,7 +18,8 @@ class Executor:
             Lights.update()
             Groups.update()
 
-        self.get_light_and_groups()
+        if self.is_light_or_group_action():
+            self.get_light_and_groups()
 
     def get_light_and_groups(self):
         if 'name' in self._data:
@@ -55,7 +57,7 @@ class Executor:
             # Run the action directly
             else:
                 logger.debug("Executor.execute() Args: {} KWArgs: {}.".format(str(args), str(kwargs)))
-                function(*args, **kwargs)
+                return function(*args, **kwargs)
 
     @staticmethod
     def terminate_running_actions():
@@ -74,6 +76,10 @@ class Executor:
         # Kill all running/scheduled tasks
         if action == 'kill':
             return Executor.terminate_running_actions, [], {}
+
+        # -----------------------
+        # --- Set Light/Group ---
+        # -----------------------
 
         # On/Off/Toggle
         elif action == 'power' and 'value' in self._data:
@@ -105,6 +111,12 @@ class Executor:
 
         # TODO Start Effect
 
+        # -----------------------
+        # --- Get information ---
+        # -----------------------
+        elif action == 'get_day_info':
+            return InfoWrapper.get_day_info, [], {}
+
         logger.warning("Executor.get_action_function() Action {} not found/implemented.".format(action))
         return None
 
@@ -128,6 +140,11 @@ class Executor:
             if self._data['action'] == 'power' and self._data['value'] == 'toggle':
                 return True
         return False
+
+    def is_light_or_group_action(self):
+        if 'action' in self._data:
+            action = self._data
+            return action == 'power' or action == 'dim' or action == 'effect' or action == 'mood'
 
 
 class ThreadExecutor(threading.Thread):

@@ -23,6 +23,11 @@ class SocketServer:
                         data = json.loads(json_string)
                         logger.debug("SocketServer.run() Json: " + str(data))
                         executor = Executor(data)
-                        executor.execute()
+                        return_val = executor.execute()
+
+                        # Send the return value if one exists
+                        if return_val:
+                            conn.sendall(json.dumps(return_val).encode())
+
                 except (Exception, RuntimeError) as e:
                     logger.exception("SocketServer.run() Error parsing json or running command " + repr(e))
