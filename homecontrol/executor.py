@@ -143,7 +143,7 @@ class Executor:
 
     def is_light_or_group_action(self):
         if 'action' in self._data:
-            action = self._data
+            action = self._data['action']
             return action == 'power' or action == 'dim' or action == 'effect' or action == 'mood'
 
 
@@ -157,8 +157,8 @@ class ThreadExecutor(threading.Thread):
 
 
 class DelayedExecutor(ThreadExecutor):
-    def __init__(self, action, args, kwargs, delay, delay_magnitude, group=None, target=None, name=None):
-        super().__init__(group, target, name, args=[], kwargs={})
+    def __init__(self, action, args, kwargs, delay, delay_magnitude):
+        super().__init__(args=[], kwargs={})
         self.args = args
         self.kwargs = kwargs
         self._action = action
@@ -183,4 +183,16 @@ class DelayedExecutor(ThreadExecutor):
 
         if not self._terminate:
             self._action(*self.args, **self.kwargs)
+
+
+class EffectExecutor(ThreadExecutor):
+    def __init__(self, effect):
+        super().__init__()
+        self.effect = effect
+
+    def terminate(self):
+        self.effect.abort()
+
+    def run(self):
+        self.effect.run()
 

@@ -203,8 +203,8 @@ class TradfriGateway:
     @staticmethod
     def turn_off(light_or_group):
         """ Turn off a light or group
-        :param light_or_group: Can be either a light or group. Can be a list of
-        lights and groups """
+        :param light_or_group: Can be either a light or group. Can be a list of lights and groups
+        """
         
         if isinstance(light_or_group, list):
             for i in light_or_group: TradfriGateway.turn_off(i)
@@ -218,8 +218,8 @@ class TradfriGateway:
     @staticmethod
     def toggle(light_or_group):
         """ Toggle a light or group
-        :param light_or_group: Can be either a light or group. Can be a list of
-        lights and groups """
+        :param light_or_group: Can be either a light or group. Can be a list of lights and groups
+        """
 
         if isinstance(light_or_group, list):
             for i in light_or_group:
@@ -236,11 +236,14 @@ class TradfriGateway:
 
     @staticmethod
     def dim(light_or_group, value, transition_time=10):
-        """ Dim a light or group :param light_or_group: Can be either a light or group. Can
-        be a list of lights and groups :param value the dim value between 0 and 254
-        :param transition_time time in 100ms for it to transition """
+        """ Dim a light or group
+        :param light_or_group: Can be either a light or group. Can be a list of lights and groups
+        :param value the dim value between 0 and 254
+        :param transition_time time in 100ms for it to transition
+        """
         if isinstance(light_or_group, Device):
-            logger.debug("TradfriGateway.dim() Dim{} to {} with transition time {}.".format(light_or_group.name, value, transition_time))
+            logger.debug("TradfriGateway.dim() Dim{} to {} with transition time {}.".
+                         format(light_or_group.name, value, transition_time))
 
         if isinstance(light_or_group, list):
             for i in light_or_group:
@@ -250,4 +253,21 @@ class TradfriGateway:
                 try_several_times(light_or_group.light_control.set_dimmer(value, transition_time=transition_time))
         elif isinstance(light_or_group, Group):
             try_several_times(light_or_group.set_dimmer(value, transition_time=transition_time))
+
+    @staticmethod
+    def color(light_or_group, x, y, transition_time=10):
+        """Set the color of a light or group
+        :param light_or_group Can be either a light or group or a list containing lights and groups
+        :param x x-value of the color
+        :param y y-value of the color
+        :param transition_time time in 100ms for it to transition, default 10 = 1 second
+        """
+        if isinstance(light_or_group, list):
+            for i in light_or_group:
+                TradfriGateway.color(i, x, y, transition_time)
+        elif isinstance(light_or_group, Device) and light_or_group.has_light_control:
+            if light_or_group.light_control.can_set_xy:
+                try_several_times(light_or_group.light_control.set_xy_color(x, y, transition_time=transition_time))
+        elif isinstance(light_or_group, Group):
+            try_several_times(light_or_group.set_xy_color(x, y, transition_time=transition_time))
 
