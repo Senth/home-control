@@ -1,5 +1,6 @@
 from .weather import Weather
 from .sun import Sun
+from .luminance import Luminance
 
 import logging
 
@@ -10,12 +11,15 @@ class InfoWrapper:
     @staticmethod
     def get_day_info():
         info = {
+            "luminance": {
+                "is_dark": int(Luminance.is_dark())
+            },
             "sun": {
-                "is_up": int(Sun.is_up()),
-                "is_bright": int(Sun.is_up_shortened())
+                "is_up": int(not Luminance.is_sun_down()),
             },
             "weather": {
-                "is_cloudy": int(Weather.is_cloudy())
+                "is_raining": int(Weather.is_raining()),
+                "cloud_cover": Weather.get_cloud_coverage()
             }
         }
 

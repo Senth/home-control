@@ -31,6 +31,8 @@ class Luminance:
             else:
                 return True
 
+        return False
+
     @staticmethod
     def is_sun_down():
         """Get sun is down depending on which date it is"""
