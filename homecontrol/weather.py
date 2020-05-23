@@ -7,13 +7,6 @@ from .time import Date
 logger = logging.getLogger(__name__)
 
 
-NO_PRECIPITATION = 0
-SNOW = 1
-SNOW_AND_RAIN = 2
-RAIN = 3
-DRIZZLE = 4
-FREEZING_RAIN = 5
-FREEZING_DRIZZLE = 6
 
 
 class Weather:
@@ -45,7 +38,7 @@ class Weather:
             if name == 't':
                 Weather.temperature = value
                 logger.info("Weather.temperature = " + str(value))
-            if name == 'pcat':
+            if name == 'prec1h':
                 Weather._precipitation = value
                 logger.info("Weather.precipitation = " + str(value))
 
@@ -70,7 +63,7 @@ class Weather:
 
     @staticmethod
     def is_raining():
-        return Weather._precipitation == SNOW_AND_RAIN or Weather._precipitation == RAIN or Weather._precipitation == FREEZING_RAIN
+        return Weather._precipitation > 0
 
     @staticmethod
     def update():
