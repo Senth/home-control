@@ -12,7 +12,7 @@ class InfoWrapper:
         info = {
             "sun": {
                 "is_up": int(Sun.is_up()),
-                "is_bright": int(Sun.is_bright())
+                "is_bright": int(Sun.is_up_shortened())
             },
             "weather": {
                 "is_cloudy": int(Weather.is_cloudy())

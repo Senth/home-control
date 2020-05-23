@@ -8,10 +8,12 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 import logging
 
 # Disable logging from apscheduler
-logging.getLogger('apscheduler').setLevel(logging.WARNING);
+logging.getLogger('apscheduler').setLevel(logging.WARNING)
+log_level = logging.getLogger(__name__).getEffectiveLevel()
 
 # Initial update
-Weather.update()
+if log_level != logging.DEBUG:
+    Weather.update()
 Lights.update()
 Groups.update()
 Network.update()

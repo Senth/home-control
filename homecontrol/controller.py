@@ -1,8 +1,7 @@
 from .tradfri_gateway import TradfriGateway, Lights, Groups
-from .sun import Sun
 from .network import Network
-from .weather import Weather
 from .time import Time, Day, Date
+from .luminance import Luminance
 from datetime import time
 
 import logging
@@ -18,27 +17,17 @@ logger = logging.getLogger(__name__)
 def _calculate_ambient():
     # Only when someone's home
     if Network.is_someone_home():
-        # Weekends
-        if Day.is_day(Day.SATURDAY, Day.SUNDAY):
-            if Time.between(time(9), time(2)):
-                # Sun has set
-                if Sun.is_dark():
+        # Only when it's dark
+        if Luminance.is_dark():
+            # Weekends
+            if Day.is_day(Day.SATURDAY, Day.SUNDAY):
+                if Time.between(time(9), time(2)):
                     return STATE_ON
-                # Sun is up
-                else:
-                    # Cloudy outside
-                    if Weather.is_cloudy():
-                        return STATE_ON
-        else:  # Weekdays
-            if Time.between(time(7, 30), time(2)):
-                # When the sun has set
-                if Sun.is_dark():
+            # Weekdays
+            else:
+                if Time.between(time(7, 30), time(2)):
                     return STATE_ON
-                # Sun is up
-                else:
-                    # Cloudy outside
-                    if Weather.is_cloudy():
-                        return STATE_ON
+
     return STATE_OFF
 
 
@@ -90,9 +79,9 @@ class ControlMatteus(Controller):
         # Only when Matteus is home and between 10 and 03
         if (Network.mobile_matteus.is_on() or Network.is_guest_home()) and Time.between(time(10), time(3)):
             logger.debug('ControlMatteus.update(): Matteus is home')
-            # Always on when it's dark outside
-            if Sun.is_dark():
-                logger.debug('ControlMatteus.update(): Sun is down')
+            # Always on when the sun has set
+            if Luminance.is_sun_down():
+                logger.debug('ControlMatteus.update(): It\'s dark')
                 self.state = STATE_ON
 
     def turn_off(self):
@@ -113,15 +102,9 @@ class ControlMonitor(Controller):
         if (Network.mobile_matteus.is_on() or Network.is_guest_home()) and Time.between(time(8), time(3)):
             logger.debug('ControlMonitor.update(): Matteus is home')
             # Always on when it's dark outside
-            if Sun.is_dark():
-                logger.debug('ControlMonitor.update(): Sun is down')
+            if Luminance.is_dark():
+                logger.debug('ControlMonitor.update(): It\'s dark outside')
                 self.state = STATE_ON
-            else:  # Bright outside
-                logger.debug('ControlMonitor.update(): Sun is up')
-                # Only turn on when it's cloudy and matteus is by the computer and during winter
-                if Network.mina.is_on() and Weather.is_cloudy() and Date.between((10, 14), (3, 14)):
-                    logger.debug('ControlMonitor.update(): Matteus computer is on and it\'s cloudy')
-                    self.state = STATE_ON
 
     def turn_off(self):
         # Don't turn off between 8 and 10
@@ -154,7 +137,7 @@ class ControlWindows(Controller):
     def update(self):
         # Only active when it's not winter
         if Date.between((2, 1), (11, 27)):
-            if Sun.is_dark():
+            if Luminance.is_sun_down():
                 self.state = _calculate_ambient()
 
 
@@ -236,8 +219,7 @@ class ControlSunLamp(Controller):
 
     def update(self):
         if Time.between(time(4), time(8)):
-            # If sun is not up or cloudy
-            if Sun.is_down() or Weather.is_cloudy():
+            if Luminance.is_dark():
                 self.state = STATE_ON
 
 

@@ -5,7 +5,6 @@ import logging
 from .config import LONG, LAT
 from .time import Date
 
-DIFF_TIME = datetime.timedelta(minutes=30)
 sun = Sun(LAT, LONG)
 
 logger = logging.getLogger(__name__)
@@ -38,7 +37,7 @@ class Sun:
     def print():
         print("Sunrise: " + str(Sun._sunrise) + ", sunset: " + str(Sun._sunset))
         print("is_up(): " + str(Sun.is_up()))
-        print("is_bright(): " + str(Sun.is_bright()))
+        print("is_bright(): " + str(Sun.is_up_shortened()))
 
     @staticmethod
     def is_up():
@@ -50,13 +49,11 @@ class Sun:
         return not Sun.is_up()
 
     @staticmethod
-    def is_bright():
+    def is_up_shortened(hours=0, minutes=30):
         """Like isUp(), but checks some returns false some time before the sunset and after sunrise"""
-        # During summer half year use is_up() directly instead
-        if Date.between((3,20), (9,20)):
-            return Sun.is_up()
-
         Sun.update()
+
+        diff_time = datetime.timedelta(hours=hours, minutes=minutes)
 
         # Because we change the time, there are some situations where sunrise > sunset could mean that
         # the sun is still up (or that it's bright outside)
@@ -67,14 +64,14 @@ class Sun:
             logger.debug('Sun.is_bright(): sun is up, but is it bright?')
 
             now = datetime.datetime.now(tz.tzlocal())
-            sunset = Sun._sunset - DIFF_TIME
+            sunset = Sun._sunset - diff_time
             # until 30 min before sunset -> it's not bright
             if now > sunset:
                 logger.debug('Sun.is_bright(): less than 30 min before sunset, not bright')
                 return False
 
             # until 30 min after sunrise -> it's not bright
-            sunrise = Sun._last_sunrise + DIFF_TIME
+            sunrise = Sun._last_sunrise + diff_time
             if now < sunrise:
                 logging.debug('Sun.is_bright(): less than 30 min after sunrise, not bright')
                 return False
@@ -83,5 +80,5 @@ class Sun:
             return True
 
     @staticmethod
-    def is_dark():
-        return not Sun.is_bright()
+    def is_down_shortened(hours=0, minutes=30):
+        return not Sun.is_up_shortened(hours=hours, minutes=minutes)

@@ -1,4 +1,5 @@
 from .tradfri_gateway import TradfriGateway, Lights, Groups
+from .effect import Effects
 from .info_wrapper import InfoWrapper
 import logging
 import threading
@@ -47,6 +48,12 @@ class Executor:
                 logger.warning("Executor.get_light_and_groups() Didn't find device or group with name: " + name)
 
     def execute(self):
+        # Special case for effects
+        if 'effect' in self._data:
+            self.create_effect_executor()
+            return
+
+        # Get function to call for the action
         function, args, kwargs = self.get_action_function()
 
         if function:
@@ -109,7 +116,6 @@ class Executor:
             logger.debug('Executor.get_action_function() Turn on mood: ' + mood_name)
             return Groups.set_mood, [self._lights_and_groups], {"mood_name": mood_name}
 
-        # TODO Start Effect
 
         # -----------------------
         # --- Get information ---
@@ -122,6 +128,14 @@ class Executor:
 
     def is_delay(self):
         return 'delay' in self._data
+
+    def create_effect_executor(self):
+        effect_name = self._data['effect']
+        logger.debug('Executor.get_action_function() Create effect ' + effect_name)
+        effect = Effects.from_name(effect_name)
+        effect_executor = EffectExecutor(effect)
+        effect_executor.start()
+        Executor._threads.append(effect_executor)
 
     def create_delayed_executor(self, action, args, kwargs):
         delay = self._data['delay']

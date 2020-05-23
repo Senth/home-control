@@ -7,10 +7,20 @@ from .time import Date
 logger = logging.getLogger(__name__)
 
 
+NO_PRECIPITATION = 0
+SNOW = 1
+SNOW_AND_RAIN = 2
+RAIN = 3
+DRIZZLE = 4
+FREEZING_RAIN = 5
+FREEZING_DRIZZLE = 6
+
+
 class Weather:
     """Value in the range of [0,8]"""
     cloud_cover = 0
     temperature = 0
+    _precipitation = 0
     _weather_info = {}
 
     @staticmethod
@@ -35,9 +45,12 @@ class Weather:
             if name == 't':
                 Weather.temperature = value
                 logger.info("Weather.temperature = " + str(value))
+            if name == 'pcat':
+                Weather._precipitation = value
+                logger.info("Weather.precipitation = " + str(value))
 
     @staticmethod
-    def is_cloudy():
+    def _is_cloudy():
         # Winter
         if Date.between((11,1), (2,15)):
             return Weather.cloud_cover >= 3
@@ -49,6 +62,15 @@ class Weather:
             return Weather.cloud_cover >= 6
         else:
             return False
+
+    @staticmethod
+    def get_cloud_coverage():
+        """:returns value in the range of [0,8] with 8 being the highest cloud coverage"""
+        return Weather.cloud_cover
+
+    @staticmethod
+    def is_raining():
+        return Weather._precipitation == SNOW_AND_RAIN or Weather._precipitation == RAIN or Weather._precipitation == FREEZING_RAIN
 
     @staticmethod
     def update():
