@@ -27,7 +27,8 @@ def try_several_times(command, recursive=False, max_tries=10):
             return response
         except RequestTimeout:
             try_count += 1
-            logger.info('try_several_times() Failed to run command, trying again... (try #{})'.format(try_count))
+            logger.info(
+                'try_several_times() Failed to run command, trying again... (try #{})'.format(try_count))
             sleep(1)
 
             if try_count > max_tries:
@@ -45,6 +46,7 @@ class Lights:
     billy = "Billy lights"
     bamboo = "Bamboo lamp"
     hall = "Hall light"
+    ac = "AC"
     cylinder = "Cylinder lamp"
     micro = "Micro lights"
     emma_star = "Stjärnan lampa"
@@ -57,7 +59,8 @@ class Lights:
     @staticmethod
     def update():
         """Bind all lights to the correct pytradfri light"""
-        Lights.devices = try_several_times(gateway.get_devices(), recursive=True)
+        Lights.devices = try_several_times(
+            gateway.get_devices(), recursive=True)
 
         for device in Lights.devices:
             if Lights.window == device.name or (isinstance(Lights.window, Device) and Lights.window.has_socket_control and Lights.window.id == device.id):
@@ -90,6 +93,8 @@ class Lights:
                 Lights.emma_salt = device
             elif Lights.emma_slinga == device.name or (isinstance(Lights.emma_slinga, Device) and Lights.emma_slinga.has_socket_control and Lights.emma_slinga.id == device.id):
                 Lights.emma_slinga = device
+            elif Lights.ac == device.name or (isinstance(Lights.ac, Device) and Lights.ac.has_socket_control and Lights.ac.id == device.id):
+                Lights.ac = device
             elif device.has_light_control or device.has_socket_control:
                 logger.warning("Didn't update/bind device: " + str(device))
 
@@ -119,7 +124,8 @@ class Groups:
         Groups.groups = try_several_times(gateway.get_groups(), recursive=True)
 
         for group in Groups.groups:
-            Groups.moods[group.id] = try_several_times(group.moods(), recursive=True)
+            Groups.moods[group.id] = try_several_times(
+                group.moods(), recursive=True)
 
             if Groups.matteus == group.name or (isinstance(Groups.matteus, Group) and Groups.matteus.id == group.id):
                 Groups.matteus = group
@@ -171,10 +177,12 @@ class Groups:
             if mood:
                 mood_id = mood.id
             else:
-                logger.warning("Groups.set_mood() No mood found with the name {}.".format(mood_name))
+                logger.warning(
+                    "Groups.set_mood() No mood found with the name {}.".format(mood_name))
 
         if mood_id:
-            logger.debug("Groups.set_mood() Setting mood to {} in {}.".format(mood_name, group.name))
+            logger.debug("Groups.set_mood() Setting mood to {} in {}.".format(
+                mood_name, group.name))
             try_several_times(group.activate_mood(mood_id))
 
 
@@ -205,15 +213,16 @@ class TradfriGateway:
         """ Turn off a light or group
         :param light_or_group: Can be either a light or group. Can be a list of lights and groups
         """
-        
+
         if isinstance(light_or_group, list):
-            for i in light_or_group: TradfriGateway.turn_off(i)
-        elif isinstance(light_or_group,Device) and light_or_group.has_light_control:
+            for i in light_or_group:
+                TradfriGateway.turn_off(i)
+        elif isinstance(light_or_group, Device) and light_or_group.has_light_control:
             try_several_times(light_or_group.light_control.set_state(0))
         elif isinstance(light_or_group, Device) and light_or_group.has_socket_control:
             try_several_times(light_or_group.socket_control.set_state(0))
         elif isinstance(light_or_group, Group):
-                try_several_times(light_or_group.set_state(0))
+            try_several_times(light_or_group.set_state(0))
 
     @staticmethod
     def toggle(light_or_group):
@@ -226,10 +235,13 @@ class TradfriGateway:
                 TradfriGateway.toggle(i)
         elif isinstance(light_or_group, Device) and light_or_group.has_light_control:
             new_state = not bool(light_or_group.light_control.lights[0].state)
-            try_several_times(light_or_group.light_control.set_state(new_state))
+            try_several_times(
+                light_or_group.light_control.set_state(new_state))
         elif isinstance(light_or_group, Device) and light_or_group.has_socket_control:
-            new_state = not bool(light_or_group.socket_control.sockets[0].state)
-            try_several_times(light_or_group.socket_control.set_state(new_state))
+            new_state = not bool(
+                light_or_group.socket_control.sockets[0].state)
+            try_several_times(
+                light_or_group.socket_control.set_state(new_state))
         elif isinstance(light_or_group, Group):
             new_state = not bool(light_or_group.state)
             try_several_times(light_or_group.set_state(new_state))
@@ -250,9 +262,11 @@ class TradfriGateway:
                 TradfriGateway.dim(i, value, transition_time)
         elif isinstance(light_or_group, Device) and light_or_group.has_light_control:
             if light_or_group.light_control.can_set_dimmer:
-                try_several_times(light_or_group.light_control.set_dimmer(value, transition_time=transition_time))
+                try_several_times(light_or_group.light_control.set_dimmer(
+                    value, transition_time=transition_time))
         elif isinstance(light_or_group, Group):
-            try_several_times(light_or_group.set_dimmer(value, transition_time=transition_time))
+            try_several_times(light_or_group.set_dimmer(
+                value, transition_time=transition_time))
 
     @staticmethod
     def color(light_or_group, x, y, transition_time=10):
@@ -267,7 +281,8 @@ class TradfriGateway:
                 TradfriGateway.color(i, x, y, transition_time)
         elif isinstance(light_or_group, Device) and light_or_group.has_light_control:
             if light_or_group.light_control.can_set_xy:
-                try_several_times(light_or_group.light_control.set_xy_color(x, y, transition_time=transition_time))
+                try_several_times(light_or_group.light_control.set_xy_color(
+                    x, y, transition_time=transition_time))
         elif isinstance(light_or_group, Group):
-            try_several_times(light_or_group.set_xy_color(x, y, transition_time=transition_time))
-
+            try_several_times(light_or_group.set_xy_color(
+                x, y, transition_time=transition_time))
