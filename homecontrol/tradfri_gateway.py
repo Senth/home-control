@@ -81,7 +81,7 @@ class Lights:
                 Lights.bamboo = device
             elif Lights.hall == device.name or (isinstance(Lights.hall, Device) and Lights.hall.has_socket_control and Lights.hall.id == device.id):
                 Lights.hall = device
-            elif Lights.cylinder == device.name or (isinstance(Lights.cylinder, Device) and Lights.cylinder.has_socket_control and Lights.cylinder.id == device.id):
+            elif Lights.cylinder == device.name or (isinstance(Lights.cylinder, Device) and Lights.cylinder.has_light_control and Lights.cylinder.id == device.id):
                 Lights.cylinder = device
             elif Lights.micro == device.name or (isinstance(Lights.micro, Device) and Lights.micro.has_socket_control and Lights.micro.id == device.id):
                 Lights.micro = device
