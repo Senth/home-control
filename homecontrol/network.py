@@ -3,6 +3,7 @@ from pyunifi.controller import Controller
 from time import time
 from .config import UNIFI_USER, UNIFI_PASSWORD, UNIFI_URL, UNIFI_PORT, UNIFI_SITE_ID
 import logging
+from .stats import Stats
 
 
 logger = logging.getLogger(__name__)
@@ -11,20 +12,25 @@ logger = logging.getLogger(__name__)
 class Device:
     _devices = []
 
-    def __init__(self, name):
+    def __init__(self, name, log):
         self.name = name
         self._on = True
+        self._log = log
         Device._devices.append(self)
 
     def turned_on(self):
         if not self._on:
             logger.info('Device: {} turned on'.format(self.name))
             self._on = True
+            if self._log:
+                Stats.log(self.name, 'on')
 
     def turned_off(self):
         if self._on:
             logger.info('Device: {} turned off'.format(self.name))
             self._on = False
+            if self._log:
+                Stats.log(self.name, 'off')
 
     def is_on(self):
         return self._on
@@ -40,8 +46,9 @@ class Device:
 
 class NetworkDevice(Device):
     """Checks if a device is on or not."""
-    def __init__(self, ip, name, updates_every=15, off_times=10, timeout=4):
-        super().__init__('{} ({})'.format(name, ip))
+
+    def __init__(self, ip, name, log=False, updates_every=15, off_times=10, timeout=4):
+        super().__init__('{} ({})'.format(name, ip), log)
         self.ip = ip
         self.next_check_in = 0
         self._off_times = off_times
@@ -71,12 +78,13 @@ class NetworkDevice(Device):
         if last_off_time == self._off_times_check and self._off_times > self._off_times_check:
             self.turned_off()
         else:
-            logger.debug('NetworkDevice: ' + self.ip + ' ' + str(self._off_times))
+            logger.debug('NetworkDevice: ' + self.ip +
+                         ' ' + str(self._off_times))
 
 
 class UnifiDevice(Device):
-    def __init__(self, name, mac_address, unifi_api, max_off_time=300):
-        super().__init__(name)
+    def __init__(self, name, mac_address, unifi_api, log=False, max_off_time=300):
+        super().__init__(name, log)
         self._mac_address = mac_address
         self._unifi_api = unifi_api
         self._max_off_time = max_off_time
@@ -146,10 +154,14 @@ class UnifiApi:
 class Network:
     _unifi = UnifiApi()
 
-    mina = NetworkDevice("192.168.0.248", 'Cerina', updates_every=10, off_times=2, timeout=1)
-    tv = NetworkDevice("192.168.0.2", "TV", updates_every=30, off_times=3, timeout=4)
-    mobile_matteus = UnifiDevice('Mobile Matteus', '04:d6:aa:62:d5:ae', _unifi, max_off_time=240)
-    mobile_emma = UnifiDevice('Mobile Emma', '6c:c7:ec:ee:e2:7f', _unifi, max_off_time=420)
+    mina = NetworkDevice("192.168.0.248", 'Cerina',
+                         updates_every=10, off_times=2, timeout=1)
+    tv = NetworkDevice("192.168.0.2", "TV", updates_every=30,
+                       off_times=3, timeout=4)
+    mobile_matteus = UnifiDevice(
+        'Mobile Matteus', '04:d6:aa:62:d5:ae', _unifi, log=True, max_off_time=240)
+    mobile_emma = UnifiDevice(
+        'Mobile Emma', '6c:c7:ec:ee:e2:7f', _unifi, max_off_time=420)
 
     @staticmethod
     def is_someone_home():

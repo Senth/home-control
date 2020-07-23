@@ -2,11 +2,10 @@ import requests
 import logging
 from .config import WEATHER_URL
 from .time import Date
+from .stats import Stats
 
 
 logger = logging.getLogger(__name__)
-
-
 
 
 class Weather:
@@ -32,26 +31,29 @@ class Weather:
             name = parameter['name']
             value = parameter['values'][0]
 
-            if name == 'tcc':
+            if name == 'tcc_mean':
                 Weather.cloud_cover = value
+                Stats.log('cloud cover', value)
                 logger.info("Weather.cloud_cover = " + str(value))
             if name == 't':
                 Weather.temperature = value
+                Stats.log('outside temperature', value)
                 logger.info("Weather.temperature = " + str(value))
-            if name == 'prec1h':
+            if name == 'pmean':
                 Weather._precipitation = value
+                Stats.log('precipitation', value)
                 logger.info("Weather.precipitation = " + str(value))
 
     @staticmethod
     def _is_cloudy():
         # Winter
-        if Date.between((11,1), (2,15)):
+        if Date.between((11, 1), (2, 15)):
             return Weather.cloud_cover >= 3
         # Early Spring / Late Autumn
-        elif Date.between((2, 15), (3,20)) or Date.between((9, 20), (11, 1)):
+        elif Date.between((2, 15), (3, 20)) or Date.between((9, 20), (11, 1)):
             return Weather.cloud_cover >= 4
         # Late Spring / Early Autumn
-        elif Date.between((3, 20), (4, 1)) or Date.between((9, 1), (9,20)):
+        elif Date.between((3, 20), (4, 1)) or Date.between((9, 1), (9, 20)):
             return Weather.cloud_cover >= 6
         else:
             return False
