@@ -225,6 +225,16 @@ class TradfriGateway:
             try_several_times(light_or_group.set_state(0))
 
     @staticmethod
+    def isOn(light_or_group):
+        """Check if a light or group is turned on or not"""
+        if isinstance(light_or_group, Device) and light_or_group.has_light_control:
+            return light_or_group.light_control.lights[0].state
+        if isinstance(light_or_group, Device) and light_or_group.has_socket_control:
+            return light_or_group.socket_control.sockets[0].state
+        if isinstance(light_or_group, Group):
+            return light_or_group.state
+
+    @staticmethod
     def toggle(light_or_group):
         """ Toggle a light or group
         :param light_or_group: Can be either a light or group. Can be a list of lights and groups

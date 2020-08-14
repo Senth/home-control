@@ -23,8 +23,8 @@ scheduler = BlockingScheduler()
 
 # Update information
 scheduler.add_job(Weather.update, 'cron', hour='*', minute=3)
-# scheduler.add_job(Lights.update, 'interval', minutes=50)
-# scheduler.add_job(Groups.update, 'interval', minutes=50)
+scheduler.add_job(Lights.update, 'interval', minutes=1)
+scheduler.add_job(Groups.update, 'interval', minutes=1)
 scheduler.add_job(Network.update, 'interval', seconds=5)
 
 # Schedule events/commands

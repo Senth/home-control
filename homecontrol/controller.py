@@ -46,7 +46,8 @@ class Controller:
             controller.update()
 
             if controller.state != last_state:
-                logger.debug('State changed from ' + last_state + ' -> ' + controller.state)
+                logger.debug('State changed from ' +
+                             last_state + ' -> ' + controller.state)
                 if controller.state == STATE_ON:
                     controller.turn_on()
                 elif controller.state == STATE_OFF:
@@ -120,7 +121,7 @@ class ControlAmbient(Controller):
         # Winter lights
         if Date.between((11, 28), (1, 31)):
             return [Groups.cozy, Lights.hall, Lights.micro]
-        else: # Regular lights
+        else:  # Regular lights
             return [Lights.hall, Lights.ball]
 
     def update(self):
@@ -143,6 +144,7 @@ class ControlWindows(Controller):
 
 class ControlMatteusTurnOff(Controller):
     """Will only turn off lights in Matteus if I leave home. Will never turn it back on."""
+
     def __init__(self):
         super().__init__('Turn off Matteus')
 
@@ -151,7 +153,8 @@ class ControlMatteusTurnOff(Controller):
 
     def update(self):
         if Network.mobile_matteus.is_on() or Network.is_guest_home():
-            self.state = STATE_ON
+            if not TradfriGateway.isOn(Lights.ac):
+                self.state = STATE_ON
 
     def turn_on(self):
         pass
@@ -159,6 +162,7 @@ class ControlMatteusTurnOff(Controller):
 
 class ControlLedStripOff(Controller):
     """Will only turn off the LED strip if TV is on and Matteus is the only one home"""
+
     def __init__(self):
         super().__init__('Turn off LED Strip')
 
@@ -196,6 +200,7 @@ class ControlTurnOffEmma(Controller):
 
 class ControlTurnOffLights(Controller):
     """Will only turn off lights (when we leave home if some lights were turned on manually)"""
+
     def __init__(self):
         super().__init__('Turn off all lights')
 
@@ -228,7 +233,7 @@ controllers = [
     ControlMonitor(),
     ControlAmbient(),
     ControlWindows(),
-#     ControlSunLamp(),
+    #     ControlSunLamp(),
     ControlMatteusTurnOff(),
     ControlLedStripOff(),
     ControlTurnOffEmma(),
