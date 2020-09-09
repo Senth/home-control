@@ -64,14 +64,19 @@ class Controller:
     def turn_on(self):
         logger.info('Turning on ' + self.name)
         TradfriGateway.turn_on(self._get_light_or_group())
+        # Dim to correct value
+        if self.brightness:
+            self.dim(transition_time=0)
 
     def turn_off(self):
         logger.info('Turning off ' + self.name)
         TradfriGateway.turn_off(self._get_light_or_group())
 
-    def dim(self):
-        logger.info('Dimming {} to {}'.format(self.name, self.brightness))
-        TradfriGateway.dim(self._get_light_or_group(), self.brightness)
+    def dim(self, transition_time=60):
+        if self.state == STATE_ON:
+            logger.info('Dimming {} to {}'.format(self.name, self.brightness))
+            TradfriGateway.dim(self._get_light_or_group(),
+                               self.brightness, transition_time=transition_time)
 
     def _get_light_or_group(self):
         logger.error('Not implemented ' + self.name + '._get_light_or_group()')
@@ -110,7 +115,7 @@ class ControlMatteus(Controller):
     def turn_off(self):
         # Don't turn off between 8 and 10
         if not Time.between(time(8), time(10)):
-            super().turn_off()
+            super()._turn_off()
 
 
 class ControlMonitor(Controller):
@@ -132,7 +137,7 @@ class ControlMonitor(Controller):
     def turn_off(self):
         # Don't turn off between 8 and 10
         if not Time.between(time(8), time(10)):
-            super().turn_off()
+            super()._turn_off()
 
 
 class ControlAmbient(Controller):
