@@ -257,14 +257,14 @@ class TradfriGateway:
             try_several_times(light_or_group.set_state(new_state))
 
     @staticmethod
-    def dim(light_or_group, value, transition_time=10):
+    def dim(light_or_group, value: int, transition_time: float = 1):
         """ Dim a light or group
         :param light_or_group: Can be either a light or group. Can be a list of lights and groups
         :param value the dim value between 0 and 254
-        :param transition_time time in 100ms for it to transition
+        :param transition_time time in seconds (can be float)
         """
         if isinstance(light_or_group, Device):
-            logger.debug("TradfriGateway.dim() Dim{} to {} with transition time {}.".
+            logger.debug("TradfriGateway.dim() Dim {} to {} with transition time {} seconds.".
                          format(light_or_group.name, value, transition_time))
 
         if isinstance(light_or_group, list):
@@ -273,18 +273,18 @@ class TradfriGateway:
         elif isinstance(light_or_group, Device) and light_or_group.has_light_control:
             if light_or_group.light_control.can_set_dimmer:
                 try_several_times(light_or_group.light_control.set_dimmer(
-                    value, transition_time=transition_time))
+                    value, transition_time=int(transition_time * 10)))
         elif isinstance(light_or_group, Group):
             try_several_times(light_or_group.set_dimmer(
-                value, transition_time=transition_time))
+                value, transition_time=int(transition_time * 10)))
 
     @staticmethod
-    def color(light_or_group, x, y, transition_time=10):
+    def color(light_or_group, x: int, y: int, transition_time: float = 1):
         """Set the color of a light or group
         :param light_or_group Can be either a light or group or a list containing lights and groups
         :param x x-value of the color
         :param y y-value of the color
-        :param transition_time time in 100ms for it to transition, default 10 = 1 second
+        :param transition_time time in seconds for it to transition (can be float)
         """
         if isinstance(light_or_group, list):
             for i in light_or_group:
@@ -292,7 +292,7 @@ class TradfriGateway:
         elif isinstance(light_or_group, Device) and light_or_group.has_light_control:
             if light_or_group.light_control.can_set_xy:
                 try_several_times(light_or_group.light_control.set_xy_color(
-                    x, y, transition_time=transition_time))
+                    x, y, transition_time=int(transition_time * 10)))
         elif isinstance(light_or_group, Group):
             try_several_times(light_or_group.set_xy_color(
-                x, y, transition_time=transition_time))
+                x, y, transition_time=int(transition_time * 10)))
