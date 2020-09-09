@@ -36,6 +36,5 @@ scheduler.add_job(Controller.update_all, 'interval', seconds=5)
 
 # Start the socket interface
 scheduler.add_job(SocketServer.run)
-# scheduler.add_job(SocketServer.test)
 
 scheduler.start()
