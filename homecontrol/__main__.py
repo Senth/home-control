@@ -5,10 +5,15 @@ from .controller import Controller
 from .socket_server import SocketServer
 from apscheduler.schedulers.blocking import BlockingScheduler
 import logging
+import time
 
 # Disable logging from apscheduler
 logging.getLogger('apscheduler').setLevel(logging.WARNING)
 log_level = logging.getLogger(__name__).getEffectiveLevel()
+
+# Sleep before turning on if not in DEBUG mode
+if log_level != logging.DEBUG:
+    time.sleep(60)
 
 # Initial update
 if log_level != logging.DEBUG:
@@ -16,7 +21,6 @@ if log_level != logging.DEBUG:
 Lights.update()
 Groups.update()
 Network.update()
-
 
 # Schedule stuff
 scheduler = BlockingScheduler()
