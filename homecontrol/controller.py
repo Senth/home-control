@@ -34,6 +34,7 @@ def _calculate_ambient():
 class Controller:
     def __init__(self, name):
         self.state = STATE_NA
+        self.brightness = None
         self.name = name
 
     @staticmethod
@@ -42,9 +43,12 @@ class Controller:
         for controller in controllers:
             logger.debug('Updating controller: ' + controller.name)
             last_state = controller.state
+            last_brightness = controller.brightness
+
             controller.state = STATE_OFF
             controller.update()
 
+            # Controller state updated
             if controller.state != last_state:
                 logger.debug('State changed from ' +
                              last_state + ' -> ' + controller.state)
@@ -53,6 +57,10 @@ class Controller:
                 elif controller.state == STATE_OFF:
                     controller.turn_off()
 
+            # Brightness updated
+            if controller.brightness != last_brightness:
+                controller.dim()
+
     def turn_on(self):
         logger.info('Turning on ' + self.name)
         TradfriGateway.turn_on(self._get_light_or_group())
@@ -60,6 +68,10 @@ class Controller:
     def turn_off(self):
         logger.info('Turning off ' + self.name)
         TradfriGateway.turn_off(self._get_light_or_group())
+
+    def dim(self):
+        logger.info('Dimming {} to {}'.format(self.name, self.brightness))
+        TradfriGateway.dim(self._get_light_or_group(), self.brightness)
 
     def _get_light_or_group(self):
         logger.error('Not implemented ' + self.name + '._get_light_or_group()')
@@ -84,6 +96,16 @@ class ControlMatteus(Controller):
             if Luminance.is_sun_down():
                 logger.debug('ControlMatteus.update(): It\'s dark')
                 self.state = STATE_ON
+
+        # Update dim
+        if Time.between(time(10), time(19)):
+            self.brightness = 254
+        elif Time.between(time(19), time(21)):
+            self.brightness = 150
+        elif Time.between(time(21), time(22)):
+            self.brightness = 70
+        else:
+            self.brightness = 1
 
     def turn_off(self):
         # Don't turn off between 8 and 10
