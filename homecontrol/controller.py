@@ -99,8 +99,8 @@ class ControlMonitor(Controller):
         return Lights.monitor
 
     def update(self):
-        # Only when Matteus is home and between 10 and 03
-        if (Network.mobile_matteus.is_on() or Network.is_guest_home()) and Time.between(time(8), time(3)):
+        # Only when Matteus is home, computer is turned on, and between 08 and 03
+        if (Network.mobile_matteus.is_on() or Network.is_guest_home()) and Network.mina.is_on() and Time.between(time(8), time(3)):
             logger.debug('ControlMonitor.update(): Matteus is home')
             # Always on when it's dark outside
             if Luminance.is_dark():
