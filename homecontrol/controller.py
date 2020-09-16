@@ -115,7 +115,7 @@ class ControlMatteus(Controller):
     def turn_off(self):
         # Don't turn off between 8 and 10
         if not Time.between(time(8), time(10)):
-            super()._turn_off()
+            super().turn_off()
 
 
 class ControlMonitor(Controller):
@@ -137,7 +137,7 @@ class ControlMonitor(Controller):
     def turn_off(self):
         # Don't turn off between 8 and 10
         if not Time.between(time(8), time(10)):
-            super()._turn_off()
+            super().turn_off()
 
 
 class ControlAmbient(Controller):
