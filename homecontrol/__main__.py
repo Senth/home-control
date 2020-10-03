@@ -11,10 +11,6 @@ import time
 logging.getLogger('apscheduler').setLevel(logging.WARNING)
 log_level = logging.getLogger(__name__).getEffectiveLevel()
 
-# Sleep before turning on if not in DEBUG mode
-if log_level != logging.DEBUG:
-    time.sleep(60)
-
 # Initial update
 if log_level != logging.DEBUG:
     Weather.update()
