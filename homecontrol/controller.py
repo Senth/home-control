@@ -99,7 +99,7 @@ class ControlMatteus(Controller):
             logger.debug('ControlMatteus.update(): Matteus is home')
             # Always on when the sun has set
             if Luminance.is_sun_down():
-                logger.debug('ControlMatteus.update(): It\'s dark')
+                logger.debug('ControlMatteus.update(): Sun is down')
                 self.state = STATE_ON
 
         # Update dim
