@@ -104,9 +104,9 @@ class ControlMatteus(Controller):
 
         # Update dim
         if Time.between(time(10), time(19)):
-            self.brightness = 254
+            self.brightness = 180
         elif Time.between(time(19), time(21)):
-            self.brightness = 150
+            self.brightness = 130
         elif Time.between(time(21), time(22)):
             self.brightness = 70
         else:
