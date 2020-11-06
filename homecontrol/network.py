@@ -1,7 +1,7 @@
 from subprocess import run, CalledProcessError
 from pyunifi.controller import Controller
 from time import time
-from .config import UNIFI_USER, UNIFI_PASSWORD, UNIFI_URL, UNIFI_PORT, UNIFI_SITE_ID
+from .config import config
 import logging
 from .stats import Stats
 
@@ -20,17 +20,17 @@ class Device:
 
     def turned_on(self):
         if not self._on:
-            logger.info('Device: {} turned on'.format(self.name))
+            logger.info("Device: {} turned on".format(self.name))
             self._on = True
             if self._log:
-                Stats.log(self.name, 'on')
+                Stats.log(self.name, "on")
 
     def turned_off(self):
         if self._on:
-            logger.info('Device: {} turned off'.format(self.name))
+            logger.info("Device: {} turned off".format(self.name))
             self._on = False
             if self._log:
-                Stats.log(self.name, 'off')
+                Stats.log(self.name, "off")
 
     def is_on(self):
         return self._on
@@ -48,7 +48,7 @@ class NetworkDevice(Device):
     """Checks if a device is on or not."""
 
     def __init__(self, ip, name, log=False, updates_every=15, off_times=10, timeout=4):
-        super().__init__('{} ({})'.format(name, ip), log)
+        super().__init__("{} ({})".format(name, ip), log)
         self.ip = ip
         self.next_check_in = 0
         self._off_times = off_times
@@ -68,18 +68,20 @@ class NetworkDevice(Device):
         last_off_time = self._off_times
 
         try:
-            run(['ping', '-c', '1', '-W', self._timeout, self.ip], check=True)
+            run(["ping", "-c", "1", "-W", self._timeout, self.ip], check=True)
             self._off_times = 0
         except CalledProcessError:
             self._off_times += 1
 
         if last_off_time >= self._off_times_check and self._off_times == 0:
             self.turned_on()
-        if last_off_time == self._off_times_check and self._off_times > self._off_times_check:
+        if (
+            last_off_time == self._off_times_check
+            and self._off_times > self._off_times_check
+        ):
             self.turned_off()
         else:
-            logger.debug('NetworkDevice: ' + self.ip +
-                         ' ' + str(self._off_times))
+            logger.debug("NetworkDevice: " + self.ip + " " + str(self._off_times))
 
 
 class UnifiDevice(Device):
@@ -92,7 +94,7 @@ class UnifiDevice(Device):
     def update(self):
         client = self._unifi_api.get_client(self._mac_address)
         if client:
-            elapsed_time = time() - client['last_seen']
+            elapsed_time = time() - client["last_seen"]
 
             # Check if it has been turned off
             if self.is_on() and elapsed_time > self._max_off_time:
@@ -106,17 +108,14 @@ class UnifiDevice(Device):
 
 
 class UnifiApi:
-    USER_GROUP_OWNER = '5c8e9afdcc133518388e9f98'
-    GUEST_ACTIVE_TIME = 300
-
     def __init__(self):
         self.controller = Controller(
-            UNIFI_URL,
-            UNIFI_USER,
-            UNIFI_PASSWORD,
-            port=UNIFI_PORT,
-            site_id=UNIFI_SITE_ID,
-            ssl_verify=False
+            config.unifi.host,
+            config.unifi.username,
+            config.unifi.password,
+            port=config.unifi.port,
+            site_id=config.unifi.site_id,
+            ssl_verify=False,
         )
         self.clients = {}
         self._last_guest_active_time = 0
@@ -138,34 +137,40 @@ class UnifiApi:
 
     def _update_clients(self):
         for client in self.controller.get_clients():
-            self.clients[client['mac']] = client
-            if client['usergroup_id'] != UnifiApi.USER_GROUP_OWNER:
+            self.clients[client["mac"]] = client
+            if client["usergroup_id"] != UnifiApi.USER_GROUP_OWNER:
                 was_guest_active = self.is_guest_active()
                 self._last_guest_active_time = time()
 
                 # Changed state
                 if was_guest_active != self.is_guest_active():
                     if self.is_guest_active():
-                        logger.info('Guest is home')
+                        logger.info("Guest is home")
                     else:
-                        logger.info('Guest went away')
+                        logger.info("Guest went away")
 
 
 class Network:
     _unifi = UnifiApi()
 
-    mina = NetworkDevice("192.168.0.248", 'Cerina',
-                         updates_every=10, off_times=2, timeout=1)
-    tv = NetworkDevice("192.168.0.2", "TV", updates_every=30,
-                       off_times=3, timeout=4)
+    mina = NetworkDevice(
+        "192.168.0.248", "Cerina", updates_every=10, off_times=2, timeout=1
+    )
+    tv = NetworkDevice("192.168.0.2", "TV", updates_every=30, off_times=3, timeout=4)
     mobile_matteus = UnifiDevice(
-        'Mobile Matteus', '04:d6:aa:62:d5:ae', _unifi, log=True, max_off_time=240)
+        "Mobile Matteus", "04:d6:aa:62:d5:ae", _unifi, log=True, max_off_time=240
+    )
     mobile_emma = UnifiDevice(
-        'Mobile Emma', '6c:c7:ec:ee:e2:7f', _unifi, max_off_time=420)
+        "Mobile Emma", "6c:c7:ec:ee:e2:7f", _unifi, max_off_time=420
+    )
 
     @staticmethod
     def is_someone_home():
-        return Network.mobile_matteus.is_on() or Network.mobile_emma.is_on() or Network.is_guest_home()
+        return (
+            Network.mobile_matteus.is_on()
+            or Network.mobile_emma.is_on()
+            or Network.is_guest_home()
+        )
 
     @staticmethod
     def is_guest_home():

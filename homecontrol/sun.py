@@ -2,10 +2,9 @@ from suntime import Sun
 from dateutil import tz
 import datetime
 import logging
-from .config import LONG, LAT
-from .time import Date
+from .config import config
 
-sun = Sun(LAT, LONG)
+sun = Sun(config.lat, config.long)
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,9 @@ def tomorrow():
 class Sun:
     _sunset = sun.get_local_sunset_time()
     _sunrise = sun.get_local_sunrise_time()
-    _last_sunrise = sun.get_local_sunrise_time(datetime.datetime.now(tz.tzlocal()) - datetime.timedelta(days=1))
+    _last_sunrise = sun.get_local_sunrise_time(
+        datetime.datetime.now(tz.tzlocal()) - datetime.timedelta(days=1)
+    )
 
     @staticmethod
     def update():
@@ -27,11 +28,11 @@ class Sun:
         if now > Sun._sunrise:
             Sun._last_sunrise = Sun._sunrise
             Sun._sunrise = sun.get_local_sunrise_time(tomorrow())
-            logger.info('Sun.update(): Passed sunrise, updating to next day')
+            logger.info("Sun.update(): Passed sunrise, updating to next day")
 
         if now > Sun._sunset:
             Sun._sunset = sun.get_local_sunset_time(tomorrow())
-            logger.info('Sun.update(): Passed sunset, updating to next day')
+            logger.info("Sun.update(): Passed sunset, updating to next day")
 
     @staticmethod
     def print():
@@ -58,25 +59,29 @@ class Sun:
         # Because we change the time, there are some situations where sunrise > sunset could mean that
         # the sun is still up (or that it's bright outside)
         if Sun._sunset > Sun._sunrise:
-            logger.debug('Sun.is_bright(): sun is down')
+            logger.debug("Sun.is_bright(): sun is down")
             return False
-        else: # Sun is up (but it might not be bright yet/still)
-            logger.debug('Sun.is_bright(): sun is up, but is it bright?')
+        else:  # Sun is up (but it might not be bright yet/still)
+            logger.debug("Sun.is_bright(): sun is up, but is it bright?")
 
             now = datetime.datetime.now(tz.tzlocal())
             sunset = Sun._sunset - diff_time
             # until 30 min before sunset -> it's not bright
             if now > sunset:
-                logger.debug('Sun.is_bright(): less than 30 min before sunset, not bright')
+                logger.debug(
+                    "Sun.is_bright(): less than 30 min before sunset, not bright"
+                )
                 return False
 
             # until 30 min after sunrise -> it's not bright
             sunrise = Sun._last_sunrise + diff_time
             if now < sunrise:
-                logging.debug('Sun.is_bright(): less than 30 min after sunrise, not bright')
+                logging.debug(
+                    "Sun.is_bright(): less than 30 min after sunrise, not bright"
+                )
                 return False
 
-            logger.debug('Sun.is_bright(): it\'s bright')
+            logger.debug("Sun.is_bright(): it's bright")
             return True
 
     @staticmethod

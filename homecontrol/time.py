@@ -11,7 +11,7 @@ class Time:
         # Same day
         if start <= end:
             return start <= now < end
-        else: # Over midnight
+        else:  # Over midnight
             return start <= now or now < end
 
 
@@ -41,5 +41,5 @@ class Date:
         # Same year
         if start <= end:
             return start <= now <= end
-        else: # Across the year
+        else:  # Across the year
             return start <= now or now <= end

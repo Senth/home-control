@@ -48,10 +48,14 @@ class Luminance:
         if Date.between(WINTER_START, SPRING_EARLY_START):
             return Weather.cloud_cover >= 3
         # Early Spring / Late Autumn
-        elif Date.between(SPRING_EARLY_START, SPRING_LATE_START) or Date.between(AUTUMN_LATE_START, WINTER_START):
+        elif Date.between(SPRING_EARLY_START, SPRING_LATE_START) or Date.between(
+            AUTUMN_LATE_START, WINTER_START
+        ):
             return Weather.cloud_cover >= 4
         # Late Spring / Early Autumn
-        elif Date.between(SPRING_LATE_START, SUMMER_START) or Date.between(AUTUMN_EARLY_START, AUTUMN_LATE_START):
+        elif Date.between(SPRING_LATE_START, SUMMER_START) or Date.between(
+            AUTUMN_EARLY_START, AUTUMN_LATE_START
+        ):
             return Weather.cloud_cover >= 6
         # Summer
         else:

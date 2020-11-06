@@ -12,7 +12,7 @@ class SocketServer:
     def run():
         logger.debug("SocketServer.run() Starting server")
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.bind(('localhost', 10200))
+            sock.bind(("localhost", 10200))
             sock.listen(10)
             while True:
                 try:
@@ -30,4 +30,7 @@ class SocketServer:
                             conn.sendall(json.dumps(return_val).encode())
 
                 except (Exception, RuntimeError) as e:
-                    logger.exception("SocketServer.run() Error parsing json or running command " + repr(e))
+                    logger.exception(
+                        "SocketServer.run() Error parsing json or running command "
+                        + repr(e)
+                    )

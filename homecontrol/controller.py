@@ -39,9 +39,9 @@ class Controller:
 
     @staticmethod
     def update_all():
-        logger.debug('Updating controllers')
+        logger.debug("Updating controllers")
         for controller in controllers:
-            logger.debug('Updating controller: ' + controller.name)
+            logger.debug("Updating controller: " + controller.name)
             last_state = controller.state
             last_brightness = controller.brightness
 
@@ -50,8 +50,9 @@ class Controller:
 
             # Controller state updated
             if controller.state != last_state:
-                logger.debug('State changed from ' +
-                             last_state + ' -> ' + controller.state)
+                logger.debug(
+                    "State changed from " + last_state + " -> " + controller.state
+                )
                 if controller.state == STATE_ON:
                     controller.turn_on()
                 elif controller.state == STATE_OFF:
@@ -62,44 +63,49 @@ class Controller:
                 controller.dim()
 
     def turn_on(self):
-        logger.info('Turning on ' + self.name)
+        logger.info("Turning on " + self.name)
         TradfriGateway.turn_on(self._get_light_or_group())
         # Dim to correct value
         if self.brightness:
             self.dim(transition_time=0)
 
     def turn_off(self):
-        logger.info('Turning off ' + self.name)
+        logger.info("Turning off " + self.name)
         TradfriGateway.turn_off(self._get_light_or_group())
 
     def dim(self, transition_time=60):
         if self.state == STATE_ON:
-            logger.info('Dimming {} to {}'.format(self.name, self.brightness))
-            TradfriGateway.dim(self._get_light_or_group(),
-                               self.brightness, transition_time=transition_time)
+            logger.info("Dimming {} to {}".format(self.name, self.brightness))
+            TradfriGateway.dim(
+                self._get_light_or_group(),
+                self.brightness,
+                transition_time=transition_time,
+            )
 
     def _get_light_or_group(self):
-        logger.error('Not implemented ' + self.name + '._get_light_or_group()')
+        logger.error("Not implemented " + self.name + "._get_light_or_group()")
         return None
 
     def update(self):
-        logger.error('Not implemented ' + self.name + '._update()')
+        logger.error("Not implemented " + self.name + "._update()")
 
 
 class ControlMatteus(Controller):
     def __init__(self):
-        super().__init__('Matteus')
+        super().__init__("Matteus")
 
     def _get_light_or_group(self):
         return [Lights.cylinder, Lights.billy]
 
     def update(self):
         # Only when Matteus is home and between 10 and 03
-        if (Network.mobile_matteus.is_on() or Network.is_guest_home()) and Time.between(time(10), time(3)):
-            logger.debug('ControlMatteus.update(): Matteus is home')
+        if (Network.mobile_matteus.is_on() or Network.is_guest_home()) and Time.between(
+            time(10), time(3)
+        ):
+            logger.debug("ControlMatteus.update(): Matteus is home")
             # Always on when the sun has set
             if Luminance.is_sun_down():
-                logger.debug('ControlMatteus.update(): Sun is down')
+                logger.debug("ControlMatteus.update(): Sun is down")
                 self.state = STATE_ON
 
         # Update dim
@@ -120,18 +126,22 @@ class ControlMatteus(Controller):
 
 class ControlMonitor(Controller):
     def __init__(self):
-        super().__init__('Monitor')
+        super().__init__("Monitor")
 
     def _get_light_or_group(self):
         return Lights.monitor
 
     def update(self):
         # Only when Matteus is home, computer is turned on, and between 08 and 03
-        if (Network.mobile_matteus.is_on() or Network.is_guest_home()) and Network.mina.is_on() and Time.between(time(8), time(3)):
-            logger.debug('ControlMonitor.update(): Matteus is home')
+        if (
+            (Network.mobile_matteus.is_on() or Network.is_guest_home())
+            and Network.mina.is_on()
+            and Time.between(time(8), time(3))
+        ):
+            logger.debug("ControlMonitor.update(): Matteus is home")
             # Always on when it's dark outside
             if Luminance.is_dark():
-                logger.debug('ControlMonitor.update(): It\'s dark outside')
+                logger.debug("ControlMonitor.update(): It's dark outside")
                 self.state = STATE_ON
 
     def turn_off(self):
@@ -142,7 +152,7 @@ class ControlMonitor(Controller):
 
 class ControlAmbient(Controller):
     def __init__(self):
-        super().__init__('Ambient')
+        super().__init__("Ambient")
 
     def _get_light_or_group(self):
         # Winter lights
@@ -157,7 +167,7 @@ class ControlAmbient(Controller):
 
 class ControlWindows(Controller):
     def __init__(self):
-        super().__init__('Windows')
+        super().__init__("Windows")
 
     def _get_light_or_group(self):
         return [Lights.window, Lights.micro]
@@ -173,7 +183,7 @@ class ControlMatteusTurnOff(Controller):
     """Will only turn off lights in Matteus if I leave home. Will never turn it back on."""
 
     def __init__(self):
-        super().__init__('Turn off Matteus')
+        super().__init__("Turn off Matteus")
 
     def _get_light_or_group(self):
         return [Lights.led_strip, Groups.matteus, Lights.bamboo]
@@ -191,7 +201,7 @@ class ControlLedStripOff(Controller):
     """Will only turn off the LED strip if TV is on and Matteus is the only one home"""
 
     def __init__(self):
-        super().__init__('Turn off LED Strip')
+        super().__init__("Turn off LED Strip")
 
     def _get_light_or_group(self):
         return Lights.led_strip
@@ -200,7 +210,11 @@ class ControlLedStripOff(Controller):
         self.state = STATE_ON
 
         # Only if Matteus is alone home
-        if Network.mobile_matteus.is_on() and not Network.mobile_emma.is_on() and not Network.is_guest_home():
+        if (
+            Network.mobile_matteus.is_on()
+            and not Network.mobile_emma.is_on()
+            and not Network.is_guest_home()
+        ):
             # Only if TV is on
             if Network.tv.is_on():
                 self.state = STATE_OFF
@@ -211,7 +225,7 @@ class ControlLedStripOff(Controller):
 
 class ControlTurnOffEmma(Controller):
     def __init__(self):
-        super().__init__('Turn off Emma lights')
+        super().__init__("Turn off Emma lights")
 
     def _get_light_or_group(self):
         return Groups.emma
@@ -229,7 +243,7 @@ class ControlTurnOffLights(Controller):
     """Will only turn off lights (when we leave home if some lights were turned on manually)"""
 
     def __init__(self):
-        super().__init__('Turn off all lights')
+        super().__init__("Turn off all lights")
 
     def _get_light_or_group(self):
         return [Groups.cozy, Lights.hall, Lights.ceiling]
@@ -244,7 +258,7 @@ class ControlTurnOffLights(Controller):
 
 class ControlSunLamp(Controller):
     def __init__(self):
-        super().__init__('Sun Lamp')
+        super().__init__("Sun Lamp")
 
     def _get_light_or_group(self):
         return Lights.sun_lamp

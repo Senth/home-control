@@ -1,6 +1,6 @@
 import requests
 import logging
-from .config import WEATHER_URL
+from .config import config
 from .time import Date
 from .stats import Stats
 
@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 class Weather:
     """Value in the range of [0,8]"""
+
     cloud_cover = 0
     temperature = 0
     _precipitation = 0
@@ -17,7 +18,7 @@ class Weather:
 
     @staticmethod
     def _get_weather_info():
-        request = requests.get(WEATHER_URL)
+        request = requests.get(config.location.weather_url())
         try:
             Weather._weather_info = request.json()
         except ValueError:
@@ -25,23 +26,23 @@ class Weather:
 
     @staticmethod
     def _set_weather_info():
-        parameters = Weather._weather_info['timeSeries'][0]['parameters']
+        parameters = Weather._weather_info["timeSeries"][0]["parameters"]
 
         for parameter in parameters:
-            name = parameter['name']
-            value = parameter['values'][0]
+            name = parameter["name"]
+            value = parameter["values"][0]
 
-            if name == 'tcc_mean':
+            if name == "tcc_mean":
                 Weather.cloud_cover = value
-                Stats.log('cloud cover', value)
+                Stats.log("cloud cover", value)
                 logger.info("Weather.cloud_cover = " + str(value))
-            if name == 't':
+            if name == "t":
                 Weather.temperature = value
-                Stats.log('outside temperature', value)
+                Stats.log("outside temperature", value)
                 logger.info("Weather.temperature = " + str(value))
-            if name == 'pmean':
+            if name == "pmean":
                 Weather._precipitation = value
-                Stats.log('precipitation', value)
+                Stats.log("precipitation", value)
                 logger.info("Weather.precipitation = " + str(value))
 
     @staticmethod
