@@ -138,7 +138,7 @@ class UnifiApi:
     def _update_clients(self):
         for client in self.controller.get_clients():
             self.clients[client["mac"]] = client
-            if client["usergroup_id"] != UnifiApi.USER_GROUP_OWNER:
+            if client["usergroup_id"] != config.unifi.usergroup_owner:
                 was_guest_active = self.is_guest_active()
                 self._last_guest_active_time = time()
 
