@@ -4,7 +4,7 @@ import datetime
 import logging
 from .config import config
 
-sun = Sun(config.lat, config.long)
+sun = Sun(config.location.lat, config.location.long)
 
 logger = logging.getLogger(__name__)
 
