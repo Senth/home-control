@@ -1,4 +1,5 @@
 from subprocess import run, CalledProcessError
+import subprocess
 from pyunifi.controller import Controller
 from time import time
 from .config import config
@@ -48,7 +49,7 @@ class NetworkDevice(Device):
     """Checks if a device is on or not."""
 
     def __init__(self, ip, name, log=False, updates_every=15, off_times=10, timeout=4):
-        super().__init__("{} ({})".format(name, ip), log)
+        super().__init__(f"{name} ({ip})", log)
         self.ip = ip
         self.next_check_in = 0
         self._off_times = off_times
@@ -68,7 +69,16 @@ class NetworkDevice(Device):
         last_off_time = self._off_times
 
         try:
-            run(["ping", "-c", "1", "-W", self._timeout, self.ip], check=True)
+            if config.debug:
+                out = subprocess.STDOUT
+            else:
+                out = subprocess.DEVNULL
+
+            run(
+                ["ping", "-c", "1", "-W", self._timeout, self.ip],
+                check=True,
+                stdout=out,
+            )
             self._off_times = 0
         except CalledProcessError:
             self._off_times += 1
@@ -115,7 +125,7 @@ class UnifiApi:
             config.unifi.password,
             port=config.unifi.port,
             site_id=config.unifi.site_id,
-            ssl_verify=False,
+            ssl_verify=True,
         )
         self.clients = {}
         self._last_guest_active_time = 0

@@ -72,12 +72,12 @@ class Config:
             "-v",
             "--verbose",
             action="store_true",
-            help="Prints out helpful messages. (NOT IMPLEMENTED YET)",
+            help="Prints out helpful messages.",
         )
         parser.add_argument(
             "--debug",
             action="store_true",
-            help="Turn on debug messages. This automatically turns on --verbose as well. (NOT IMPLEMENTED YET)",
+            help="Turn on debug messages. This automatically turns on --verbose as well.",
         )
 
         _args = parser.parse_args()
