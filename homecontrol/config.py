@@ -6,7 +6,7 @@ import site
 import importlib.util
 import argparse
 
-_app_name = __package__.replace("_", "-")
+_app_name = "home-control"
 _config_dir = path.join("config", _app_name)
 _config_file = path.join(_config_dir, "config.py")
 _example_file = path.join(_config_dir, "config.example.py")
@@ -62,7 +62,7 @@ class Config:
         self._check_required_variables()
         self._parse_args()
         self._init_logger()
-        self.app_name = __package__.replace("_", "-")
+        self.app_name = _app_name
 
     def _parse_args(self):
         # Get arguments first to get verbosity before we get everything else

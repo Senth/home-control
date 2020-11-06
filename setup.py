@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="home-control",
-    version="2.0.1",
+    version="2.0.2",
     url="https://github.com/Senth/home-control",
     license="MIT",
     author="Matteus Magnusson",
