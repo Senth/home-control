@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="home-control",
-    version="2.0.0",
+    version="2.0.1",
     url="https://github.com/Senth/home-control",
     license="MIT",
     author="Matteus Magnusson",
@@ -14,7 +14,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=["homecontrol"],
-    entry_points={"console_scripts": ["home-control=homecontrol.__main__:__main__"]},
+    entry_points={"console_scripts": ["home-control=homecontrol.__main__:main"]},
     include_package_data=True,
     data_files=[("config/home-control", ["config/config.example.py"])],
     install_requires=["apscheduler", "requests", "pytradfri", "pyunifi", "suntime"],

@@ -1,4 +1,6 @@
 from os import path
+from datetime import datetime
+import logging
 import sys
 import site
 import importlib.util
@@ -59,6 +61,7 @@ class Config:
         self._get_optional_variables()
         self._check_required_variables()
         self._parse_args()
+        self._init_logger()
         self.app_name = __package__.replace("_", "-")
 
     def _parse_args(self):
@@ -157,6 +160,29 @@ class Config:
             self.unifi.host = _user_config.UNIFI_HOST
         except AttributeError:
             _print_missing("UNIFI_HOST")
+
+    def _init_logger(self):
+        now = datetime.now()
+        date_string = now.strftime("%Y-%m-%d %H:%M")
+        log_location = f"/var/log/home-control/{date_string} home-control.log"
+
+        if self.debug:
+            log_level = logging.DEBUG
+        elif self.verbose:
+            log_level = logging.INFO
+        else:
+            log_level = logging.WARNING
+
+        logging.basicConfig(
+            format="%(asctime)s:%(levelname)s: %(message)s",
+            filename=log_location,
+            level=log_level,
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+        logging.getLogger(__name__).addHandler(logging.StreamHandler())
+
+        # Set apscheduler log level
+        logging.getLogger("apscheduler").setLevel(log_level)
 
 
 class Tradfri:
