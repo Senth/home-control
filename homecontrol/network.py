@@ -131,9 +131,9 @@ class UnifiApi:
             return None
 
     def is_guest_active(self):
-        """Checks the last 5 minutes"""
+        """Checks the last X minutes"""
         elapsed_time = time() - self._last_guest_active_time
-        return elapsed_time <= UnifiApi.GUEST_ACTIVE_TIME
+        return elapsed_time <= config.unifi.guest_inactive_time
 
     def _update_clients(self):
         for client in self.controller.get_clients():

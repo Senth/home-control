@@ -115,6 +115,11 @@ class Config:
             pass
 
         try:
+            self.unifi.guest_inactive_time = _user_config.UNIFI_GUEST_INACTIVE_TIME
+        except:
+            pass
+
+        try:
             self.stats_file = _user_config.STATS_FILE
         except AttributeError:
             pass
@@ -161,6 +166,11 @@ class Config:
         except AttributeError:
             _print_missing("UNIFI_HOST")
 
+        try:
+            self.unifi.usergroup_owner = _user_config.UNIFI_USERGROUP_OWNER
+        except AttributeError:
+            _print_missing("UNIFI_USERGROUP_OWNER")
+
     def _init_logger(self):
         now = datetime.now()
         date_string = now.strftime("%Y-%m-%d %H:%M")
@@ -205,9 +215,11 @@ class Unifi:
     def __init__(self):
         self.username = ""
         self.password = ""
+        self.usergroup_owner = ""
         self.host = ""
         self.port = 8444
         self.site_id = "default"
+        self.guest_inactive_time = 300
 
 
 global config
