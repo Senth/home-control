@@ -1,5 +1,4 @@
-from subprocess import run, CalledProcessError
-import subprocess
+from subprocess import run, CalledProcessError, DEVNULL, STDOUT
 from pyunifi.controller import Controller
 from time import time
 from .config import config
@@ -69,10 +68,10 @@ class NetworkDevice(Device):
         last_off_time = self._off_times
 
         try:
+            out = DEVNULL
+
             if config.debug:
-                out = subprocess.STDOUT
-            else:
-                out = subprocess.DEVNULL
+                out = STDOUT
 
             run(
                 ["ping", "-c", "1", "-W", self._timeout, self.ip],
