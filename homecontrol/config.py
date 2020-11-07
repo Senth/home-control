@@ -1,5 +1,7 @@
 from os import path
 from datetime import datetime
+from platform import system
+from tempfile import gettempdir
 import logging
 import sys
 import site
@@ -174,7 +176,12 @@ class Config:
     def _init_logger(self):
         now = datetime.now()
         date_string = now.strftime("%Y-%m-%d %H:%M")
-        log_location = f"/var/log/home-control/{date_string} home-control.log"
+        os = system()
+        if os == "Windows":
+            log_dir = path.join(gettempdir(), "")
+        else:
+            log_dir = "/var/log/home-control/"
+        log_location = path.join(log_dir, f"{date_string} home-control.log")
 
         if self.debug:
             log_level = logging.DEBUG
