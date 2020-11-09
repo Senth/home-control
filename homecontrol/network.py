@@ -1,12 +1,12 @@
-from subprocess import run, CalledProcessError, DEVNULL, STDOUT
+from subprocess import run, CalledProcessError, DEVNULL
 from pyunifi.controller import Controller
 from time import time
 from .config import config
-import logging
+import sys
 from .stats import Stats
 
 
-logger = logging.getLogger(__name__)
+logger = config.logger
 
 
 class Device:
@@ -71,7 +71,7 @@ class NetworkDevice(Device):
             out = DEVNULL
 
             if config.debug:
-                out = STDOUT
+                out = sys.stdout
 
             run(
                 ["ping", "-c", "1", "-W", self._timeout, self.ip],
@@ -145,9 +145,14 @@ class UnifiApi:
         return elapsed_time <= config.unifi.guest_inactive_time
 
     def _update_clients(self):
+        logger.debug("Getting UNIFI clients")
         for client in self.controller.get_clients():
+            # logger.debug("Client info: " + str(client))
             self.clients[client["mac"]] = client
-            if client["usergroup_id"] != config.unifi.usergroup_owner:
+            if (
+                "usergroup_id" not in client
+                or client["usergroup_id"] != config.unifi.usergroup_owner
+            ):
                 was_guest_active = self.is_guest_active()
                 self._last_guest_active_time = time()
 
@@ -187,5 +192,6 @@ class Network:
 
     @staticmethod
     def update():
+        logger.debug("Network.update()")
         Network._unifi.update()
         Device.update_all()

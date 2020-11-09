@@ -1,8 +1,7 @@
 from .config import config
 from datetime import datetime
-import logging
 
-logger = logging.getLogger(__name__)
+logger = config.logger
 
 
 class Stats:

@@ -2,16 +2,15 @@ from .tradfri_gateway import TradfriGateway, Lights, Groups
 from .network import Network
 from .time import Time, Day, Date
 from .luminance import Luminance
+from .config import config
 from datetime import time
-
-import logging
 
 
 STATE_NA = "not applicable"
 STATE_ON = "on"
 STATE_OFF = "off"
 
-logger = logging.getLogger(__name__)
+logger = config.logger
 
 
 def _calculate_ambient():

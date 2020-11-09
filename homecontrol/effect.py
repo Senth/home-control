@@ -1,9 +1,8 @@
 from time import sleep
 from .tradfri_gateway import TradfriGateway, Lights
+from .config import config
 
-import logging
-
-logger = logging.getLogger(__name__)
+logger = config.logger
 
 
 class Effects:

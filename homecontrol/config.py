@@ -1,12 +1,13 @@
-from os import path
+from os import path, makedirs
 from datetime import datetime
 from platform import system
 from tempfile import gettempdir
-import logging
 import sys
 import site
 import importlib.util
 import argparse
+import logging
+import logging.handlers
 
 _app_name = "home-control"
 _config_dir = path.join("config", _app_name)
@@ -65,6 +66,7 @@ class Config:
         self._parse_args()
         self._init_logger()
         self.app_name = _app_name
+        self.logger: logging.Logger
 
     def _parse_args(self):
         # Get arguments first to get verbosity before we get everything else
@@ -174,14 +176,13 @@ class Config:
             _print_missing("UNIFI_USERGROUP_OWNER")
 
     def _init_logger(self):
-        now = datetime.now()
-        date_string = now.strftime("%Y-%m-%d %H:%M")
         os = system()
         if os == "Windows":
-            log_dir = path.join(gettempdir(), "")
+            log_dir = path.join(gettempdir(), "home-control")
+            makedirs(log_dir, exist_ok=True)
         else:
             log_dir = "/var/log/home-control/"
-        log_location = path.join(log_dir, f"{date_string} home-control.log")
+        log_location = path.join(log_dir, "home-control.log")
 
         if self.debug:
             log_level = logging.DEBUG
@@ -190,16 +191,30 @@ class Config:
         else:
             log_level = logging.WARNING
 
-        logging.basicConfig(
-            format="%(asctime)s:%(levelname)s: %(message)s",
-            filename=log_location,
-            level=log_level,
-            datefmt="%Y-%m-%d %H:%M:%S",
+        # Set app logging
+        timed_rotating_handler = logging.handlers.TimedRotatingFileHandler(
+            log_location, when="midnight"
         )
-        logging.getLogger(__name__).addHandler(logging.StreamHandler())
+        timed_rotating_handler.setLevel(log_level)
+        timed_rotating_handler.setFormatter(
+            logging.Formatter(
+                "%(asctime)s:%(levelname)s: %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+            )
+        )
+
+        # Stream output
+        stream_handler = logging.StreamHandler(sys.stdout)
+        stream_handler.setLevel(log_level)
+
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(log_level)
+        self.logger.addHandler(timed_rotating_handler)
+        self.logger.addHandler(stream_handler)
 
         # Set apscheduler log level
-        logging.getLogger("apscheduler").setLevel(log_level)
+        ap_logger = logging.getLogger("apscheduler")
+        ap_logger.setLevel(log_level)
+        ap_logger.addHandler(timed_rotating_handler)
 
 
 class Tradfri:

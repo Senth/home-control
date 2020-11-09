@@ -1,10 +1,9 @@
 from .weather import Weather
 from .sun import Sun
 from .time import Date
-import logging
+from .config import config
 
-
-logger = logging.getLogger(__name__)
+logger = config.logger
 
 SUMMER_START = (4, 1)
 AUTUMN_EARLY_START = (9, 1)

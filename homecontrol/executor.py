@@ -1,11 +1,11 @@
 from .tradfri_gateway import TradfriGateway, Lights, Groups
 from .effect import Effects
 from .info_wrapper import InfoWrapper
-import logging
+from .config import config
 import threading
 import time
 
-logger = logging.getLogger(__name__)
+logger = config.logger
 
 
 class Executor:

@@ -1,10 +1,6 @@
 from .weather import Weather
 from .luminance import Luminance
 
-import logging
-
-logger = logging.getLogger(__name__)
-
 
 class InfoWrapper:
     @staticmethod

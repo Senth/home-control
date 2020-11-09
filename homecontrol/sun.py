@@ -1,12 +1,11 @@
 from suntime import Sun
 from dateutil import tz
 import datetime
-import logging
 from .config import config
 
 sun = Sun(config.location.lat, config.location.long)
 
-logger = logging.getLogger(__name__)
+logger = config.logger
 
 
 def tomorrow():

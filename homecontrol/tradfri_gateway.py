@@ -1,15 +1,13 @@
 from time import sleep
-
 from pytradfri import Gateway
 from pytradfri.device import Device
 from pytradfri.group import Group
 from pytradfri.api.libcoap_api import APIFactory
 from pytradfri.error import RequestTimeout
 from .config import config
-import logging
 
 
-logger = logging.getLogger(__name__)
+logger = config.logger
 
 api_factory = APIFactory(
     host=config.tradfri.host, psk_id=config.tradfri.identity, psk=config.tradfri.key

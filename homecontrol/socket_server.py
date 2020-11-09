@@ -1,10 +1,10 @@
 from .executor import Executor
-import logging
+from .config import config
 import json
 import socket
 
 
-logger = logging.getLogger(__name__)
+logger = config.logger
 
 
 class SocketServer:
