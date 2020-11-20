@@ -165,7 +165,7 @@ class Effect:
         self.name = name
         self.light_or_group = light_or_group
         self.transitions = []
-        self.abort = False
+        self.aborted = False
 
     def add_transition(self, transition: Transition):
         self.transitions.append(transition)
@@ -175,12 +175,12 @@ class Effect:
             self.add_transition(transition)
 
     def abort(self):
-        self.abort = True
+        self.aborted = True
 
     def run(self):
         logger.debug("Effect.run() " + self.name)
         for transition in self.transitions:
-            if self.abort:
+            if self.aborted:
                 return
 
             transition.run(self.light_or_group)

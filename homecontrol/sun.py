@@ -35,9 +35,9 @@ class Sun:
 
     @staticmethod
     def print():
-        print("Sunrise: " + str(Sun._sunrise) + ", sunset: " + str(Sun._sunset))
-        print("is_up(): " + str(Sun.is_up()))
-        print("is_bright(): " + str(Sun.is_up_shortened()))
+        print(f"Sunrise: {Sun._sunrise} , sunset: {Sun._sunset}")
+        print(f"is_up(): {Sun.is_up()}")
+        print(f"is_bright(): {Sun.is_up_shortened()}")
 
     @staticmethod
     def is_up():
@@ -75,7 +75,7 @@ class Sun:
             # until 30 min after sunrise -> it's not bright
             sunrise = Sun._last_sunrise + diff_time
             if now < sunrise:
-                logging.debug(
+                logger.debug(
                     "Sun.is_bright(): less than 30 min after sunrise, not bright"
                 )
                 return False

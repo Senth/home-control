@@ -9,7 +9,7 @@ logger = config.logger
 
 class SocketServer:
     @staticmethod
-    def run():
+    def run() -> None:
         logger.debug("SocketServer.run() Starting server")
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.bind(("localhost", 10200))

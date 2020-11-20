@@ -1,10 +1,11 @@
+from typing import Dict
 from .weather import Weather
 from .luminance import Luminance
 
 
 class InfoWrapper:
     @staticmethod
-    def get_day_info():
+    def get_day_info() -> Dict:
         info = {
             "luminance": {"is_dark": int(Luminance.is_dark())},
             "sun": {

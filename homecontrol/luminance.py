@@ -15,7 +15,7 @@ SPRING_LATE_START = (3, 20)
 
 class Luminance:
     @staticmethod
-    def is_dark():
+    def is_dark() -> bool:
         # Return directly if sun is actually down
         if Luminance.is_sun_down():
             return True
@@ -33,7 +33,7 @@ class Luminance:
         return False
 
     @staticmethod
-    def is_sun_down():
+    def is_sun_down() -> bool:
         """Get sun is down depending on which date it is"""
         if Date.between(SPRING_LATE_START, AUTUMN_LATE_START):
             return Sun.is_down()
@@ -41,7 +41,7 @@ class Luminance:
             return Sun.is_down_shortened()
 
     @staticmethod
-    def _is_weather_dark():
+    def _is_weather_dark() -> bool:
         """:returns true if it's cloudy, checks how cloudy it is depending on the year"""
         # Winter
         if Date.between(WINTER_START, SPRING_EARLY_START):

@@ -1,11 +1,12 @@
-from time import time
-from datetime import datetime, date
+from datetime import time, date, datetime
+from typing import Tuple
 from dateutil import tz
+from enum import Enum
 
 
 class Time:
     @staticmethod
-    def between(start, end):
+    def between(start: time, end: time) -> bool:
         now = datetime.now(tz.tzlocal()).time()
 
         # Same day
@@ -15,26 +16,28 @@ class Time:
             return start <= now or now < end
 
 
-class Day:
-    MONDAY = 0
-    TUESDAY = 1
-    WEDNESDAY = 2
-    THURSDAY = 3
-    FRIDAY = 4
-    SATURDAY = 5
-    SUNDAY = 6
+class Days(Enum):
+    monday = 0
+    tuesday = 1
+    wednesday = 2
+    thursday = 3
+    friday = 4
+    saturday = 5
+    sunday = 6
 
+
+class Day:
     @staticmethod
-    def is_day(self, *days):
+    def is_day(*days: Days) -> bool:
         for day in days:
-            if date.today().weekday() == day:
+            if date.today().weekday() == day.value:
                 return True
         return False
 
 
 class Date:
     @staticmethod
-    def between(start, end):
+    def between(start: Tuple[int, int], end: Tuple[int, int]) -> bool:
         now = datetime.now(tz.tzlocal())
         now = (now.month, now.day)
 

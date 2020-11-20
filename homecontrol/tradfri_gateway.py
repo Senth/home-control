@@ -1,5 +1,7 @@
 from time import sleep
+from typing import Any, List, Union
 from pytradfri import Gateway
+from pytradfri.command import Command
 from pytradfri.device import Device
 from pytradfri.group import Group
 from pytradfri.api.libcoap_api import APIFactory
@@ -17,20 +19,24 @@ api = api_factory.request
 gateway = Gateway()
 
 
-def try_several_times(command, recursive=False, max_tries=10):
+def try_several_times(
+    command: Command, recursive: bool = False, max_tries: int = 10
+) -> List[Any]:
     try_count = 1
     while True:
         try:
             response = api(command)
             if recursive:
                 response = api(response)
-            return response
+
+            if isinstance(response, list):
+                return response
+            else:
+                return []
         except RequestTimeout:
             try_count += 1
             logger.info(
-                "try_several_times() Failed to run command, trying again... (try #{})".format(
-                    try_count
-                )
+                f"try_several_times() Failed to run command, trying again... (try #{try_count})"
             )
             sleep(1)
 
@@ -48,7 +54,8 @@ class Lights:
     monitor = "Monitor lights"
     billy = "Billy lights"
     bamboo = "Bamboo lamp"
-    hall = "Hall light"
+    hall_ceiling = "Hallen Taklamp"
+    hall_painting = "Hall light"
     ac = "AC"
     cylinder = "Cylinder lamp"
     micro = "Micro lights"
@@ -57,10 +64,10 @@ class Lights:
     emma_salt = "Salt lampa"
     emma_slinga = "Ljusslinga lampa"
 
-    devices = []
+    devices: List[Device] = []
 
     @staticmethod
-    def update():
+    def update() -> None:
         """Bind all lights to the correct pytradfri light"""
         Lights.devices = try_several_times(gateway.get_devices(), recursive=True)
 
@@ -113,12 +120,18 @@ class Lights:
                 and Lights.bamboo.id == device.id
             ):
                 Lights.bamboo = device
-            elif Lights.hall == device.name or (
-                isinstance(Lights.hall, Device)
-                and Lights.hall.has_socket_control
-                and Lights.hall.id == device.id
+            elif Lights.hall_ceiling == device.name or (
+                isinstance(Lights.hall_ceiling, Device)
+                and Lights.hall_ceiling.has_socket_control
+                and Lights.hall_ceiling.id == device.id
             ):
-                Lights.hall = device
+                Lights.hall_ceiling = device
+            elif Lights.hall_painting == device.name or (
+                isinstance(Lights.hall_painting, Device)
+                and Lights.hall_painting.has_socket_control
+                and Lights.hall_painting.id == device.id
+            ):
+                Lights.hall_painting = device
             elif Lights.cylinder == device.name or (
                 isinstance(Lights.cylinder, Device)
                 and Lights.cylinder.has_light_control
@@ -165,7 +178,7 @@ class Lights:
                 logger.warning("Didn't update/bind device: " + str(device))
 
     @staticmethod
-    def find_light(name):
+    def find_light(name: str) -> Union[Device, None]:
         for device in Lights.devices:
             if device.name.lower() == name.lower():
                 return device
@@ -182,11 +195,11 @@ class Groups:
     sun = "Sun"
     kitchen = "Köket"
 
-    groups = []
+    groups: List[Group] = []
     moods = {}
 
     @staticmethod
-    def update():
+    def update() -> None:
         Groups.groups = try_several_times(gateway.get_groups(), recursive=True)
 
         for group in Groups.groups:
@@ -231,16 +244,20 @@ class Groups:
             ):
                 Groups.kitchen = group
             else:
-                logger.warning("Didn't update/bind group: " + str(group))
+                logger.warning(f"Didn't update/bind group: {group}")
 
     @staticmethod
-    def find_group(name):
+    def find_group(name: str) -> Union[Group, None]:
         for group in Groups.groups:
             if group.name.lower() == name.lower():
                 return group
 
     @staticmethod
-    def find_mood(group, mood_name=None, mood_id=None):
+    def find_mood(
+        group: Group,
+        mood_name: Union[str, None] = None,
+        mood_id: Union[str, None] = None,
+    ):
         moods = Groups.moods[group.id]
 
         if mood_id:
@@ -254,7 +271,11 @@ class Groups:
                     return mood
 
     @staticmethod
-    def set_mood(group, mood_name=None, mood_id=None):
+    def set_mood(
+        group: Group,
+        mood_name: Union[str, None] = None,
+        mood_id: Union[str, None] = None,
+    ):
         # Get mood id
         if mood_name and not mood_id:
             mood = Groups.find_mood(group, mood_name=mood_name)
@@ -263,28 +284,26 @@ class Groups:
                 mood_id = mood.id
             else:
                 logger.warning(
-                    "Groups.set_mood() No mood found with the name {}.".format(
-                        mood_name
-                    )
+                    f"Groups.set_mood() No mood found with the name {mood_name}."
                 )
 
         if mood_id:
             logger.debug(
-                "Groups.set_mood() Setting mood to {} in {}.".format(
-                    mood_name, group.name
-                )
+                f"Groups.set_mood() Setting mood to {mood_name} in {group.name}."
             )
             try_several_times(group.activate_mood(mood_id))
 
 
 class TradfriGateway:
     @staticmethod
-    def reboot():
+    def reboot() -> None:
         """Reboot the gateway"""
         try_several_times(gateway.reboot())
 
     @staticmethod
-    def turn_on(light_or_group):
+    def turn_on(
+        light_or_group: Union[Device, Group, List[Union[Group, Device]]]
+    ) -> None:
         """
         Turn on a light or group
         :param light_or_group: Can be either a light or group. Can be a list of lights and groups
@@ -300,7 +319,9 @@ class TradfriGateway:
             try_several_times(light_or_group.set_state(1))
 
     @staticmethod
-    def turn_off(light_or_group):
+    def turn_off(
+        light_or_group: Union[Device, Group, List[Union[Group, Device]]]
+    ) -> None:
         """Turn off a light or group
         :param light_or_group: Can be either a light or group. Can be a list of lights and groups
         """
@@ -316,17 +337,20 @@ class TradfriGateway:
             try_several_times(light_or_group.set_state(0))
 
     @staticmethod
-    def isOn(light_or_group):
+    def isOn(light_or_group: Union[Device, Group]) -> bool:
         """Check if a light or group is turned on or not"""
         if isinstance(light_or_group, Device) and light_or_group.has_light_control:
-            return light_or_group.light_control.lights[0].state
+            return bool(light_or_group.light_control.lights[0].state)
         if isinstance(light_or_group, Device) and light_or_group.has_socket_control:
-            return light_or_group.socket_control.sockets[0].state
+            return bool(light_or_group.socket_control.sockets[0].state)
         if isinstance(light_or_group, Group):
-            return light_or_group.state
+            return bool(light_or_group.state)
+        return False
 
     @staticmethod
-    def toggle(light_or_group):
+    def toggle(
+        light_or_group: Union[Device, Group, List[Union[Group, Device]]]
+    ) -> None:
         """Toggle a light or group
         :param light_or_group: Can be either a light or group. Can be a list of lights and groups
         """
@@ -345,7 +369,11 @@ class TradfriGateway:
             try_several_times(light_or_group.set_state(new_state))
 
     @staticmethod
-    def dim(light_or_group, value: int, transition_time: float = 1):
+    def dim(
+        light_or_group: Union[Device, Group, List[Union[Group, Device]]],
+        value: int,
+        transition_time: float = 1,
+    ) -> None:
         """Dim a light or group
         :param light_or_group: Can be either a light or group. Can be a list of lights and groups
         :param value the dim value between 0 and 254
@@ -376,7 +404,12 @@ class TradfriGateway:
             )
 
     @staticmethod
-    def color(light_or_group, x: int, y: int, transition_time: float = 1):
+    def color(
+        light_or_group: Union[Device, Group, List[Union[Group, Device]]],
+        x: int,
+        y: int,
+        transition_time: float = 1,
+    ) -> None:
         """Set the color of a light or group
         :param light_or_group Can be either a light or group or a list containing lights and groups
         :param x x-value of the color

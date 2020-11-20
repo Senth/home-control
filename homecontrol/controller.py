@@ -1,92 +1,96 @@
+from pytradfri.device import Device
+from pytradfri.group import Group
 from .tradfri_gateway import TradfriGateway, Lights, Groups
 from .network import Network
-from .time import Time, Day, Date
+from .time import Days, Time, Day, Date
 from .luminance import Luminance
 from .config import config
 from datetime import time
+from typing import Any, List, Union
+from enum import Enum
 
 
-STATE_NA = "not applicable"
-STATE_ON = "on"
-STATE_OFF = "off"
+class States(Enum):
+    initial = "initial"
+    on = "on"
+    off = "off"
+
 
 logger = config.logger
 
 
-def _calculate_ambient():
+def _calculate_ambient() -> States:
     # Only when someone's home
     if Network.is_someone_home():
         # Only when it's dark
         if Luminance.is_dark():
             # Weekends
-            if Day.is_day(Day.SATURDAY, Day.SUNDAY):
+            if Day.is_day(Days.saturday, Days.sunday):
                 if Time.between(time(9), time(2)):
-                    return STATE_ON
+                    return States.on
             # Weekdays
             else:
                 if Time.between(time(7, 30), time(2)):
-                    return STATE_ON
+                    return States.on
 
-    return STATE_OFF
+    return States.off
 
 
 class Controller:
-    def __init__(self, name):
-        self.state = STATE_NA
-        self.brightness = None
+    def __init__(self, name: str) -> None:
+        self.state: States = States.initial
+        self.brightness: Union[int, None] = None
         self.name = name
 
     @staticmethod
-    def update_all():
+    def update_all() -> None:
         logger.debug("Updating controllers")
         for controller in controllers:
             logger.debug("Updating controller: " + controller.name)
             last_state = controller.state
             last_brightness = controller.brightness
 
-            controller.state = STATE_OFF
+            controller.state = States.off
             controller.update()
 
             # Controller state updated
             if controller.state != last_state:
-                logger.debug(
-                    "State changed from " + last_state + " -> " + controller.state
-                )
-                if controller.state == STATE_ON:
+                logger.debug(f"State changed from {last_state} -> {controller.state}")
+                if controller.state == States.on:
                     controller.turn_on()
-                elif controller.state == STATE_OFF:
+                elif controller.state == States.off:
                     controller.turn_off()
 
             # Brightness updated
             if controller.brightness != last_brightness:
                 controller.dim()
 
-    def turn_on(self):
+    def turn_on(self) -> None:
         logger.info("Turning on " + self.name)
         TradfriGateway.turn_on(self._get_light_or_group())
         # Dim to correct value
         if self.brightness:
             self.dim(transition_time=0)
 
-    def turn_off(self):
+    def turn_off(self) -> None:
         logger.info("Turning off " + self.name)
         TradfriGateway.turn_off(self._get_light_or_group())
 
-    def dim(self, transition_time=60):
-        if self.state == STATE_ON:
-            logger.info("Dimming {} to {}".format(self.name, self.brightness))
+    def dim(self, transition_time: float = 60):
+        if self.state == States.on:
+            logger.info(f"Dimming {self.name} to {self.brightness}")
             TradfriGateway.dim(
                 self._get_light_or_group(),
                 self.brightness,
                 transition_time=transition_time,
             )
 
-    def _get_light_or_group(self):
-        logger.error("Not implemented " + self.name + "._get_light_or_group()")
-        return None
+    def _get_light_or_group(self) -> Union[Device, Group, List[Union[Device, Group]]]:
+        logger.error(f"Not implemented {self.name}._get_light_or_group()")
+        raise RuntimeError("Not implemented _get_light_or_group")
 
     def update(self):
-        logger.error("Not implemented " + self.name + "._update()")
+        logger.error(f"Not implemented {self.name}._update()")
 
 
 class ControlMatteus(Controller):
@@ -105,7 +109,7 @@ class ControlMatteus(Controller):
             # Always on when the sun has set
             if Luminance.is_sun_down():
                 logger.debug("ControlMatteus.update(): Sun is down")
-                self.state = STATE_ON
+                self.state = States.on
 
         # Update dim
         if Time.between(time(10), time(19)):
@@ -124,7 +128,7 @@ class ControlMatteus(Controller):
 
 
 class ControlMonitor(Controller):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Monitor")
 
     def _get_light_or_group(self):
@@ -141,7 +145,7 @@ class ControlMonitor(Controller):
             # Always on when it's dark outside
             if Luminance.is_dark():
                 logger.debug("ControlMonitor.update(): It's dark outside")
-                self.state = STATE_ON
+                self.state = States.on
 
     def turn_off(self):
         # Don't turn off between 8 and 10
@@ -150,22 +154,22 @@ class ControlMonitor(Controller):
 
 
 class ControlAmbient(Controller):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Ambient")
 
     def _get_light_or_group(self):
         # Winter lights
         if Date.between((11, 28), (1, 31)):
-            return [Groups.cozy, Lights.hall, Lights.micro]
+            return [Groups.cozy, Lights.hall_painting, Lights.micro]
         else:  # Regular lights
-            return [Lights.hall, Lights.ball]
+            return [Lights.hall_painting, Lights.ball]
 
     def update(self):
         self.state = _calculate_ambient()
 
 
 class ControlWindows(Controller):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Windows")
 
     def _get_light_or_group(self):
@@ -181,16 +185,16 @@ class ControlWindows(Controller):
 class ControlMatteusTurnOff(Controller):
     """Will only turn off lights in Matteus if I leave home. Will never turn it back on."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Turn off Matteus")
 
-    def _get_light_or_group(self):
+    def _get_light_or_group(self) -> List[Any]:
         return [Lights.led_strip, Groups.matteus, Lights.bamboo]
 
     def update(self):
         if Network.mobile_matteus.is_on() or Network.is_guest_home():
             if not TradfriGateway.isOn(Lights.ac):
-                self.state = STATE_ON
+                self.state = States.on
 
     def turn_on(self):
         pass
@@ -206,7 +210,7 @@ class ControlLedStripOff(Controller):
         return Lights.led_strip
 
     def update(self):
-        self.state = STATE_ON
+        self.state = States.on
 
         # Only if Matteus is alone home
         if (
@@ -216,7 +220,7 @@ class ControlLedStripOff(Controller):
         ):
             # Only if TV is on
             if Network.tv.is_on():
-                self.state = STATE_OFF
+                self.state = States.off
 
     def turn_on(self):
         pass
@@ -232,7 +236,7 @@ class ControlTurnOffEmma(Controller):
     def update(self):
         # Turn off if Emma isn't home and there's no guest
         if Network.mobile_emma.is_on() or Network.is_guest_home():
-            self.state = STATE_ON
+            self.state = States.on
 
     def turn_on(self):
         pass
@@ -245,11 +249,11 @@ class ControlTurnOffLights(Controller):
         super().__init__("Turn off all lights")
 
     def _get_light_or_group(self):
-        return [Groups.cozy, Lights.hall, Lights.ceiling]
+        return [Groups.cozy, Lights.hall_painting, Lights.ceiling]
 
     def update(self):
         if Network.is_someone_home():
-            self.state = STATE_ON
+            self.state = States.on
 
     def turn_on(self):
         pass
@@ -265,7 +269,7 @@ class ControlSunLamp(Controller):
     def update(self):
         if Time.between(time(4), time(8)):
             if Luminance.is_dark():
-                self.state = STATE_ON
+                self.state = States.on
 
 
 controllers = [

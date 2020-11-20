@@ -1,3 +1,7 @@
+from typing import Any, Dict, List, Union
+
+from pytradfri.device import Device
+from pytradfri.group import Group
 from .tradfri_gateway import TradfriGateway, Lights, Groups
 from .effect import Effects
 from .info_wrapper import InfoWrapper
@@ -11,9 +15,9 @@ logger = config.logger
 class Executor:
     _threads = []
 
-    def __init__(self, data):
+    def __init__(self, data: Dict[str, Any]):
         self._data = data
-        self._lights_and_groups = []
+        self._lights_and_groups: List[Union[Device, Group]] = []
 
         if self.needs_update():
             Lights.update()
@@ -39,7 +43,7 @@ class Executor:
                 if group:
                     # Special case, moods can only handle one group
                     if "mood" in self._data:
-                        self._lights_and_groups = group
+                        self._lights_and_groups = [group]
                         return
 
                     self._lights_and_groups.append(group)
@@ -57,21 +61,23 @@ class Executor:
             return
 
         # Get function to call for the action
-        function, args, kwargs = self.get_action_function()
+        tuple = self.get_action_function()
 
-        if function:
-            # Delayed action
-            if self.is_delay():
-                self.create_delayed_executor(function, args, kwargs)
+        if tuple:
+            function, args, kwargs = tuple
+            if function and isinstance(args, list) and isinstance(kwargs, dict):
+                # Delayed action
+                if self.is_delay():
+                    self.create_delayed_executor(function, args, kwargs)
 
-            # Run the action directly
-            else:
-                logger.debug(
-                    "Executor.execute() Args: {} KWArgs: {}.".format(
-                        str(args), str(kwargs)
+                # Run the action directly
+                else:
+                    logger.debug(
+                        "Executor.execute() Args: {} KWArgs: {}.".format(
+                            str(args), str(kwargs)
+                        )
                     )
-                )
-                return function(*args, **kwargs)
+                    return function(*args, **kwargs)
 
     @staticmethod
     def terminate_running_actions():
@@ -116,9 +122,7 @@ class Executor:
             if "transition_time" in self._data:
                 transition_time = int(self._data["transition_time"])
                 logger.debug(
-                    "Executor.get_action_function() Dim to {} with transition time {}.".format(
-                        value, transition_time
-                    )
+                    f"Executor.get_action_function() Dim to {value} with transition time {transition_time}."
                 )
                 return (
                     TradfriGateway.dim,
@@ -131,7 +135,7 @@ class Executor:
         # Set Mood
         elif action == "mood" and "mood" in self._data:
             mood_name = self._data["mood"]
-            logger.debug("Executor.get_action_function() Turn on mood: " + mood_name)
+            logger.debug(f"Executor.get_action_function() Turn on mood: {mood_name}")
             return Groups.set_mood, [self._lights_and_groups], {"mood_name": mood_name}
 
         # -----------------------
@@ -141,9 +145,7 @@ class Executor:
             return InfoWrapper.get_day_info, [], {}
 
         logger.warning(
-            "Executor.get_action_function() Action {} not found/implemented.".format(
-                action
-            )
+            f"Executor.get_action_function() Action {action} not found/implemented."
         )
         return None
 
@@ -152,7 +154,7 @@ class Executor:
 
     def create_effect_executor(self):
         effect_name = self._data["effect"]
-        logger.debug("Executor.get_action_function() Create effect " + effect_name)
+        logger.debug(f"Executor.get_action_function() Create effect {effect_name}")
         effect = Effects.from_name(effect_name)
         effect_executor = EffectExecutor(effect)
         effect_executor.start()
@@ -188,7 +190,7 @@ class Executor:
 
 
 class ThreadExecutor(threading.Thread):
-    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs={}):
         super().__init__(group, target, name, args, kwargs)
         self._terminate = False
 
