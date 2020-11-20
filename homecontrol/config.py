@@ -1,10 +1,11 @@
 from os import path, makedirs
-from datetime import datetime
 from platform import system
 from tempfile import gettempdir
+from typing import Any
 import sys
 import site
 import importlib.util
+import importlib.machinery
 import argparse
 import logging
 import logging.handlers
@@ -46,9 +47,11 @@ else:
     )
     sys.exit(0)
 
-_spec = importlib.util.spec_from_file_location("config", _user_config_file)
-_user_config = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(_user_config)
+# Import config
+_loader = importlib.machinery.SourceFileLoader("config", _user_config_file)
+_spec = importlib.util.spec_from_loader(_loader.name, _loader)
+_user_config: Any = importlib.util.module_from_spec(_spec)
+_loader.exec_module(_user_config)
 
 
 def _print_missing(variable_name):
