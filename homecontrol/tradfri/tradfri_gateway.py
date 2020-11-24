@@ -81,7 +81,7 @@ class TradfriGateway:
         elif isinstance(light_or_group, Groups):
             group = TradfriGateway._group_handler.get_group(light_or_group)
             if group:
-                try_several_times(group.set_state(1))
+                try_several_times(group.set_state(0))
 
     @staticmethod
     def isOn(light_or_group: Union[Lights, Groups]) -> bool:
