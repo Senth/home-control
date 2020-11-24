@@ -272,6 +272,19 @@ class ControlSunLamp(Controller):
                 self.state = States.on
 
 
+class ControlHallCeiling(Controller):
+    def __init__(self):
+        super().__init__("Hall Ceiling")
+
+    def _get_light_or_group(self) -> LightsOrGroups:
+        return Lights.hall_ceiling
+
+    def update(self):
+        if Time.between(time(11), time(17)):
+            if Luminance.is_dark():
+                self.state = States.on
+
+
 controllers = [
     ControlMatteus(),
     ControlMonitor(),
@@ -282,4 +295,5 @@ controllers = [
     ControlLedStripOff(),
     ControlTurnOffEmma(),
     ControlTurnOffLights(),
+    ControlHallCeiling(),
 ]
