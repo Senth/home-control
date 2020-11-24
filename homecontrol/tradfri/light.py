@@ -31,7 +31,7 @@ class Lights(Enum):
     @staticmethod
     def from_name(light_name: str) -> Union[Lights, None]:
         for light in Lights:
-            if light.value == light_name:
+            if light.value.lower() == light_name.lower():
                 return light
 
 

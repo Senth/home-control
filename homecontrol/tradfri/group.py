@@ -25,7 +25,7 @@ class Groups(Enum):
     @staticmethod
     def from_name(group_name: str) -> Union[Groups, None]:
         for group in Groups:
-            if group.value == group_name:
+            if group.value.lower() == group_name.lower():
                 return group
 
 
