@@ -1,5 +1,6 @@
 from time import sleep
-from .tradfri_gateway import TradfriGateway, Lights
+from .tradfri.tradfri_gateway import TradfriGateway, LightsOrGroups
+from .tradfri.light import Lights
 from .config import config
 
 logger = config.logger
@@ -161,7 +162,7 @@ class BrightnessTransition(Transition):
 
 
 class Effect:
-    def __init__(self, light_or_group, name):
+    def __init__(self, light_or_group: LightsOrGroups, name):
         self.name = name
         self.light_or_group = light_or_group
         self.transitions = []

@@ -1,6 +1,6 @@
-from pytradfri.device import Device
-from pytradfri.group import Group
-from .tradfri_gateway import TradfriGateway, Lights, Groups
+from .tradfri.tradfri_gateway import TradfriGateway, LightsOrGroups
+from .tradfri.light import Lights
+from .tradfri.group import Groups
 from .network import Network
 from .time import Days, Time, Day, Date
 from .luminance import Luminance
@@ -77,7 +77,7 @@ class Controller:
         TradfriGateway.turn_off(self._get_light_or_group())
 
     def dim(self, transition_time: float = 60):
-        if self.state == States.on:
+        if self.state == States.on and self.brightness:
             logger.info(f"Dimming {self.name} to {self.brightness}")
             TradfriGateway.dim(
                 self._get_light_or_group(),
@@ -85,7 +85,7 @@ class Controller:
                 transition_time=transition_time,
             )
 
-    def _get_light_or_group(self) -> Union[Device, Group, List[Union[Device, Group]]]:
+    def _get_light_or_group(self) -> LightsOrGroups:
         logger.error(f"Not implemented {self.name}._get_light_or_group()")
         raise RuntimeError("Not implemented _get_light_or_group")
 

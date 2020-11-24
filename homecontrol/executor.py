@@ -1,8 +1,8 @@
 from typing import Any, Dict, List, Union
 
-from pytradfri.device import Device
-from pytradfri.group import Group
-from .tradfri_gateway import TradfriGateway, Lights, Groups
+from .tradfri.tradfri_gateway import TradfriGateway
+from .tradfri.light import Lights
+from .tradfri.group import Groups
 from .effect import Effects
 from .info_wrapper import InfoWrapper
 from .config import config
@@ -17,11 +17,7 @@ class Executor:
 
     def __init__(self, data: Dict[str, Any]):
         self._data = data
-        self._lights_and_groups: List[Union[Device, Group]] = []
-
-        if self.needs_update():
-            Lights.update()
-            Groups.update()
+        self._lights_and_groups: List[Union[Lights, Groups]] = []
 
         if self.is_light_or_group_action():
             self.get_light_and_groups()
@@ -34,12 +30,12 @@ class Executor:
                 fixed_name = name.lower().replace("the", "")
                 fixed_name = fixed_name.strip()
 
-                light = Lights.find_light(fixed_name)
+                light = Lights.from_name(fixed_name)
                 if light:
                     self._lights_and_groups.append(light)
                     continue
 
-                group = Groups.find_group(fixed_name)
+                group = Groups.from_name(fixed_name)
                 if group:
                     # Special case, moods can only handle one group
                     if "mood" in self._data:
@@ -50,8 +46,7 @@ class Executor:
                     continue
 
                 logger.warning(
-                    "Executor.get_light_and_groups() Didn't find device or group with name: "
-                    + name
+                    f"Executor.get_light_and_groups() Didn't find device or group with name {name}."
                 )
 
     def execute(self):
@@ -72,19 +67,13 @@ class Executor:
 
                 # Run the action directly
                 else:
-                    logger.debug(
-                        "Executor.execute() Args: {} KWArgs: {}.".format(
-                            str(args), str(kwargs)
-                        )
-                    )
-                    return function(*args, **kwargs)
+                    logger.debug(f"Executor.execute() Args: {args} KWArgs: {kwargs}.")
+                    return function(*args, **kwargs)  # type: ignore
 
     @staticmethod
     def terminate_running_actions():
         logger.debug(
-            "Executor.terminate_running_actions() for {} threads".format(
-                len(Executor._threads)
-            )
+            f"Executor.terminate_running_actions() for {len(Executor._threads)} threads"
         )
         for thread in Executor._threads:
             thread.terminate()
@@ -136,7 +125,11 @@ class Executor:
         elif action == "mood" and "mood" in self._data:
             mood_name = self._data["mood"]
             logger.debug(f"Executor.get_action_function() Turn on mood: {mood_name}")
-            return Groups.set_mood, [self._lights_and_groups], {"mood_name": mood_name}
+            return (
+                TradfriGateway.mood,
+                [self._lights_and_groups, mood_name],
+                {},
+            )
 
         # -----------------------
         # --- Get information ---
@@ -170,13 +163,6 @@ class Executor:
         delayed_executor = DelayedExecutor(action, args, kwargs, delay, delay_magnitude)
         delayed_executor.start()
         Executor._threads.append(delayed_executor)
-
-    def needs_update(self):
-        """Some lights and groups need to have up-to-date information to work with the action"""
-        if "action" in self._data and "value" in self._data:
-            if self._data["action"] == "power" and self._data["value"] == "toggle":
-                return True
-        return False
 
     def is_light_or_group_action(self):
         if "action" in self._data:
