@@ -160,7 +160,7 @@ class ControlAmbient(Controller):
     def _get_light_or_group(self):
         # Winter lights
         if Date.between((11, 28), (1, 31)):
-            return [Groups.cozy, Lights.hall_painting, Lights.micro]
+            return [Groups.cozy, Lights.hall_painting, Groups.kitchen]
         else:  # Regular lights
             return [Lights.hall_painting, Lights.ball]
 
@@ -193,8 +193,8 @@ class ControlMatteusTurnOff(Controller):
 
     def update(self):
         if Network.mobile_matteus.is_on() or Network.is_guest_home():
-            if not TradfriGateway.isOn(Lights.ac):
-                self.state = States.on
+            # if not TradfriGateway.isOn(Lights.ac):
+            self.state = States.on
 
     def turn_on(self):
         pass
@@ -259,17 +259,17 @@ class ControlTurnOffLights(Controller):
         pass
 
 
-class ControlSunLamp(Controller):
-    def __init__(self):
-        super().__init__("Sun Lamp")
+# class ControlSunLamp(Controller):
+#     def __init__(self):
+#         super().__init__("Sun Lamp")
 
-    def _get_light_or_group(self):
-        return Lights.sun_lamp
+#     def _get_light_or_group(self):
+#         return Lights.sun_lamp
 
-    def update(self):
-        if Time.between(time(4), time(8)):
-            if Luminance.is_dark():
-                self.state = States.on
+#     def update(self):
+#         if Time.between(time(4), time(8)):
+#             if Luminance.is_dark():
+#                 self.state = States.on
 
 
 class ControlHallCeiling(Controller):
@@ -282,6 +282,7 @@ class ControlHallCeiling(Controller):
     def update(self):
         if Time.between(time(11), time(17)):
             if Luminance.is_dark():
+                self.brightness = 255
                 self.state = States.on
 
 

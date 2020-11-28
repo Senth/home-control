@@ -14,12 +14,9 @@ class Groups(Enum):
     matteus = "Matteus"
     living_room = "Vardagsrum"
     cozy = "Vardagsrum (mys)"
-    bamboo = "Bamboo"
     emma = "Emma"
     hall = "Hallen"
     hall_ceiling = "Hallen (tak)"
-    matteus_led_strip = "Matteus (LED strip)"
-    sun = "Sun"
     kitchen = "Köket"
 
     @staticmethod
