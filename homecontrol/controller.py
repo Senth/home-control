@@ -173,13 +173,15 @@ class ControlWindows(Controller):
         super().__init__("Windows")
 
     def _get_light_or_group(self):
-        return [Lights.window, Lights.micro]
+        # Only active when we don't have Christmas lights
+        if Date.between((2, 1), (11, 27)):
+            return [Lights.window, Lights.micro]
+        else:
+            return []
 
     def update(self):
-        # Only active when it's not winter
-        if Date.between((2, 1), (11, 27)):
-            if Luminance.is_sun_down():
-                self.state = _calculate_ambient()
+        if Luminance.is_sun_down():
+            self.state = _calculate_ambient()
 
 
 class ControlMatteusTurnOff(Controller):
