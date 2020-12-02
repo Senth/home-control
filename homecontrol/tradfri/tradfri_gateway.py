@@ -1,8 +1,5 @@
 from typing import List, Union
 from pytradfri import Gateway
-from pytradfri.device import Device
-from pytradfri.device import light
-from pytradfri.group import Group
 from .light import Lights, LightHandler
 from .group import Groups, GroupHandler
 from .common import try_several_times
@@ -11,6 +8,7 @@ from ..config import config
 logger = config.logger
 gateway = Gateway()
 LightsOrGroups = Union[Lights, Groups, List[Union[Lights, Groups]]]
+DIM_MIN = 1
 
 
 class TradfriGateway:
@@ -148,20 +146,26 @@ class TradfriGateway:
     @staticmethod
     def dim(
         light_or_group: LightsOrGroups,
-        value: int,
+        value: Union[float, int],
         transition_time: float = 1,
     ) -> None:
         """Dim lights and groups
 
         Args:
-            light_or_group (LightsOrGroups): List of light and groups or a single light or group
-            value (int): Dim between 0 and 254
+            light_or_group (LightsOrGroups): List of light and groups or a single light or group.
+            value (float,int): Dim between 0.0 and 1.0 (0.0 turns off the light), or 0 and 254.
             transition_time (float, optional): In seconds. Defaults to 1.
         """
+        # Normalize to 0-254
+        if isinstance(value, float):
+            tradfriValue = round(value * 254)
+        else:
+            tradfriValue = min(0, max(254, value))
+
         # Logging
         if isinstance(light_or_group, Lights) or isinstance(light_or_group, Groups):
             logger.debug(
-                f"TradfriGateway.dim() Dim {light_or_group.value} to {value} with transition time {transition_time} seconds."
+                f"TradfriGateway.dim() Dim {light_or_group.value} to {tradfriValue} ({value}) with transition time {transition_time} seconds."
             )
 
         transition_time_in_tradfri = TradfriGateway._time_in_tradfri(transition_time)
@@ -184,7 +188,7 @@ class TradfriGateway:
                 ):
                     try_several_times(
                         light_device.light_control.set_dimmer(
-                            value, transition_time=transition_time_in_tradfri
+                            tradfriValue, transition_time=transition_time_in_tradfri
                         )
                     )
 
@@ -193,7 +197,9 @@ class TradfriGateway:
             group = TradfriGateway._group_handler.get_group(light_or_group)
             if group:
                 try_several_times(
-                    group.set_dimmer(value, transition_time=transition_time_in_tradfri)
+                    group.set_dimmer(
+                        tradfriValue, transition_time=transition_time_in_tradfri
+                    )
                 )
 
     @staticmethod

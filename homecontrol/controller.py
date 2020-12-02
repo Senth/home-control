@@ -1,4 +1,4 @@
-from .tradfri.tradfri_gateway import TradfriGateway, LightsOrGroups
+from .tradfri.tradfri_gateway import DIM_MIN, TradfriGateway, LightsOrGroups
 from .tradfri.light import Lights
 from .tradfri.group import Groups
 from .network import Network
@@ -39,7 +39,7 @@ def _calculate_ambient() -> States:
 class Controller:
     def __init__(self, name: str) -> None:
         self.state: States = States.initial
-        self.brightness: Union[int, None] = None
+        self.brightness: Union[float, int, None] = None
         self.name = name
 
     @staticmethod
@@ -113,13 +113,13 @@ class ControlMatteus(Controller):
 
         # Update dim
         if Time.between(time(10), time(19)):
-            self.brightness = 180
+            self.brightness = 0.7
         elif Time.between(time(19), time(21)):
-            self.brightness = 130
+            self.brightness = 0.5
         elif Time.between(time(21), time(22)):
-            self.brightness = 70
+            self.brightness = 0.25
         else:
-            self.brightness = 1
+            self.brightness = DIM_MIN
 
     def turn_off(self):
         # Don't turn off between 8 and 10
@@ -284,11 +284,11 @@ class ControlHallCeiling(Controller):
     def update(self):
         if Time.between(time(11), time(17)):
             if Luminance.is_dark():
-                self.brightness = 255
+                self.brightness = 1.0
                 self.state = States.on
 
 
-controllers = [
+controllers: List[Controller] = [
     ControlMatteus(),
     ControlMonitor(),
     ControlAmbient(),
