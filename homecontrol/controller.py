@@ -277,15 +277,16 @@ class ControlTurnOffLights(Controller):
 class ControlHallCeiling(Controller):
     def __init__(self):
         super().__init__("Hall Ceiling")
+        self.brightness = 1.0
 
     def _get_light_or_group(self) -> LightsOrGroups:
         return Lights.hall_ceiling
 
     def update(self):
-        if Time.between(time(11), time(17)):
-            if Luminance.is_dark():
-                self.brightness = 1.0
-                self.state = States.on
+        if Network.is_someone_home():
+            if Time.between(time(11), time(17)):
+                if Luminance.is_dark():
+                    self.state = States.on
 
 
 controllers: List[Controller] = [
