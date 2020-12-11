@@ -2,8 +2,8 @@ from .tradfri.tradfri_gateway import TradfriGateway
 from .network import Network
 from .weather import Weather
 from .controller import Controller
-from .socket_server import SocketServer
-from apscheduler.schedulers.blocking import BlockingScheduler
+from .webapi import flask_api
+from apscheduler.schedulers.background import BackgroundScheduler
 
 
 def main():
@@ -13,7 +13,7 @@ def main():
     Network.update()
 
     # Schedule stuff
-    scheduler = BlockingScheduler()
+    scheduler = BackgroundScheduler()
 
     # Update information
     scheduler.add_job(Weather.update, "cron", hour="*", minute=3)
@@ -23,10 +23,10 @@ def main():
     # Schedule events/commands
     scheduler.add_job(Controller.update_all, "interval", seconds=5)
 
-    # Start the socket interface
-    scheduler.add_job(SocketServer.run)
-
     scheduler.start()
+
+    # Web API
+    flask_api.run_api()
 
 
 if __name__ == "__main__":

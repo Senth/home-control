@@ -225,6 +225,7 @@ class Config:
         ap_logger = logging.getLogger("apscheduler")
         ap_logger.setLevel(log_level)
         ap_logger.addHandler(timed_rotating_handler)
+        ap_logger.addHandler(stream_handler)
 
 
 class Tradfri:

@@ -1,10 +1,6 @@
-from typing import Any, Dict, List, Union
-
-from .tradfri.tradfri_gateway import TradfriGateway
-from .tradfri.light import Lights
-from .tradfri.group import Groups
-from .effect import Effects
-from .info_wrapper import InfoWrapper
+from __future__ import annotations
+from typing import Any, Callable, Dict, List
+from .tradfri.effects.effect import Effect
 from .config import config
 import threading
 import time
@@ -12,66 +8,25 @@ import time
 logger = config.logger
 
 
-class Executor:
-    _threads = []
+class Executor(threading.Thread):
+    _threads: List[Executor] = []
 
-    def __init__(self, data: Dict[str, Any]):
-        self._data = data
-        self._lights_and_groups: List[Union[Lights, Groups]] = []
+    def __init__(self, target=None, name=None, args=(), kwargs={}) -> None:
+        super().__init__(None, target, name, args, kwargs)
+        self._terminate = False
 
-        if self.is_light_or_group_action():
-            self.get_light_and_groups()
+    def terminate(self) -> None:
+        self._terminate = True
 
-    def get_light_and_groups(self):
-        if "name" in self._data:
-            names = self._data["name"].split(";")
-            for name in names:
-                # Remove 'the ' that we get from IFTTT google assistant
-                fixed_name = name.lower().replace("the", "")
-                fixed_name = fixed_name.strip()
-
-                light = Lights.from_name(fixed_name)
-                if light:
-                    self._lights_and_groups.append(light)
-                    continue
-
-                group = Groups.from_name(fixed_name)
-                if group:
-                    # Special case, moods can only handle one group
-                    if "mood" in self._data:
-                        self._lights_and_groups = [group]
-                        return
-
-                    self._lights_and_groups.append(group)
-                    continue
-
-                logger.warning(
-                    f"Executor.get_light_and_groups() Didn't find device or group with name {name}."
-                )
-
-    def execute(self):
-        # Special case for effects
-        if "effect" in self._data:
-            self.create_effect_executor()
-            return
-
-        # Get function to call for the action
-        tuple = self.get_action_function()
-
-        if tuple:
-            function, args, kwargs = tuple
-            if function and isinstance(args, list) and isinstance(kwargs, dict):
-                # Delayed action
-                if self.is_delay():
-                    self.create_delayed_executor(function, args, kwargs)
-
-                # Run the action directly
-                else:
-                    logger.debug(f"Executor.execute() Args: {args} KWArgs: {kwargs}.")
-                    return function(*args, **kwargs)  # type: ignore
+    def execute(self) -> None:
+        """Start the action correctly. Don't call run() or start() directly."""
+        self.start()
+        Executor._threads.append(self)
 
     @staticmethod
-    def terminate_running_actions():
+    def terminate_all_running() -> None:
+        Executor.clear_all_done()
+
         logger.debug(
             f"Executor.terminate_running_actions() for {len(Executor._threads)} threads"
         )
@@ -79,142 +34,33 @@ class Executor:
             thread.terminate()
         Executor._threads = []
 
-    def get_action_function(self):
-        if "action" not in self._data:
-            logger.warning("Executor.get_action_function() No 'action' specified.")
-            return None
-
-        action = self._data["action"]
-
-        # Kill all running/scheduled tasks
-        if action == "kill":
-            return Executor.terminate_running_actions, [], {}
-
-        # -----------------------
-        # --- Set Light/Group ---
-        # -----------------------
-
-        # On/Off/Toggle
-        elif action == "power" and "value" in self._data:
-            value = self._data["value"]
-            if value == 1:
-                return TradfriGateway.turn_on, [self._lights_and_groups], {}
-            elif value == 0:
-                return TradfriGateway.turn_off, [self._lights_and_groups], {}
-            elif value == "toggle":
-                return TradfriGateway.toggle, [self._lights_and_groups], {}
-
-        # Dim
-        elif action == "dim" and "value" in self._data:
-            value = self._data["value"]
-            # Use transition time
-            if "transition_time" in self._data:
-                transition_time = int(self._data["transition_time"])
-                logger.debug(
-                    f"Executor.get_action_function() Dim to {value} with transition time {transition_time}."
-                )
-                return (
-                    TradfriGateway.dim,
-                    [self._lights_and_groups, value],
-                    {"transition_time": transition_time},
-                )
-            else:
-                return TradfriGateway.dim, [self._lights_and_groups, value], {}
-
-        # Set Mood
-        elif action == "mood" and "mood" in self._data:
-            mood_name = self._data["mood"]
-            logger.debug(f"Executor.get_action_function() Turn on mood: {mood_name}")
-            return (
-                TradfriGateway.mood,
-                [self._lights_and_groups, mood_name],
-                {},
-            )
-
-        # -----------------------
-        # --- Get information ---
-        # -----------------------
-        elif action == "get_day_info":
-            return InfoWrapper.get_day_info, [], {}
-
-        logger.warning(
-            f"Executor.get_action_function() Action {action} not found/implemented."
-        )
-        return None
-
-    def is_delay(self):
-        return "delay" in self._data
-
-    def create_effect_executor(self):
-        effect_name = self._data["effect"]
-        logger.debug(f"Executor.get_action_function() Create effect {effect_name}")
-        effect = Effects.from_name(effect_name)
-        effect_executor = EffectExecutor(effect)
-        effect_executor.start()
-        Executor._threads.append(effect_executor)
-
-    def create_delayed_executor(self, action, args, kwargs):
-        delay = self._data["delay"]
-
-        delay_magnitude = None
-        if "delay_magnitude" in self._data:
-            delay_magnitude = self._data["delay_magnitude"]
-
-        delayed_executor = DelayedExecutor(action, args, kwargs, delay, delay_magnitude)
-        delayed_executor.start()
-        Executor._threads.append(delayed_executor)
-
-    def is_light_or_group_action(self):
-        if "action" in self._data:
-            action = self._data["action"]
-            return (
-                action == "power"
-                or action == "dim"
-                or action == "effect"
-                or action == "mood"
-            )
+    @staticmethod
+    def clear_all_done() -> None:
+        Executor._threads = [
+            thread for thread in Executor._threads if thread.is_alive()
+        ]
 
 
-class ThreadExecutor(threading.Thread):
-    def __init__(self, group=None, target=None, name=None, args=(), kwargs={}):
-        super().__init__(group, target, name, args, kwargs)
-        self._terminate = False
+class DelayedExecutor(Executor):
+    def __init__(
+        self, action: Callable, args: List, kwargs: Dict[str, Any], delay: float
+    ) -> None:
+        """Run a function after delay seconds
 
-    def terminate(self):
-        self._terminate = True
-
-
-class DelayedExecutor(ThreadExecutor):
-    def __init__(self, action, args, kwargs, delay, delay_magnitude):
+        Args:
+            action (Callable): The function to run
+            args (List): Positional arguments of the function
+            kwargs (Dict): Named arguments of the function
+            delay (int): the delay in seconds
+        """
         super().__init__(args=[], kwargs={})
         self.args = args
         self.kwargs = kwargs
         self._action = action
-        self._delay = DelayedExecutor.calculate_real_delay(delay, delay_magnitude)
+        self._delay = delay
 
-    @staticmethod
-    def calculate_real_delay(delay, delay_magnitude):
-        logger.debug(
-            "DelayedExecutor.calculate_real_delay() Delay: "
-            + str(delay)
-            + ", Magnitude: "
-            + str(delay_magnitude)
-        )
-        delay_multiplier = 1
-        if delay_magnitude == "seconds" or delay_magnitude == "second":
-            delay_multiplier = 1
-        elif (
-            delay_magnitude == "minutes"
-            or delay_magnitude == "minute"
-            or not delay_magnitude
-        ):
-            delay_multiplier = 60
-        elif delay_magnitude == "hours" or delay_magnitude == "hour":
-            delay_multiplier = 60 * 60
-
-        return delay * delay_multiplier
-
-    def run(self):
+    def run(self) -> None:
+        """Logic to run in another thread. Never call this directly."""
         logger.debug(
             "DelayedExecutor.run() Delaying execution with "
             + str(self._delay)
@@ -226,13 +72,15 @@ class DelayedExecutor(ThreadExecutor):
             self._action(*self.args, **self.kwargs)
 
 
-class EffectExecutor(ThreadExecutor):
-    def __init__(self, effect):
+class EffectExecutor(Executor):
+    def __init__(self, effect: Effect) -> None:
         super().__init__()
         self.effect = effect
 
-    def terminate(self):
+    def terminate(self) -> None:
+        super().terminate()
         self.effect.abort()
 
-    def run(self):
+    def run(self) -> None:
+        """Logic to run in another thread. Never call this directly."""
         self.effect.run()

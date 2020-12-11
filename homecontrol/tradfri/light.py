@@ -6,7 +6,7 @@ from pytradfri.gateway import Gateway
 from .common import try_several_times
 from ..config import config
 
-logger = config.logger
+_logger = config.logger
 
 
 class Lights(Enum):
@@ -32,6 +32,7 @@ class Lights(Enum):
 
     @staticmethod
     def from_name(light_name: str) -> Union[Lights, None]:
+        # Get from known lights first
         for light in Lights:
             if light.value.lower() == light_name.lower():
                 return light
@@ -51,12 +52,12 @@ class LightHandler:
                 if light:
                     self._lights[light] = device
                 else:
-                    logger.info(f"Didn't find light {device.name} in enum.")
+                    _logger.info(f"Didn't find light {device.name} in enum.")
 
         if len(self._lights) != len(Lights):
             for light in Lights:
                 if light not in self._lights:
-                    logger.warning(
+                    _logger.warning(
                         f"No light bound for enum {light.name} with value '{light.value}''"
                     )
 

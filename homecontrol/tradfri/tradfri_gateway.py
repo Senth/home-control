@@ -1,5 +1,6 @@
-from typing import List, Union
+from typing import Union
 from pytradfri import Gateway
+from . import LightsAndGroups
 from .light import Lights, LightHandler
 from .group import Groups, GroupHandler
 from .common import try_several_times
@@ -7,7 +8,7 @@ from ..config import config
 
 logger = config.logger
 gateway = Gateway()
-LightsOrGroups = Union[Lights, Groups, List[Union[Lights, Groups]]]
+
 DIM_MIN = 1
 
 
@@ -26,16 +27,16 @@ class TradfriGateway:
         try_several_times(gateway.reboot())
 
     @staticmethod
-    def turn_on(light_or_group: LightsOrGroups) -> None:
+    def turn_on(lights_and_groups: LightsAndGroups) -> None:
         # List (iterate)
-        if isinstance(light_or_group, list):
-            for i in light_or_group:
+        if isinstance(lights_and_groups, list):
+            for i in lights_and_groups:
                 TradfriGateway.turn_on(i)
 
         # Light Device
-        elif isinstance(light_or_group, Lights):
+        elif isinstance(lights_and_groups, Lights):
             light_device = TradfriGateway._light_handler.get_light_device(
-                light_or_group
+                lights_and_groups
             )
             if light_device:
 
@@ -48,22 +49,22 @@ class TradfriGateway:
                     try_several_times(light_device.socket_control.set_state(1))
 
         # Group
-        elif isinstance(light_or_group, Groups):
-            group = TradfriGateway._group_handler.get_group(light_or_group)
+        elif isinstance(lights_and_groups, Groups):
+            group = TradfriGateway._group_handler.get_group(lights_and_groups)
             if group:
                 try_several_times(group.set_state(1))
 
     @staticmethod
-    def turn_off(light_or_group: LightsOrGroups) -> None:
+    def turn_off(lights_and_groups: LightsAndGroups) -> None:
         # List (iterate)
-        if isinstance(light_or_group, list):
-            for i in light_or_group:
+        if isinstance(lights_and_groups, list):
+            for i in lights_and_groups:
                 TradfriGateway.turn_off(i)
 
         # Light Device
-        elif isinstance(light_or_group, Lights):
+        elif isinstance(lights_and_groups, Lights):
             light_device = TradfriGateway._light_handler.get_light_device(
-                light_or_group
+                lights_and_groups
             )
             if light_device:
 
@@ -76,18 +77,18 @@ class TradfriGateway:
                     try_several_times(light_device.socket_control.set_state(0))
 
         # Group
-        elif isinstance(light_or_group, Groups):
-            group = TradfriGateway._group_handler.get_group(light_or_group)
+        elif isinstance(lights_and_groups, Groups):
+            group = TradfriGateway._group_handler.get_group(lights_and_groups)
             if group:
                 try_several_times(group.set_state(0))
 
     @staticmethod
-    def isOn(light_or_group: Union[Lights, Groups]) -> bool:
+    def isOn(lights_and_groups: Union[Lights, Groups]) -> bool:
         """Check if a light or group is turned on or not"""
         # Light
-        if isinstance(light_or_group, Lights):
+        if isinstance(lights_and_groups, Lights):
             light_device = TradfriGateway._light_handler.get_light_device(
-                light_or_group
+                lights_and_groups
             )
             if light_device:
 
@@ -100,28 +101,28 @@ class TradfriGateway:
                     return bool(light_device.socket_control.sockets[0].state)
 
         # Group
-        elif isinstance(light_or_group, Groups):
-            group = TradfriGateway._group_handler.get_group(light_or_group)
+        elif isinstance(lights_and_groups, Groups):
+            group = TradfriGateway._group_handler.get_group(lights_and_groups)
             if group:
                 return bool(group.state)
 
         return False
 
     @staticmethod
-    def toggle(light_or_group: LightsOrGroups, update: bool = True) -> None:
+    def toggle(lights_and_groups: LightsAndGroups, update: bool = True) -> None:
         if update:
             TradfriGateway._light_handler.update()
             TradfriGateway._group_handler.update()
 
         # List (iterate)
-        if isinstance(light_or_group, list):
-            for i in light_or_group:
+        if isinstance(lights_and_groups, list):
+            for i in lights_and_groups:
                 TradfriGateway.toggle(i, update=False)
 
         # Light
-        elif isinstance(light_or_group, Lights):
+        elif isinstance(lights_and_groups, Lights):
             light_device = TradfriGateway._light_handler.get_light_device(
-                light_or_group
+                lights_and_groups
             )
             if light_device:
 
@@ -136,8 +137,8 @@ class TradfriGateway:
                     try_several_times(light_device.socket_control.set_state(new_state))
 
         # Group
-        elif isinstance(light_or_group, Groups):
-            group = TradfriGateway._group_handler.get_group(light_or_group)
+        elif isinstance(lights_and_groups, Groups):
+            group = TradfriGateway._group_handler.get_group(lights_and_groups)
 
             if group:
                 new_state = not bool(group.state)
@@ -145,40 +146,42 @@ class TradfriGateway:
 
     @staticmethod
     def dim(
-        light_or_group: LightsOrGroups,
+        lights_and_groups: LightsAndGroups,
         value: Union[float, int],
         transition_time: float = 1,
     ) -> None:
         """Dim lights and groups
 
         Args:
-            light_or_group (LightsOrGroups): List of light and groups or a single light or group.
+            lights_and_groups (LightsAndGroups): List of light and groups or a single light or group.
             value (float,int): Dim between 0.0 and 1.0 (0.0 turns off the light), or 0 and 254.
-            transition_time (float, optional): In seconds. Defaults to 1.
+            transition_time (float, optional): In seconds. Defaults to 1.0
         """
         # Normalize to 0-254
         if isinstance(value, float):
             tradfriValue = round(value * 254)
         else:
-            tradfriValue = min(0, max(254, value))
+            tradfriValue = max(0, min(254, value))
 
         # Logging
-        if isinstance(light_or_group, Lights) or isinstance(light_or_group, Groups):
+        if isinstance(lights_and_groups, Lights) or isinstance(
+            lights_and_groups, Groups
+        ):
             logger.debug(
-                f"TradfriGateway.dim() Dim {light_or_group.value} to {tradfriValue} ({value}) with transition time {transition_time} seconds."
+                f"TradfriGateway.dim() Dim {lights_and_groups.value} to {tradfriValue} ({value}) with transition time {transition_time} seconds."
             )
 
         transition_time_in_tradfri = TradfriGateway._time_in_tradfri(transition_time)
 
         # List
-        if isinstance(light_or_group, list):
-            for i in light_or_group:
+        if isinstance(lights_and_groups, list):
+            for i in lights_and_groups:
                 TradfriGateway.dim(i, value, transition_time=transition_time)
 
         # Light Device
-        elif isinstance(light_or_group, Lights):
+        elif isinstance(lights_and_groups, Lights):
             light_device = TradfriGateway._light_handler.get_light_device(
-                light_or_group
+                lights_and_groups
             )
             if light_device:
                 # Light Bulb
@@ -193,8 +196,8 @@ class TradfriGateway:
                     )
 
         # Group
-        elif isinstance(light_or_group, Groups):
-            group = TradfriGateway._group_handler.get_group(light_or_group)
+        elif isinstance(lights_and_groups, Groups):
+            group = TradfriGateway._group_handler.get_group(lights_and_groups)
             if group:
                 try_several_times(
                     group.set_dimmer(
@@ -204,7 +207,7 @@ class TradfriGateway:
 
     @staticmethod
     def color(
-        light_or_group: LightsOrGroups,
+        lights_and_groups: LightsAndGroups,
         x: int,
         y: int,
         transition_time: float = 1,
@@ -212,7 +215,7 @@ class TradfriGateway:
         """Set the color of a light or group
 
         Args:
-            light_or_group (LightsOrGroups): List of light and groups or a single light or group
+            lights_and_groups (LightsAndGroups): List of light and groups or a single light or group
             x (int): x-value of the color
             y (int): y-value of the color
             transition_time (float, optional): Time in seconds to transition to the color. Defaults to 1.
@@ -221,14 +224,14 @@ class TradfriGateway:
         transition_time_in_tradfri = TradfriGateway._time_in_tradfri(transition_time)
 
         # List (iterate)
-        if isinstance(light_or_group, list):
-            for i in light_or_group:
+        if isinstance(lights_and_groups, list):
+            for i in lights_and_groups:
                 TradfriGateway.color(i, x, y, transition_time)
 
         # Light Device
-        elif isinstance(light_or_group, Lights):
+        elif isinstance(lights_and_groups, Lights):
             light_device = TradfriGateway._light_handler.get_light_device(
-                light_or_group
+                lights_and_groups
             )
             if light_device:
                 # Light Bulb
@@ -243,30 +246,12 @@ class TradfriGateway:
                     )
 
         # Group
-        elif isinstance(light_or_group, Groups):
-            group = TradfriGateway._group_handler.get_group(light_or_group)
+        elif isinstance(lights_and_groups, Groups):
+            group = TradfriGateway._group_handler.get_group(lights_and_groups)
             if group:
                 try_several_times(
                     group.set_xy_color(x, y, transition_time=transition_time_in_tradfri)
                 )
-
-    @staticmethod
-    def mood(groups: LightsOrGroups, mood_name: str) -> None:
-        """Set the mood for a group
-
-        Args:
-            groups (LightsOrGroups): The groups to set moods for. If a light is specified it is simply ignored
-            mood_name (str): Name of the mood to turn on
-        """
-        if isinstance(groups, list):
-            for group in groups:
-                TradfriGateway.mood(group, mood_name)
-
-        elif isinstance(groups, Groups):
-            group = TradfriGateway._group_handler.get_group(groups)
-            mood = TradfriGateway._group_handler.get_mood(groups, mood_name)
-            if group and mood:
-                try_several_times(group.activate_mood(mood.id))
 
     @staticmethod
     def _time_in_tradfri(seconds: float) -> int:

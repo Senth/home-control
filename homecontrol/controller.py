@@ -1,4 +1,4 @@
-from .tradfri.tradfri_gateway import DIM_MIN, TradfriGateway, LightsOrGroups
+from .tradfri.tradfri_gateway import DIM_MIN, TradfriGateway, LightsAndGroups
 from .tradfri.light import Lights
 from .tradfri.group import Groups
 from .network import Network
@@ -85,7 +85,7 @@ class Controller:
                 transition_time=transition_time,
             )
 
-    def _get_light_or_group(self) -> LightsOrGroups:
+    def _get_light_or_group(self) -> LightsAndGroups:
         logger.error(f"Not implemented {self.name}._get_light_or_group()")
         raise RuntimeError("Not implemented _get_light_or_group")
 
@@ -279,7 +279,7 @@ class ControlHallCeiling(Controller):
         super().__init__("Hall Ceiling")
         self.brightness = 1.0
 
-    def _get_light_or_group(self) -> LightsOrGroups:
+    def _get_light_or_group(self) -> LightsAndGroups:
         return Lights.hall_ceiling
 
     def update(self):
