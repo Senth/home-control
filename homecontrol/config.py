@@ -1,7 +1,7 @@
 from os import path, makedirs
 from platform import system
 from tempfile import gettempdir
-from typing import Any
+from typing import Any, Union
 import sys
 import site
 import importlib.util
@@ -63,13 +63,22 @@ def _print_missing(variable_name):
 class Config:
     def __init__(self, user_config):
         self._user_config = user_config
-        self._set_default_values()
+
+        # Default values
+        self.unifi: Unifi = Unifi()
+        self.location: Location = Location()
+        self.tradfri: Tradfri = Tradfri()
+        self.webapi: WebApi = WebApi()
+        self.stats_file: Union[str, bool] = False
+        self.app_name: str = _app_name
+        self.logger: logging.Logger
+        self.debug: bool
+        self.verbose: bool
+
         self._get_optional_variables()
         self._check_required_variables()
         self._parse_args()
         self._init_logger()
-        self.app_name = _app_name
-        self.logger: logging.Logger
 
     def _parse_args(self):
         # Get arguments first to get verbosity before we get everything else
@@ -102,15 +111,13 @@ class Config:
         if args.debug:
             self.verbose = True
 
-    def _set_default_values(self):
-        """Set default values for variables"""
-        self.unifi = Unifi()
-        self.location = Location()
-        self.tradfri = Tradfri()
-        self.stats_file = False
-
     def _get_optional_variables(self):
         """Get optional values from the config file"""
+        try:
+            self.webapi.port = _user_config.WEB_API_PORT
+        except:
+            pass
+
         try:
             self.unifi.port = _user_config.UNIFI_PORT
         except AttributeError:
@@ -238,13 +245,18 @@ class Location:
 
 class Unifi:
     def __init__(self):
-        self.username = ""
-        self.password = ""
-        self.usergroup_owner = ""
-        self.host = ""
-        self.port = 8444
-        self.site_id = "default"
-        self.guest_inactive_time = 300
+        self.username: str = ""
+        self.password: str = ""
+        self.usergroup_owner: str = ""
+        self.host: str = ""
+        self.port: int = 8444
+        self.site_id: str = "default"
+        self.guest_inactive_time: int = 300
+
+
+class WebApi:
+    def __init__(self):
+        self.port: int = 5001
 
 
 global config

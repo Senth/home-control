@@ -7,6 +7,9 @@ TRADFRI_KEY = ""
 LAT = 30
 LONG = 30
 
+# (Optional) Web Api port - The web api is used for controlling home-control through http requests. Defaults to 5001.
+WEB_API_PORT = 5001
+
 # (Optional) Stats .csv file for personal statistics. Defaults to ""
 STATS_FILE = "/home/senth/personal-data.csv"
 
