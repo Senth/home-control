@@ -17,7 +17,14 @@ setup(
     entry_points={"console_scripts": ["home-control=homecontrol.__main__:main"]},
     include_package_data=True,
     data_files=[("config/home-control", ["config/config.example.py"])],
-    install_requires=["apscheduler", "requests", "pytradfri", "pyunifi", "suntime"],
+    install_requires=[
+        "apscheduler",
+        "requests",
+        "pytradfri",
+        "pyunifi",
+        "suntime",
+        "flask",
+    ],
     classifiers=[
         "Licence :: OSI Approved :: MIT Licence" "Programming Language :: Python :: 3"
     ],
