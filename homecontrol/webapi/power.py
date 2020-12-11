@@ -1,11 +1,11 @@
 from typing import Any, Dict
-from homecontrol.executor import DelayedExecutor
+from ..executor import DelayedExecutor
 from . import get_time, success
 from ..tradfri import get_light_and_groups
 from ..tradfri.tradfri_gateway import TradfriGateway
-from flask import Blueprint, jsonify, request, abort
+from flask import Blueprint, request, abort
 
-power_blueprint = Blueprint("set_power", __package__)
+power_blueprint = Blueprint("power", __package__)
 
 
 @power_blueprint.route("/power", methods=["POST"])

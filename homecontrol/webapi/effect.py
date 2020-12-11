@@ -16,12 +16,13 @@ def effect() -> str:
     if not "name" in body:
         abort(400, 'Missing "name" field in body')
 
-    effect = Effects.from_name(body["name"])
-    if not effect:
+    effect_enum = Effects.from_name(body["name"])
+    if not effect_enum:
         abort(
             404,
             f"Didn't find an effect with the name {body['name']}. see /effects for all available effects.",
         )
+    effect = effect_enum.value
 
     effect_executor = EffectExecutor(effect)
     effect_executor.execute()

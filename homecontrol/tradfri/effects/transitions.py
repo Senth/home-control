@@ -32,7 +32,7 @@ class ColorTransition(Transition):
                 self.x, self.y, self.transition_time
             )
         )
-        TradfriGateway.color(
+        TradfriGateway.color_xy(
             light_or_group, self.x, self.y, transition_time=self.transition_time
         )
 

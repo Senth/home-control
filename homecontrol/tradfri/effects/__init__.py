@@ -3,7 +3,6 @@ from enum import Enum
 from typing import Union
 from .sunrise_bamboo import SunriseBamboo
 from .test_effect import TestEffect
-from .effect import Effect
 
 
 class Effects(Enum):
@@ -11,7 +10,8 @@ class Effects(Enum):
     test = TestEffect()
 
     @staticmethod
-    def from_name(name: str) -> Union[Effect, None]:
+    def from_name(name: str) -> Union[Effects, None]:
+        name = name.lower()
         for effect in Effects:
-            if effect.value.name.lower() == name.lower():
-                return effect.value
+            if effect.value.name.lower() == name:
+                return effect

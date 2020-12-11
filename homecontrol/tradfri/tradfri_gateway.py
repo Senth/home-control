@@ -9,8 +9,6 @@ from ..config import config
 logger = config.logger
 gateway = Gateway()
 
-DIM_MIN = 1
-
 
 class TradfriGateway:
     _light_handler = LightHandler(gateway)
@@ -206,7 +204,7 @@ class TradfriGateway:
                 )
 
     @staticmethod
-    def color(
+    def color_xy(
         lights_and_groups: LightsAndGroups,
         x: int,
         y: int,
@@ -226,7 +224,7 @@ class TradfriGateway:
         # List (iterate)
         if isinstance(lights_and_groups, list):
             for i in lights_and_groups:
-                TradfriGateway.color(i, x, y, transition_time)
+                TradfriGateway.color_xy(i, x, y, transition_time)
 
         # Light Device
         elif isinstance(lights_and_groups, Lights):
@@ -251,6 +249,54 @@ class TradfriGateway:
             if group:
                 try_several_times(
                     group.set_xy_color(x, y, transition_time=transition_time_in_tradfri)
+                )
+
+    @staticmethod
+    def color_hex(
+        lights_and_groups: LightsAndGroups,
+        hex_color: str,
+        transition_time: float = 1,
+    ) -> None:
+        """Set the color of a light or group
+
+        Args:
+            lights_and_groups (LightsAndGroups): List of light and groups or a single light or group
+            hex_color (str): color in hex format #ffffff
+            transition_time (float, optional): Time in seconds to transition to the color. Defaults to 1.
+        """
+
+        transition_time_in_tradfri = TradfriGateway._time_in_tradfri(transition_time)
+
+        # List (iterate)
+        if isinstance(lights_and_groups, list):
+            for i in lights_and_groups:
+                TradfriGateway.color_hex(i, hex_color, transition_time)
+
+        # Light Device
+        elif isinstance(lights_and_groups, Lights):
+            light_device = TradfriGateway._light_handler.get_light_device(
+                lights_and_groups
+            )
+            if light_device:
+                # Light Bulb
+                if (
+                    light_device.has_light_control
+                    and light_device.light_control.can_set_color
+                ):
+                    try_several_times(
+                        light_device.light_control.set_hex_color(
+                            hex_color, transition_time=transition_time_in_tradfri
+                        )
+                    )
+
+        # Group
+        elif isinstance(lights_and_groups, Groups):
+            group = TradfriGateway._group_handler.get_group(lights_and_groups)
+            if group:
+                try_several_times(
+                    group.set_hex_color(
+                        hex_color, transition_time=transition_time_in_tradfri
+                    )
                 )
 
     @staticmethod

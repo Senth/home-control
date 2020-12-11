@@ -1,4 +1,4 @@
-from .tradfri.tradfri_gateway import DIM_MIN, TradfriGateway, LightsAndGroups
+from .tradfri.tradfri_gateway import TradfriGateway, LightsAndGroups
 from .tradfri.light import Lights
 from .tradfri.group import Groups
 from .network import Network
@@ -119,7 +119,7 @@ class ControlMatteus(Controller):
         elif Time.between(time(21), time(22)):
             self.brightness = 0.25
         else:
-            self.brightness = DIM_MIN
+            self.brightness = 1  # Lowest value
 
     def turn_off(self):
         # Don't turn off between 8 and 10
