@@ -105,10 +105,10 @@ class ControlMatteus(Controller):
         if (Network.mobile_matteus.is_on() or Network.is_guest_home()) and Time.between(
             time(10), time(3)
         ):
-            logger.debug("ControlMatteus.update(): Matteus is home")
-            # Always on when the sun has set
-            if Luminance.is_sun_down():
-                logger.debug("ControlMatteus.update(): Sun is down")
+            logger.debug("ControlMatteus.update(): Matteus or gues is is home")
+            # On when it's dark
+            if Luminance.is_dark():
+                logger.debug("ControlMatteus.update(): Is dark")
                 self.state = States.on
 
         # Update dim
