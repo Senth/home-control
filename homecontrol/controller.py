@@ -98,14 +98,14 @@ class ControlMatteus(Controller):
         super().__init__("Matteus")
 
     def _get_light_or_group(self):
-        return [Lights.cylinder, Lights.billy]
+        return [Lights.billy, Lights.cylinder]
 
     def update(self):
         # Only when Matteus is home and between 10 and 03
         if (Network.mobile_matteus.is_on() or Network.is_guest_home()) and Time.between(
             time(10), time(3)
         ):
-            logger.debug("ControlMatteus.update(): Matteus or gues is is home")
+            logger.debug("ControlMatteus.update(): Matteus or guest is is home")
             # On when it's dark
             if Luminance.is_dark():
                 logger.debug("ControlMatteus.update(): Is dark")
@@ -195,7 +195,6 @@ class ControlMatteusTurnOff(Controller):
 
     def update(self):
         if Network.mobile_matteus.is_on() or Network.is_guest_home():
-            # if not TradfriGateway.isOn(Lights.ac):
             self.state = States.on
 
     def turn_on(self):
