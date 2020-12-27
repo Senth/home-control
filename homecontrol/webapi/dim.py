@@ -1,8 +1,7 @@
-from ..executor import DelayedExecutor
 from typing import Any, Dict, Union
 from ..tradfri import get_light_and_groups
 from ..tradfri.tradfri_gateway import TradfriGateway
-from . import success, get_time
+from . import execute, success, get_delay
 from flask import Blueprint, request, abort
 
 
@@ -40,24 +39,13 @@ def dim() -> str:
     # Transition Time
     transition_time = 1.0
     if "transition_time" in body:
-        transition_time = get_time(body["transition_time"])
+        transition_time = get_delay(body["transition_time"])
 
-    # Delay
-    delay = 0
-    if "delay" in body:
-        delay = get_time(body["delay"])
-
-    # Execute directly
-    if delay == 0:
-        TradfriGateway.dim(lights_and_groups, value, transition_time)
-    # Delayed
-    else:
-        delayed_executor = DelayedExecutor(
-            action=TradfriGateway.dim,
-            args=[lights_and_groups, value],
-            kwargs={"transition_time": transition_time},
-            delay=delay,
-        )
-        delayed_executor.execute()
+    execute(
+        body,
+        TradfriGateway.dim,
+        args=[lights_and_groups, value],
+        kwargs={"transition_time": transition_time},
+    )
 
     return success()

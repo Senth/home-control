@@ -1,7 +1,6 @@
-from ..executor import DelayedExecutor
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List
 from flask import Blueprint, request, abort
-from . import success, get_time
+from . import execute, success, get_delay
 from ..tradfri import get_light_and_groups
 from ..tradfri.tradfri_gateway import TradfriGateway
 
@@ -59,22 +58,10 @@ def color() -> str:
     else:
         abort(400, 'Missing "color" or "x"/"y" field')
 
-    delay = 0
-    if "delay" in body:
-        delay = get_time(body["delay"])
-
     if "transition_time" in body:
-        transition_time = get_time(body["transition_time"])
+        transition_time = get_delay(body["transition_time"])
         kwargs["transition_time"] = transition_time
 
-    # Execute directly
-    if delay == 0:
-        action(*args, **kwargs)  # type: ignore
-    # Delayed
-    else:
-        delayed_executor = DelayedExecutor(
-            action=action, args=args, kwargs=kwargs, delay=delay
-        )
-        delayed_executor.execute()
+    execute(body, action, args=args, kwargs=kwargs)
 
     return success()

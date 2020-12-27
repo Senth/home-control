@@ -1,6 +1,5 @@
 from typing import Any, Dict
-from ..executor import DelayedExecutor
-from . import get_time, success
+from . import success, execute
 from ..tradfri import get_light_and_groups
 from ..tradfri.tradfri_gateway import TradfriGateway
 from flask import Blueprint, request, abort
@@ -36,21 +35,6 @@ def power() -> str:
             'field "value" has invalid value. Valid values are: "on"/"off"/1/0/"toggle"',
         )
 
-    delay = 0
-    if "delay" in body:
-        delay = get_time(body["delay"])
-
-    # Execute directly
-    if delay == 0:
-        action(lights_and_groups)
-    # Delayed
-    else:
-        delayed_executor = DelayedExecutor(
-            action=action,
-            args=[lights_and_groups],
-            kwargs={},
-            delay=delay,
-        )
-        delayed_executor.execute()
+    execute(body, action, args=[lights_and_groups])
 
     return success()

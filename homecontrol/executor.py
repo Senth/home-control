@@ -1,4 +1,6 @@
 from __future__ import annotations
+from datetime import datetime
+from dateutil import tz
 from typing import Any, Callable, Dict, List
 from .tradfri.effects.effect import Effect
 from .config import config
@@ -11,8 +13,8 @@ logger = config.logger
 class Executor(threading.Thread):
     _threads: List[Executor] = []
 
-    def __init__(self, target=None, name=None, args=(), kwargs={}) -> None:
-        super().__init__(None, target, name, args, kwargs)
+    def __init__(self, name=None) -> None:
+        super().__init__(None, None, name)
         self._terminate = False
 
     def terminate(self) -> None:
@@ -53,28 +55,47 @@ class DelayedExecutor(Executor):
             kwargs (Dict): Named arguments of the function
             delay (int): the delay in seconds
         """
-        super().__init__(args=[], kwargs={})
-        self.args = args
-        self.kwargs = kwargs
+        super().__init__(name="DelayedExecutor")
+        self._args = args
+        self._kwargs = kwargs
         self._action = action
         self._delay = delay
 
     def run(self) -> None:
         """Logic to run in another thread. Never call this directly."""
         logger.debug(
-            "DelayedExecutor.run() Delaying execution with "
-            + str(self._delay)
-            + " seconds."
+            f"DelayedExecutor.run() Delaying execution with {self._delay} seconds"
         )
         time.sleep(self._delay)
 
         if not self._terminate:
-            self._action(*self.args, **self.kwargs)
+            self._action(*self._args, **self._kwargs)
+
+
+class TimedExecutor(Executor):
+    def __init__(
+        self, action: Callable, args: List, kwargs: Dict[str, Any], time: datetime
+    ) -> None:
+        super().__init__(name="TimedExecutor")
+        self._args = args
+        self._kwargs = kwargs
+        self._action = action
+        self._time = time
+
+    def run(self) -> None:
+        """Logic to run in another thread. Never call this directly."""
+        logger.debug(f"TimedExecutor.run() Running at {self._time}")
+
+        while self._time > datetime.now(tz.tzlocal()) and not self._terminate:
+            time.sleep(5)
+
+        if not self._terminate:
+            self._action(*self._args, **self._kwargs)
 
 
 class EffectExecutor(Executor):
     def __init__(self, effect: Effect) -> None:
-        super().__init__()
+        super().__init__(name="EffectExecutor")
         self.effect = effect
 
     def terminate(self) -> None:
