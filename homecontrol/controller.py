@@ -30,7 +30,7 @@ def _calculate_ambient() -> States:
                     return States.on
             # Weekdays
             else:
-                if Time.between(time(7, 30), time(2)):
+                if Time.between(time(7), time(2)):
                     return States.on
 
     return States.off
@@ -138,7 +138,7 @@ class ControlMonitor(Controller):
         # Only when Matteus is home, computer is turned on, and between 08 and 03
         if (
             (Network.mobile_matteus.is_on() or Network.is_guest_home())
-            and Network.mina.is_on()
+            and (Network.mina.is_on() or Network.work_matteus.is_on())
             and Time.between(time(8), time(3))
         ):
             logger.debug("ControlMonitor.update(): Matteus is home")

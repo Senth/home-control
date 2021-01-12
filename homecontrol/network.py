@@ -185,6 +185,13 @@ class Network:
     mina = NetworkDevice(
         "192.168.0.248", "Cerina", updates_every=10, off_times=2, timeout=1
     )
+    work_matteus = NetworkDevice(
+        "192.168.0.247",
+        "Matteus' Work Laptop",
+        updates_every=20,
+        off_times=3,
+        timeout=4,
+    )
     tv = NetworkDevice("192.168.0.2", "TV", updates_every=30, off_times=3, timeout=4)
     mobile_matteus = UnifiDevice(
         "Mobile Matteus", "04:d6:aa:62:d5:ae", _unifi, log=True, max_off_time=240
