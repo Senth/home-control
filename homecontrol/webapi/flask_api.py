@@ -9,6 +9,7 @@ from .info import get_info_blueprint
 from .effect import effect_blueprint, get_effects_blueprint
 from .color import color_blueprint
 from .mood import mood_blueprint
+from .log import log_blueprint
 
 
 _logger = config.logger
@@ -43,6 +44,7 @@ def run_api() -> None:
     api.register_blueprint(effect_blueprint)
     api.register_blueprint(color_blueprint)
     api.register_blueprint(mood_blueprint)
+    api.register_blueprint(log_blueprint)
 
     _logger.debug("Flask API: Starting...")
-    api.run(port="5001")
+    api.run(port=config.webapi.port)
