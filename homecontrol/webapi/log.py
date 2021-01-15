@@ -6,7 +6,7 @@ from . import success
 log_blueprint = Blueprint("log", __package__)
 
 
-@effect_blueprint.route("/log", methods=["POST"])
+@log_blueprint.route("/log", methods=["POST"])
 def log() -> str:
     body: Dict[str, Any] = request.get_json(force=True)
 
