@@ -9,9 +9,8 @@ logger = logging.getLogger(__name__)
 
 
 class Weather:
-    """Value in the range of [0,8]"""
-
     cloud_cover = 0
+    """Value in the range of [0,8]"""
     temperature = 0
     _precipitation = 0
     _weather_info = {}
