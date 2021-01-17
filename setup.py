@@ -26,7 +26,8 @@ setup(
         "flask",
     ],
     classifiers=[
-        "Licence :: OSI Approved :: MIT Licence" "Programming Language :: Python :: 3"
+        "Licence :: OSI Approved :: MIT Licence",
+        "Programming Language :: Python :: 3",
     ],
     python_requires=">=3.8",
 )
