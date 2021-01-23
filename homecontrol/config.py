@@ -209,9 +209,11 @@ class Config:
         else:
             log_dir = "/var/log/home-control/"
         log_location = path.join(log_dir, "home-control.log")
+        ap_log_level = logging.WARNING
 
         if self.debug:
             log_level = logging.DEBUG
+            ap_log_level = logging.INFO
         elif self.verbose:
             log_level = logging.INFO
         else:
@@ -239,7 +241,7 @@ class Config:
 
         # Set apscheduler log level
         ap_logger = logging.getLogger("apscheduler")
-        ap_logger.setLevel(log_level)
+        ap_logger.setLevel(ap_log_level)
         ap_logger.addHandler(timed_rotating_handler)
         ap_logger.addHandler(stream_handler)
 
