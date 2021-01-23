@@ -1,3 +1,10 @@
+# Logging
+# LOG_VERBOSE = True, same as running --verbose. Defaults to False.
+# LOG_DEBUG = True, same as running --debug (also turns on --verbose). Defaults to False.
+# Running --verbose or --debug through the command line will always override this setting.
+LOG_VERBOSE = False
+LOG_DEBUG = False
+
 # IKEA Tradfri gateway information
 TRADFRI_HOST = "192.168.0.5"
 TRADFRI_IDENTITY = ""

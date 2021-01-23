@@ -72,8 +72,8 @@ class Config:
         self.stats_file: Union[str, bool] = False
         self.app_name: str = _app_name
         self.logger: logging.Logger
-        self.debug: bool
-        self.verbose: bool
+        self.debug = False
+        self.verbose = False
 
         self._get_optional_variables()
         self._check_required_variables()
@@ -105,19 +105,35 @@ class Config:
         Args:
             args (list): All the parsed arguments
         """
-        self.verbose = args.verbose
-        self.debug = args.debug
+        if args.verbose:
+            self.verbose = True
 
         if args.debug:
+            self.debug = True
             self.verbose = True
 
     def _get_optional_variables(self):
         """Get optional values from the config file"""
+        # Logging
+        try:
+            self.verbose = _user_config.LOG_VERBOSE
+        except AttributeError:
+            pass
+
+        try:
+            self.debug = _user_config.LOG_DEBUG
+            if self.debug:
+                self.verbose = True
+        except AttributeError:
+            pass
+
+        # Web API
         try:
             self.webapi.port = _user_config.WEB_API_PORT
         except:
             pass
 
+        # UNIFI
         try:
             self.unifi.port = _user_config.UNIFI_PORT
         except AttributeError:
@@ -199,7 +215,7 @@ class Config:
         elif self.verbose:
             log_level = logging.INFO
         else:
-            log_level = logging.WARNING
+            log_level = logging.INFO
 
         # Set app logging
         timed_rotating_handler = logging.handlers.TimedRotatingFileHandler(
