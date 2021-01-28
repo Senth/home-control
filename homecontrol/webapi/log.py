@@ -1,5 +1,6 @@
+from typing import Any, Dict
 from ..stats import Stats
-from flask import Blueprint, request, abort, jsonify
+from flask import Blueprint, request, abort
 from . import success
 
 

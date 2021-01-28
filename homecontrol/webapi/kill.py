@@ -1,6 +1,6 @@
 from ..executor import Executor
 from . import success
-from flask import Blueprint, jsonify
+from flask import Blueprint
 
 kill_blueprint = Blueprint("kill", __package__)
 

@@ -1,11 +1,11 @@
 from __future__ import annotations
 from enum import Enum
-from typing import Any, Dict, List, Union
+from typing import Dict, List, Union
 from pytradfri.gateway import Gateway
 from pytradfri.group import Group
 from pytradfri.mood import Mood
 from ..config import config
-from .common import try_several_times, api
+from .common import try_several_times
 
 logger = config.logger
 
