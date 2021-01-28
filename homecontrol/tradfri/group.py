@@ -51,7 +51,7 @@ class GroupHandler:
                     )
 
                 else:
-                    logger.info(f"Didn't find group {group.name} in enum.")
+                    logger.debug(f"Didn't find group {group.name} in enum.")
 
         if len(self._groups) != len(Groups):
             for group in Groups:

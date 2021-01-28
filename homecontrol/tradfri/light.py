@@ -52,7 +52,7 @@ class LightHandler:
                 if light:
                     self._lights[light] = device
                 else:
-                    _logger.info(f"Didn't find light {device.name} in enum.")
+                    _logger.debug(f"Didn't find light {device.name} in enum.")
 
         if len(self._lights) != len(Lights):
             for light in Lights:
