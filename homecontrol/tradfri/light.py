@@ -12,7 +12,7 @@ _logger = config.logger
 class Lights(Enum):
     window = "Window lights"
     ball = "Ball lights"
-    christmas_tree = "Julmys"
+    # christmas_tree = "Julmys"
     ceiling = "Ceiling light"
     # sun_lamp = "Sun lamp"
     led_strip = "LED strip"
