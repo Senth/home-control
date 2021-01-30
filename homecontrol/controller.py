@@ -122,7 +122,7 @@ class ControlMatteus(Controller):
             self.brightness = 1  # Lowest value
 
     def turn_off(self):
-        # Don't turn off between 8 and 10
+        # Don't turn off between 8 and 10 (Because we've turned it on)
         if not Time.between(time(8), time(10)):
             super().turn_off()
 
@@ -147,10 +147,10 @@ class ControlMonitor(Controller):
                 logger.debug("ControlMonitor.update(): It's dark outside")
                 self.state = States.on
 
-    def turn_off(self):
-        # Don't turn off between 8 and 10
-        if not Time.between(time(8), time(10)):
-            super().turn_off()
+    def turn_on(self):
+        # Don't turn on after 23 (I'm probably in bed then)
+        if not Time.between(time(23), time(7)):
+            super().turn_on()
 
 
 class ControlAmbient(Controller):
