@@ -201,6 +201,14 @@ class Network:
     )
 
     @staticmethod
+    def is_matteus_home() -> bool:
+        return Network.mobile_matteus.is_on()
+
+    @staticmethod
+    def is_emma_home() -> bool:
+        return Network.mobile_emma.is_on()
+
+    @staticmethod
     def is_someone_home() -> bool:
         return (
             Network.mobile_matteus.is_on()

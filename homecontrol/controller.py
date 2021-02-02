@@ -137,7 +137,7 @@ class ControlMonitor(Controller):
     def update(self):
         # Only when Matteus is home, computer is turned on, and between 08 and 03
         if (
-            (Network.mobile_matteus.is_on() or Network.is_guest_home())
+            Network.is_matteus_home()
             and (Network.mina.is_on() or Network.work_matteus.is_on())
             and Time.between(time(8), time(3))
         ):
