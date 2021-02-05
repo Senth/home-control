@@ -1,7 +1,5 @@
-from .tradfri.tradfri_gateway import TradfriGateway, LightsAndGroups
-from .tradfri.light import Lights
-from .tradfri.group import Groups
-from .network import Network
+from .tradfri.tradfri_gateway import TradfriGateway, LightsAndGroups, Lights, Groups
+from .network import Network, GuestOf
 from .time import Days, Time, Day, Date
 from .luminance import Luminance
 from .config import config
@@ -102,9 +100,10 @@ class ControlMatteus(Controller):
 
     def update(self):
         # Only when Matteus is home and between 10 and 03
-        if (Network.mobile_matteus.is_on() or Network.is_guest_home()) and Time.between(
-            time(10), time(3)
-        ):
+        if (
+            Network.mobile_matteus.is_on()
+            or Network.is_guest_home(GuestOf.both, GuestOf.matteus)
+        ) and Time.between(time(10), time(3)):
             logger.debug("ControlMatteus.update(): Matteus or guest is is home")
             # On when it's dark
             if Luminance.is_dark():
@@ -194,7 +193,9 @@ class ControlMatteusTurnOff(Controller):
         return [Lights.led_strip, Groups.matteus, Lights.bamboo]
 
     def update(self):
-        if Network.mobile_matteus.is_on() or Network.is_guest_home():
+        if Network.mobile_matteus.is_on() or Network.is_guest_home(
+            GuestOf.both, GuestOf.matteus
+        ):
             self.state = States.on
 
     def turn_on(self):
@@ -217,7 +218,7 @@ class ControlLedStripOff(Controller):
         if (
             Network.mobile_matteus.is_on()
             and not Network.mobile_emma.is_on()
-            and not Network.is_guest_home()
+            and not Network.is_guest_home(GuestOf.both, GuestOf.matteus)
         ):
             # Only if TV is on
             if Network.tv.is_on():
@@ -236,7 +237,9 @@ class ControlTurnOffEmma(Controller):
 
     def update(self):
         # Turn off if Emma isn't home and there's no guest
-        if Network.mobile_emma.is_on() or Network.is_guest_home():
+        if Network.mobile_emma.is_on() or Network.is_guest_home(
+            GuestOf.both, GuestOf.emma
+        ):
             self.state = States.on
 
     def turn_on(self):
