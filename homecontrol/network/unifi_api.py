@@ -77,7 +77,7 @@ class UnifiApi:
 
     def _get_default_group(self) -> _UserGroup:
         for group in self._usergroups.values():
-            if group == GuestOf.both.value:
+            if group.name == GuestOf.both.value:
                 return group
         raise Exception("No default usergroup found")
 
