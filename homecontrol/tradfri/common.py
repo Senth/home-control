@@ -34,7 +34,7 @@ def try_several_times(
             if isinstance(response, list):
                 return response
             else:
-                return []
+                return [response]
         except RequestTimeout:
             try_count += 1
             config.logger.info(

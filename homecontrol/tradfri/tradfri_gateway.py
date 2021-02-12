@@ -5,11 +5,13 @@ from pytradfri.device import Device
 from . import LightsAndGroups
 from .light import Lights, LightHandler
 from .group import Groups, GroupHandler
+from .motion_sensor import MotionSensor
 from .common import try_several_times
 from ..config import config
 
 _logger = config.logger
 _gateway = Gateway()
+MotionSensor.set_gateway(_gateway)
 
 
 class TradfriGateway:
