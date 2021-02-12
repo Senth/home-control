@@ -1,6 +1,6 @@
 from __future__ import annotations
 from enum import Enum
-from typing import Dict, Union
+from typing import Any, Dict, List, Union
 from pytradfri.device import Device
 from pytradfri.gateway import Gateway
 from .common import try_several_times
@@ -43,9 +43,8 @@ class LightHandler:
         self._gateway = gateway
         self._lights: Dict[Lights, Device] = {}
 
-    def update(self) -> None:
+    def update(self, devices: List[Any]) -> None:
         """Bind all the light devices from pytradfri"""
-        devices = try_several_times(self._gateway.get_devices(), execute_response=True)
         for device in devices:
             if isinstance(device, Device):
                 light = Lights.from_name(device.name)
