@@ -20,8 +20,8 @@ def main():
     scheduler.add_job(TradfriGateway.update, "interval", minutes=1)
     scheduler.add_job(Network.update, "interval", seconds=5, max_instances=3)
 
-    # Schedule events/commands
-    scheduler.add_job(Controller.update_all, "interval", seconds=5)
+    # Start Controller once
+    scheduler.add_job(Controller.update_all)
 
     scheduler.start()
 

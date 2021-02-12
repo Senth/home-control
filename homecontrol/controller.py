@@ -3,6 +3,7 @@ from .network import Network, GuestOf
 from .time import Days, Time, Day, Date
 from .luminance import Luminance
 from .config import config
+from time import sleep
 from datetime import time
 from typing import Any, List, Union
 from enum import Enum
@@ -42,26 +43,29 @@ class Controller:
 
     @staticmethod
     def update_all() -> None:
-        logger.debug("Updating controllers")
-        for controller in controllers:
-            logger.debug("Updating controller: " + controller.name)
-            last_state = controller.state
-            last_brightness = controller.brightness
+        while True:
+            for controller in controllers:
+                logger.debug("Updating controller: " + controller.name)
+                last_state = controller.state
+                last_brightness = controller.brightness
 
-            controller.state = States.off
-            controller.update()
+                controller.state = States.off
+                controller.update()
 
-            # Controller state updated
-            if controller.state != last_state:
-                logger.debug(f"State changed from {last_state} -> {controller.state}")
-                if controller.state == States.on:
-                    controller.turn_on()
-                elif controller.state == States.off:
-                    controller.turn_off()
+                # Controller state updated
+                if controller.state != last_state:
+                    logger.debug(
+                        f"State changed from {last_state} -> {controller.state}"
+                    )
+                    if controller.state == States.on:
+                        controller.turn_on()
+                    elif controller.state == States.off:
+                        controller.turn_off()
 
-            # Brightness updated
-            if controller.brightness != last_brightness:
-                controller.dim()
+                # Brightness updated
+                if controller.brightness != last_brightness:
+                    controller.dim()
+            sleep(1)
 
     def turn_on(self) -> None:
         logger.info("Turning on " + self.name)
