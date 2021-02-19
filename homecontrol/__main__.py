@@ -20,7 +20,7 @@ def main():
     scheduler.start()
 
     start_thread(Network.update, seconds_between_calls=5)
-    start_thread(TradfriGateway.update, seconds_between_calls=60)
+    start_thread(TradfriGateway.update, seconds_between_calls=60 * 60 * 24)
     start_thread(Controller.update_all, seconds_between_calls=1, delay=10)
     # start_thread(MotionSensor.update_all, seconds_between_calls=10) NOTE doesn't work yet
 
