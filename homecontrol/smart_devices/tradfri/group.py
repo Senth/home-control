@@ -19,15 +19,19 @@ class TradfriGroup(Interface):
                 self._group = group
 
     def turn_on(self) -> None:
-        Api.execute(self._group.set_state(True))
+        if self._group:
+            Api.execute(self._group.set_state(True))
 
     def turn_off(self) -> None:
-        Api.execute(self._group.set_state(False))
+        if self._group:
+            Api.execute(self._group.set_state(False))
 
     def dim(self, value: Union[float, int], transition_time: float = 1) -> None:
-        normalized_value = Interface.normalize_dim(value)
-        Api.execute(self._group.set_dimmer(normalized_value))
+        if self._group:
+            normalized_value = Interface.normalize_dim(value)
+            Api.execute(self._group.set_dimmer(normalized_value))
 
     def color_xy(self, x: int, y: int, transition_time: float = 1) -> None:
-        normalized_time = Api.seconds_to_tradfri(transition_time)
-        Api.execute(self._group.set_xy_color(x, y, transition_time=normalized_time))
+        if self._group:
+            normalized_time = Api.seconds_to_tradfri(transition_time)
+            Api.execute(self._group.set_xy_color(x, y, transition_time=normalized_time))
