@@ -1,41 +1,37 @@
-from typing import List, Union
-from pytradfri.device import Device
-from pytradfri.gateway import Gateway
+from typing import Union
+from .api import Api
+from .device import TradfriDevice
 from ..interface import Interface
-from .api import api, try_several_times
 
 
-class TradfriLight(Interface):
-    _devices: List[Device] = try_several_times(
-        Gateway().get_devices(), execute_response=True
-    )
-
+class TradfriLight(TradfriDevice):
     def __init__(self, name: str) -> None:
         super().__init__(name)
-        self._device: Device
-        self._first_update()
-
-    def _first_update(self) -> None:
-        for device in TradfriLight._devices:
-            if device.name == self.name:
-                self._device = device
 
     def turn_on(self) -> None:
-        try_several_times(self._device.light_control.set_state(True))
+        Api.execute(self._device.light_control.set_state(True))
 
     def turn_off(self) -> None:
-        try_several_times(self._device.light_control.set_state(False))
+        Api.execute(self._device.light_control.set_state(False))
 
     def toggle(self) -> None:
+        new_state = not self.is_on()
+        Api.execute(self._device.light_control.set_state(new_state))
+
+    def is_on(self) -> bool:
         self.update()
-        new_state = not bool(self._device.light_control.lights[0].state)
-        try_several_times(self._device.light_control.set_state(new_state))
+        return bool(self._device.light_control.lights[0].state)
 
     def dim(self, value: Union[float, int], transition_time: float = 1) -> None:
-        raise NotImplementedError()
-
-    def update(self) -> None:
-        raise NotImplementedError()
+        if self._device.light_control.can_set_dimmer:
+            normalized_value = Interface.normalize_dim(value)
+            Api.execute(self._device.light_control.set_dimmer(normalized_value))
 
     def color_xy(self, x: int, y: int, transition_time: float = 1) -> None:
-        raise NotImplementedError()
+        if self._device.light_control.can_set_xy:
+            normalized_time = Api.seconds_to_tradfri(transition_time)
+            Api.execute(
+                self._device.light_control.set_xy_color(
+                    x, y, transition_time=normalized_time
+                )
+            )
