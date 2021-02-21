@@ -3,6 +3,7 @@ from pytradfri.group import Group
 from typing import List, Union
 from .api import Api
 from ..interface import Interface
+from ..moods import Moods, Mood
 
 
 class TradfriGroup(Interface):
@@ -35,3 +36,7 @@ class TradfriGroup(Interface):
         if self._group:
             normalized_time = Api.seconds_to_tradfri(transition_time)
             Api.execute(self._group.set_xy_color(x, y, transition_time=normalized_time))
+
+    def mood(self, mood: Mood) -> None:
+        self.dim(mood.brightness)
+        self.color_xy(mood.x, mood.y)

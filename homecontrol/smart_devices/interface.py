@@ -1,4 +1,5 @@
 from typing import Union
+from .moods import Mood
 
 
 class Interface:
@@ -46,3 +47,6 @@ class Interface:
             transition_time (float, optional): In seconds. Defaults to 1.
         """
         pass
+
+    def mood(self, mood: Mood) -> None:
+        """Set the mood for an interface if applicable"""

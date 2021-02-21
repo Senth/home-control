@@ -1,4 +1,4 @@
-from ..tradfri.mood import Moods, Mood
+from ..smart_devices.moods import Moods, Mood
 from typing import Any, Dict
 from flask import Blueprint, request, abort
 from . import execute, success

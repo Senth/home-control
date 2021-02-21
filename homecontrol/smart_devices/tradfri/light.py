@@ -2,6 +2,7 @@ from typing import Union
 from .api import Api
 from .device import TradfriDevice
 from ..interface import Interface
+from ..moods import Mood
 
 
 class TradfriLight(TradfriDevice):
@@ -42,3 +43,7 @@ class TradfriLight(TradfriDevice):
                         x, y, transition_time=normalized_time
                     )
                 )
+
+    def mood(self, mood: Mood) -> None:
+        self.dim(mood.brightness)
+        self.color_xy(mood.x, mood.y)
