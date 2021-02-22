@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Callable
 from threading import Thread
-from .config import config
+from ..config import config
 from time import sleep
 import traceback
 

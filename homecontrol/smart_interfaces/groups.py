@@ -1,6 +1,6 @@
 from __future__ import annotations
 from enum import Enum
-from homecontrol.smart_devices.tradfri.group import TradfriGroup
+from .tradfri.group import TradfriGroup
 from typing import Union
 
 

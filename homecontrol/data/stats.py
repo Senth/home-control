@@ -1,4 +1,4 @@
-from .config import config
+from ..config import config
 from datetime import datetime
 
 logger = config.logger

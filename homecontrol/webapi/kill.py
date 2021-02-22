@@ -1,4 +1,4 @@
-from ..executor import Executor
+from ..utils.executor import Executor
 from . import success
 from flask import Blueprint
 

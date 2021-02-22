@@ -1,8 +1,7 @@
 from typing import Any, Callable, Dict, List
 from flask import Blueprint, request, abort
-from . import execute, success, get_delay
-from ..tradfri import get_light_and_groups
-from ..tradfri.tradfri_gateway import TradfriGateway
+from . import execute, success, get_delay, trim_name
+from ..smart_interfaces import SmartInterfaces
 
 color_blueprint = Blueprint("color", __package__)
 
@@ -17,18 +16,15 @@ def color() -> str:
     if not "name" in body:
         abort(400, 'Missing "value" in body')
 
-    lights_and_groups = get_light_and_groups(body["name"])
+    name = trim_name(body["name"])
+    interfaces = SmartInterfaces.get_interfaces(name)
 
     action: Callable
-    args: List[Any] = [lights_and_groups]
+    args: List[Any] = []
     kwargs: Dict = {}
 
-    # Hex
-    if "color" in body:
-        action = TradfriGateway.color_hex
-        args.append(body["color"])
     # XY Color
-    elif "x" in body and "y" in body:
+    if "x" in body and "y" in body:
         error_msg = "xy-colors need to be integers [0, 65535] or floats [0.0, 1.0]"
 
         # Int
@@ -40,7 +36,6 @@ def color() -> str:
                 or MAX_COLOR_INT < body["y"]
             ):
                 abort(400, error_msg)
-            action = TradfriGateway.color_xy
             args.extend([body["x"], body["y"]])
 
         # Float -> Normalize to 0-65535
@@ -49,19 +44,19 @@ def color() -> str:
                 abort(400, error_msg)
             x = int(body["x"] * MAX_COLOR_INT)
             y = int(body["y"] * MAX_COLOR_INT)
-            action = TradfriGateway.color_xy
             args.extend([x, y])
 
         # Not valid
         else:
             abort(400, error_msg)
     else:
-        abort(400, 'Missing "color" or "x"/"y" field')
+        abort(400, 'Missing "x" & "y" fields')
 
     if "transition_time" in body:
         transition_time = get_delay(body["transition_time"])
         kwargs["transition_time"] = transition_time
 
-    execute(body, action, args=args, kwargs=kwargs)
+    for interface in interfaces:
+        execute(body, interface.color_xy, args=args, kwargs=kwargs)
 
     return success()
