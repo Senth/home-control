@@ -1,8 +1,7 @@
 from typing import Any, Dict, Union
-from ..tradfri import get_light_and_groups
-from ..tradfri.tradfri_gateway import TradfriGateway
-from . import execute, success, get_delay
+from . import execute, success, get_delay, trim_name
 from flask import Blueprint, request, abort
+from ..smart_interfaces import SmartInterfaces
 
 
 dim_blueprint = Blueprint("dim", __package__)
@@ -19,7 +18,8 @@ def dim() -> str:
     if not "name" in body:
         abort(400, 'Missing "name" in body')
 
-    lights_and_groups = get_light_and_groups(body["name"])
+    name = trim_name(body["name"])
+    interfaces = SmartInterfaces.get_interfaces(name)
 
     # Value
     value: Union[float, int] = 0
@@ -41,11 +41,12 @@ def dim() -> str:
     if "transition_time" in body:
         transition_time = get_delay(body["transition_time"])
 
-    execute(
-        body,
-        TradfriGateway.dim,
-        args=[lights_and_groups, value],
-        kwargs={"transition_time": transition_time},
-    )
+    for interface in interfaces:
+        execute(
+            body,
+            interface.dim,
+            args=[value],
+            kwargs={"transition_time": transition_time},
+        )
 
     return success()

@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from homecontrol.executor import DelayedExecutor, TimedExecutor
+from ..utils.executor import DelayedExecutor, TimedExecutor
 import re
 from flask import abort, jsonify
 from typing import Any, Callable, Dict, List, Union
@@ -54,6 +54,22 @@ def execute(
     # Execute directly
     else:
         action(*args, **kwargs)
+
+
+def trim_name(names: Union[List[str], str]) -> Union[List[str], str]:
+    """Trims the name from the web API, specifically from IFTTT (removes extra "the ")"""
+
+    # Single name
+    if isinstance(names, str):
+        trimmed_name = names.lower().replace("the", "").strip()
+        return trimmed_name
+    elif isinstance(names, list):
+        trimmed_names: List[str] = []
+        for name in names:
+            trimmed_names.append(str(trim_name(name)))
+        return trimmed_names
+
+    return ""
 
 
 def get_delay(delay_str: Union[str, int]) -> float:

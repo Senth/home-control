@@ -1,9 +1,8 @@
-from ..smart_devices.moods import Moods, Mood
+from ..smart_interfaces.moods import Moods, Mood
+from ..smart_interfaces import SmartInterfaces
 from typing import Any, Dict
 from flask import Blueprint, request, abort
-from . import execute, success
-from ..tradfri import get_light_and_groups
-from ..tradfri.tradfri_gateway import TradfriGateway
+from . import execute, success, trim_name
 
 
 mood_blueprint = Blueprint("mood", __package__)
@@ -20,22 +19,24 @@ def mood() -> str:
     if not "lights" in body:
         abort(400, 'Missing "lights" in body')
 
-    lights_and_groups = get_light_and_groups(body["lights"])
+    lights = trim_name(body["lights"])
+    interfaces = SmartInterfaces.get_interfaces(lights)
 
     mood_enum = Moods.from_name(body["mood"])
     if not mood_enum:
         abort(404, f"Didn't find a mood with the name {body['mood']}.")
     mood: Mood = mood_enum.value
 
-    execute(
-        body,
-        TradfriGateway.color_xy,
-        args=[lights_and_groups, mood.x, mood.y],
-    )
-    execute(
-        body,
-        TradfriGateway.dim,
-        args=[lights_and_groups, mood.brightness],
-    )
+    for interface in interfaces:
+        execute(
+            body,
+            interface.color_xy,
+            args=[mood.x, mood.y],
+        )
+        execute(
+            body,
+            interface.dim,
+            args=[mood.brightness],
+        )
 
     return success()
