@@ -64,5 +64,8 @@ class Network:
     @staticmethod
     def update() -> None:
         _logger.debug("Network.update()")
-        _unifi_api.update()
-        Device.update_all()
+        try:
+            _unifi_api.update()
+            Device.update_all()
+        except Exception as e:
+            _logger.error("Exception during Network.update()", e)
