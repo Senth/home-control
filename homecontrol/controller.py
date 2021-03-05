@@ -145,7 +145,7 @@ class ControlMonitor(Controller):
                 logger.debug("ControlMonitor.update(): Mina is on")
                 self.state = States.on
             # Work laptop
-            elif Network.work_matteus and Time.between(time(7), time(18)):
+            elif Network.work_matteus.is_on() and Time.between(time(7), time(18)):
                 logger.debug("ControlMonitor.update(): Work laptop is on")
                 self.state = States.on
 
