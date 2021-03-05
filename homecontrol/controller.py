@@ -139,22 +139,15 @@ class ControlMonitor(Controller):
         return Lights.monitor
 
     def update(self):
-        # Only when Matteus is home, computer is turned on, and between 08 and 03
-        if (
-            Network.is_matteus_home()
-            and (Network.mina.is_on() or Network.work_matteus.is_on())
-            and Time.between(time(8), time(3))
-        ):
-            logger.debug("ControlMonitor.update(): Matteus is home")
-            # Always on when it's dark outside
-            if Luminance.is_dark():
-                logger.debug("ControlMonitor.update(): It's dark outside")
+        if Network.is_matteus_home() and Luminance.is_dark():
+            # Stationary Computer
+            if Network.mina.is_on() and Time.between(time(7), time(3)):
+                logger.debug("ControlMonitor.update(): Mina is on")
                 self.state = States.on
-
-    def turn_on(self):
-        # Don't turn on after 23 (I'm probably in bed then)
-        if not Time.between(time(23), time(7)):
-            super().turn_on()
+            # Work laptop
+            elif Network.work_matteus and Time.between(time(7), time(18)):
+                logger.debug("ControlMonitor.update(): Work laptop is on")
+                self.state = States.on
 
 
 class ControlAmbient(Controller):
