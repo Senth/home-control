@@ -25,10 +25,8 @@ class Lights(Enum):
     cylinder = "Cylinder lamp"
     micro = "Micro lights"
     kitchen_advent = "Adventsstake kök"
-    # emma_star = "Stjärnan lampa"
-    # emma_billy = "Bokhylla lampa"
-    # emma_salt = "Salt lampa"
-    # emma_slinga = "Ljusslinga lampa"
+    emma_billy = "Bokhyllans lampa"
+    emma_salt = "Salt-lampan"
 
     @staticmethod
     def from_name(light_name: str) -> Union[Lights, None]:
