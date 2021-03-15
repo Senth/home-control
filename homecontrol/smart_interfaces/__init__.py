@@ -31,3 +31,5 @@ class SmartInterfaces:
         group = Groups.from_name(name)
         if group:
             return group.value
+
+        # TODO Search manually for non-added interfaces
