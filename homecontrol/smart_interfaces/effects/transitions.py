@@ -1,5 +1,6 @@
-from ..tradfri_gateway import TradfriGateway
+from typing import List
 from ...config import config
+from ..interface import Interface
 
 _logger = config.logger
 
@@ -12,7 +13,7 @@ class Transition:
     def __init__(self, transition_time):
         self.transition_time = transition_time
 
-    def run(self, light_or_group):
+    def run(self, interfaces: List[Interface]):
         _logger.debug(
             "Transition.run() Nothing running, transition_time {} seconds ".format(
                 self.transition_time
@@ -26,15 +27,14 @@ class ColorTransition(Transition):
         self.x = x
         self.y = y
 
-    def run(self, light_or_group):
+    def run(self, interfaces: List[Interface]):
         _logger.debug(
             "ColorTransition.run() Transitioning to ({}, {}) in {}".format(
                 self.x, self.y, self.transition_time
             )
         )
-        TradfriGateway.color_xy(
-            light_or_group, self.x, self.y, transition_time=self.transition_time
-        )
+        for interface in interfaces:
+            interface.color_xy(self.x, self.y, self.transition_time)
 
 
 class BrightnessTransition(Transition):
@@ -48,13 +48,14 @@ class BrightnessTransition(Transition):
         super().__init__(transition_time)
         self.brightness = brightness
 
-    def run(self, light_or_group):
+    def run(self, interfaces: List[Interface]):
         _logger.debug(
             "BrightnessTransition.run() Transitioning to light level {} in {} seconds".format(
                 self.brightness, self.transition_time
             )
         )
-        TradfriGateway.dim(light_or_group, self.brightness, self.transition_time)
+        for interface in interfaces:
+            interface.dim(self.brightness, self.transition_time)
 
 
 class BrightnessColorTransitionFactory:

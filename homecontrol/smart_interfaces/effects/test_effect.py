@@ -1,4 +1,4 @@
-from ..light import Lights
+from ..devices import Devices
 from .effect import Effect
 from .transitions import (
     BrightnessColorTransitionFactory,
@@ -9,7 +9,7 @@ from .transitions import (
 
 class TestEffect(Effect):
     def __init__(self) -> None:
-        super().__init__(Lights.bamboo, "Test")
+        super().__init__([Devices.bamboo.value], "Test")
 
         self.add_transition(BrightnessTransition(1, 0))
         self.add_transition(BrightnessTransition(250, 15))

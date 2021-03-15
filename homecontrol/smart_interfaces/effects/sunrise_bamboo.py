@@ -1,5 +1,5 @@
-from ..light import Lights
 from .effect import Effect
+from ..devices import Devices
 from .transitions import (
     BrightnessColorTransitionFactory,
     ColorTransition,
@@ -9,7 +9,7 @@ from .transitions import (
 
 class SunriseBamboo(Effect):
     def __init__(self) -> None:
-        super().__init__(Lights.bamboo, "Sunrise Bamboo")
+        super().__init__([Devices.bamboo.value], "Sunrise Bamboo")
 
         brightness_start = 1
         brightness_stop = 70
