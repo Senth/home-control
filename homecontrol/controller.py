@@ -46,7 +46,6 @@ class Controller:
     def update_all() -> None:
         while True:
             for controller in controllers:
-                logger.debug("Updating controller: " + controller.name)
                 last_state = controller.state
                 last_brightness = controller.brightness
 
@@ -111,10 +110,8 @@ class ControlMatteus(Controller):
             Network.mobile_matteus.is_on()
             or Network.is_guest_home(GuestOf.both, GuestOf.matteus)
         ) and Time.between(time(10), time(3)):
-            logger.debug("ControlMatteus.update(): Matteus or guest is is home")
             # On when it's dark
             if Luminance.is_dark():
-                logger.debug("ControlMatteus.update(): Is dark")
                 self.state = States.on
 
         # Update dim
@@ -144,11 +141,9 @@ class ControlMonitor(Controller):
         if Network.is_matteus_home() and Luminance.is_dark():
             # Stationary Computer
             if Network.mina.is_on() and Time.between(time(7), time(3)):
-                logger.debug("ControlMonitor.update(): Mina is on")
                 self.state = States.on
             # Work laptop
             elif Network.work_matteus.is_on() and Time.between(time(7), time(18)):
-                logger.debug("ControlMonitor.update(): Work laptop is on")
                 self.state = States.on
 
 

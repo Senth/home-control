@@ -68,6 +68,7 @@ class Config:
         self.unifi: Unifi = Unifi()
         self.location: Location = Location()
         self.tradfri: Tradfri = Tradfri()
+        self.hue: Hue = Hue()
         self.webapi: WebApi = WebApi()
         self.stats_file: Union[str, bool] = False
         self.app_name: str = _app_name
@@ -172,6 +173,16 @@ class Config:
             _print_missing("TRADFRI_KEY")
 
         try:
+            self.hue.host = _user_config.HUE_HOST
+        except AttributeError:
+            _print_missing("HUE_HOST")
+
+        try:
+            self.hue.username = _user_config.HUE_USERNAME
+        except AttributeError:
+            _print_missing("HUE_USERNAME")
+
+        try:
             self.location.lat = _user_config.LAT
         except AttributeError:
             _print_missing("LAT")
@@ -251,6 +262,12 @@ class Tradfri:
         self.host = ""
         self.identity = ""
         self.key = ""
+
+
+class Hue:
+    def __init__(self):
+        self.host = ""
+        self.username = ""
 
 
 class Location:

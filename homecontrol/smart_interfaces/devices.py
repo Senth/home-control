@@ -3,6 +3,7 @@ from enum import Enum
 from typing import Union
 from .tradfri.light import TradfriLight
 from .tradfri.socket import TradfriSocket
+from .hue.light import HueLight
 
 
 class Devices(Enum):
@@ -12,7 +13,7 @@ class Devices(Enum):
     billy = TradfriSocket("Billy lights")
     ceiling = TradfriLight("Ceiling light")
     cylinder = TradfriLight("Cylinder lamp")
-    hall_ceiling = TradfriLight("Hallen Taklampa")
+    hall_ceiling = HueLight(4, "Hallen taklampa")
     hall_painting = TradfriSocket("Hall light")
     kitchen_advent = TradfriSocket("Adventsstake kök")
     led_strip = TradfriSocket("LED strip")

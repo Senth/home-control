@@ -10,6 +10,10 @@ TRADFRI_HOST = "192.168.0.5"
 TRADFRI_IDENTITY = ""
 TRADFRI_KEY = ""
 
+# Philiphs Hue settings
+HUE_HOST = "192.168.0.6"
+HUE_USERNAME = ""
+
 # Your location in LAT and LONG, used both for sunset/sunrise and weather
 LAT = 30
 LONG = 30

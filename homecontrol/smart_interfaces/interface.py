@@ -37,6 +37,10 @@ class Interface:
         normalized = max(0, min(254, value))
         return normalized
 
+    @staticmethod
+    def normalize_transition_time(seconds: float) -> int:
+        return int(seconds * 10)
+
     def update(self) -> None:
         pass
 

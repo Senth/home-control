@@ -1,14 +1,18 @@
 from typing import Any, Dict
 from . import success, execute, trim_name
 from ..smart_interfaces import SmartInterfaces
+from ..config import config
 from flask import Blueprint, request, abort
 
 power_blueprint = Blueprint("power", __package__)
+logger = config.logger
 
 
 @power_blueprint.route("/power", methods=["POST"])
 def power() -> str:
     body: Dict[str, Any] = request.get_json(force=True)
+
+    logger.debug(f"/power, body: {body}")
 
     # Check required parameters
     if not "value" in body:
