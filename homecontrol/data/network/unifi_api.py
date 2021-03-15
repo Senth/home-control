@@ -1,7 +1,7 @@
 from time import time
 from typing import Any, Dict, Union
 from pyunifi.controller import Controller
-from ..config import config
+from ...config import config
 from .guest_of import GuestOf
 
 

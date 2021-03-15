@@ -1,7 +1,7 @@
 from .ip_device import IpDevice
 from .device import Device
 from .unifi_device import UnifiDevice, api as _unifi_api
-from ..config import config
+from ...config import config
 from .guest_of import GuestOf
 
 _logger = config.logger
@@ -37,7 +37,7 @@ class Network:
     )
     mobile_emma = UnifiDevice(
         name="Mobile Emma",
-        mac_address="e6:f1:97:9b:0e:ad",
+        mac_address="a6:c7:fd:0c:a4:05",
         max_off_time=420,
     )
 

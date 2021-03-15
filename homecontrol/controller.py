@@ -1,12 +1,12 @@
-from threading import Thread
-from .tradfri.tradfri_gateway import TradfriGateway, LightsAndGroups, Lights, Groups
-from .network import Network, GuestOf
-from .time import Days, Time, Day, Date
-from .luminance import Luminance
+from .smart_interfaces.devices import Devices
+from .smart_interfaces.groups import Groups
+from .data.network import Network, GuestOf
+from .utils.time import Days, Time, Day, Date
+from .data.luminance import Luminance
 from .config import config
 from time import sleep
 from datetime import time
-from typing import Any, List, Union
+from typing import List, Union
 from enum import Enum
 
 
@@ -70,27 +70,29 @@ class Controller:
 
     def turn_on(self) -> None:
         logger.info("Turning on " + self.name)
-        TradfriGateway.turn_on(self._get_light_or_group())
+        for interface_enum in self._get_interfaces():
+            interface_enum.value.turn_on()
         # Dim to correct value
         if self.brightness:
             self.dim(transition_time=0)
 
     def turn_off(self) -> None:
         logger.info("Turning off " + self.name)
-        TradfriGateway.turn_off(self._get_light_or_group())
+        for interface_enum in self._get_interfaces():
+            interface_enum.value.turn_off()
 
     def dim(self, transition_time: float = 60):
         if self.state == States.on and self.brightness:
             logger.info(f"Dimming {self.name} to {self.brightness}")
-            TradfriGateway.dim(
-                self._get_light_or_group(),
-                self.brightness,
-                transition_time=transition_time,
-            )
+            for interface_enum in self._get_interfaces():
+                interface_enum.value.dim(
+                    self.brightness,
+                    transition_time=transition_time,
+                )
 
-    def _get_light_or_group(self) -> LightsAndGroups:
-        logger.error(f"Not implemented {self.name}._get_light_or_group()")
-        raise RuntimeError("Not implemented _get_light_or_group")
+    def _get_interfaces(self) -> List[Enum]:
+        logger.error(f"Not implemented {self.name}._get_interfaces()")
+        raise RuntimeError("Not implemented _get_interfaces")
 
     def update(self):
         logger.error(f"Not implemented {self.name}._update()")
@@ -100,8 +102,8 @@ class ControlMatteus(Controller):
     def __init__(self):
         super().__init__("Matteus")
 
-    def _get_light_or_group(self):
-        return [Lights.billy, Lights.cylinder]
+    def _get_interfaces(self) -> List[Enum]:
+        return [Devices.billy, Devices.cylinder]
 
     def update(self):
         # Only when Matteus is home and between 10 and 03
@@ -135,8 +137,8 @@ class ControlMonitor(Controller):
     def __init__(self) -> None:
         super().__init__("Monitor")
 
-    def _get_light_or_group(self):
-        return Lights.monitor
+    def _get_interfaces(self) -> List[Enum]:
+        return [Devices.monitor]
 
     def update(self):
         if Network.is_matteus_home() and Luminance.is_dark():
@@ -154,12 +156,12 @@ class ControlAmbient(Controller):
     def __init__(self) -> None:
         super().__init__("Ambient")
 
-    def _get_light_or_group(self):
+    def _get_interfaces(self) -> List[Enum]:
         # Winter lights
         if Date.between((11, 28), (1, 31)):
-            return [Groups.cozy, Lights.hall_painting, Groups.kitchen]
+            return [Groups.cozy, Devices.hall_painting, Groups.kitchen]
         else:  # Regular lights
-            return [Lights.hall_painting, Lights.ball]
+            return [Devices.hall_painting, Devices.ball]
 
     def update(self):
         self.state = _calculate_ambient()
@@ -169,10 +171,10 @@ class ControlWindows(Controller):
     def __init__(self) -> None:
         super().__init__("Windows")
 
-    def _get_light_or_group(self):
+    def _get_interfaces(self) -> List[Enum]:
         # Only active when we don't have Christmas lights
         if Date.between((2, 1), (11, 27)):
-            return [Lights.window, Lights.micro]
+            return [Devices.window, Devices.micro]
         else:
             return []
 
@@ -187,8 +189,8 @@ class ControlMatteusTurnOff(Controller):
     def __init__(self) -> None:
         super().__init__("Turn off Matteus")
 
-    def _get_light_or_group(self) -> List[Any]:
-        return [Lights.led_strip, Groups.matteus, Lights.bamboo]
+    def _get_interfaces(self) -> List[Enum]:
+        return [Devices.led_strip, Groups.matteus, Devices.bamboo]
 
     def update(self):
         if Network.mobile_matteus.is_on() or Network.is_guest_home(
@@ -206,8 +208,8 @@ class ControlLedStripOff(Controller):
     def __init__(self):
         super().__init__("Turn off LED Strip")
 
-    def _get_light_or_group(self):
-        return Lights.led_strip
+    def _get_interfaces(self) -> List[Enum]:
+        return [Devices.led_strip]
 
     def update(self):
         self.state = States.on
@@ -230,8 +232,8 @@ class ControlTurnOffEmma(Controller):
     def __init__(self):
         super().__init__("Turn off Emma lights")
 
-    def _get_light_or_group(self):
-        return Groups.emma
+    def _get_interfaces(self) -> List[Enum]:
+        return [Groups.emma]
 
     def update(self):
         # Turn off if Emma isn't home and there's no guest
@@ -250,8 +252,8 @@ class ControlTurnOffLights(Controller):
     def __init__(self):
         super().__init__("Turn off all lights")
 
-    def _get_light_or_group(self):
-        return [Groups.cozy, Lights.hall_painting, Lights.ceiling]
+    def _get_interfaces(self) -> List[Enum]:
+        return [Groups.cozy, Devices.hall_painting, Devices.ceiling]
 
     def update(self):
         if Network.is_someone_home():
@@ -265,7 +267,7 @@ class ControlTurnOffLights(Controller):
 #     def __init__(self):
 #         super().__init__("Sun Lamp")
 
-#     def _get_light_or_group(self):
+#     def _get_interfaces(self) -> List[Enum]:
 #         return Lights.sun_lamp
 
 #     def update(self):
@@ -279,8 +281,8 @@ class ControlHallCeiling(Controller):
         super().__init__("Hall Ceiling")
         self.brightness = 1.0
 
-    def _get_light_or_group(self) -> LightsAndGroups:
-        return Lights.hall_ceiling
+    def _get_interfaces(self) -> List[Enum]:
+        return [Devices.hall_ceiling]
 
     def update(self):
         if Network.is_someone_home():

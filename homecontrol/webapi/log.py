@@ -1,5 +1,5 @@
 from typing import Any, Dict
-from ..stats import Stats
+from ..data.stats import Stats
 from flask import Blueprint, request, abort
 from . import success
 

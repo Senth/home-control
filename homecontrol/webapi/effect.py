@@ -1,8 +1,8 @@
-from ..tradfri.effects import Effects
+from ..smart_interfaces.effects import Effects
 from typing import Any, Dict, List
 from flask import Blueprint, request, abort, jsonify
-from . import success
-from ..executor import EffectExecutor
+from . import success, trim_name
+from ..utils.executor import EffectExecutor
 
 
 effect_blueprint = Blueprint("effect", __package__)
@@ -16,7 +16,11 @@ def effect() -> str:
     if not "name" in body:
         abort(400, 'Missing "name" field in body')
 
-    effect_enum = Effects.from_name(body["name"])
+    if not isinstance(body["name"], str):
+        abort(400, '"name" field is not a string')
+
+    name = str(trim_name(body["name"]))
+    effect_enum = Effects.from_name(name)
     if not effect_enum:
         abort(
             404,

@@ -1,23 +1,24 @@
 from time import sleep
+from typing import List
 from .transitions import Transition
-from .. import LightsAndGroups
+from ..interface import Interface
 from ...config import config
 
 _logger = config.logger
 
 
 class Effect:
-    def __init__(self, light_or_group: LightsAndGroups, name: str) -> None:
+    def __init__(self, interfaces: List[Interface], name: str) -> None:
         self.name = name
-        self.light_or_group = light_or_group
-        self.transitions = []
+        self.interfaces = interfaces
+        self.transitions: List[Transition] = []
         self.running = False
         self.reset()
 
     def add_transition(self, transition: Transition) -> None:
         self.transitions.append(transition)
 
-    def add_transitions(self, transitions: list) -> None:
+    def add_transitions(self, transitions: List[Transition]) -> None:
         for transition in transitions:
             self.add_transition(transition)
 
@@ -37,7 +38,7 @@ class Effect:
                     self.running = False
                     break
 
-                transition.run(self.light_or_group)
+                transition.run(self.interfaces)
                 transition_time = transition.transition_time
 
                 if transition_time and transition_time > 0:

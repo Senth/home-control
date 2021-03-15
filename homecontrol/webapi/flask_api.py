@@ -1,7 +1,5 @@
 from flask import Flask
 from ..config import config
-from .light import get_lights_blueprint
-from .group import get_groups_blueprint
 from .kill import kill_blueprint
 from .power import power_blueprint
 from .dim import dim_blueprint
@@ -32,8 +30,6 @@ def run_api() -> None:
     _logger.debug("Flask API: Registering Blueprints")
     # Register blueprints
     # GET
-    api.register_blueprint(get_lights_blueprint)
-    api.register_blueprint(get_groups_blueprint)
     api.register_blueprint(get_info_blueprint)
     api.register_blueprint(get_effects_blueprint)
 

@@ -1,6 +1,6 @@
 from .device import Device
 from subprocess import run, CalledProcessError, DEVNULL
-from ..config import config
+from ...config import config
 from time import time
 import sys
 

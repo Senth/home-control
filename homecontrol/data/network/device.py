@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import List
-from ..config import config
+from ...config import config
 from ..stats import Stats
 
 _logger = config.logger
