@@ -1,18 +1,20 @@
 from __future__ import annotations
 from enum import Enum
 from .tradfri.group import TradfriGroup
+from .hue.group import HueGroup
 from typing import Union
 
 
 class Groups(Enum):
+    # Rooms
     cozy = TradfriGroup("Vardagsrum (mys)")
     emma = TradfriGroup("Emma")
-    hall = TradfriGroup("Hallen")
-    hall_ceiling = TradfriGroup("Hallen (tak)")
-    hall_sensor = TradfriGroup("Hall Motion Sensor Group")
+    hallway = HueGroup(3, "Hallway")
+    living_room = HueGroup(1, "Living Room")
     kitchen = TradfriGroup("Köket")
-    living_room = TradfriGroup("Vardagsrum")
     matteus = TradfriGroup("Matteus")
+
+    # Zones
 
     @staticmethod
     def from_name(name: str) -> Union[Groups, None]:

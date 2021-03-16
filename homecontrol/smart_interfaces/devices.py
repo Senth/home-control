@@ -20,7 +20,7 @@ class Devices(Enum):
     micro = TradfriSocket("Micro lights")
     monitor = TradfriSocket("Monitor lights")
     sun_lamp = TradfriSocket("Sun lamp")
-    window = TradfriSocket("Window lights")
+    window = HueLight(5, "Window lights")
 
     @staticmethod
     def from_name(name: str) -> Union[Devices, None]:

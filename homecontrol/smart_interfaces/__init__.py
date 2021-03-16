@@ -1,3 +1,4 @@
+from homecontrol.smart_interfaces.hue.group import HueGroup
 from typing import List, Union
 from .devices import Devices
 from .groups import Groups
@@ -40,4 +41,6 @@ class SmartInterfaces:
         if light:
             return light
 
-        # TODO Group/Zone in Hue Bridge
+        group = HueGroup.find(name)
+        if group:
+            return group

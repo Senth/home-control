@@ -1,14 +1,34 @@
 from __future__ import annotations
+from enum import Enum
 from typing import Any, Dict, Union
-from ..interface import Interface
 from ..moods import Mood
+from .interface import HueInterface
 from .api import Api
 
 
-class HueLight(Interface):
+class HueLight(HueInterface):
     def __init__(self, id: int, name: str) -> None:
-        super().__init__(name)
-        self.id = id
+        super().__init__(id, name, "lights", "state")
+        self.capability = self._get_capability()
+
+    def _get_capability(self) -> Capability:
+        data = self._get_data()
+        if data and "type" in data:
+            capability = Capabilities.find(data["type"])
+            if capability:
+                return capability
+
+        return Capabilities.none.value
+
+    def _get_data(self) -> Union[Dict[str, Any], None]:
+        return Api.get(f"/lights/{self.id}")
+
+    def _get_state(self) -> Union[Dict[str, Any], None]:
+        data = self._get_data()
+        if data and "state" in data:
+            state = data["state"]
+            if isinstance(state, dict):
+                return state
 
     @staticmethod
     def find(name: str) -> Union[HueLight, None]:
@@ -21,40 +41,36 @@ class HueLight(Interface):
                 if "name" in data and str(data["name"]).lower() == name:
                     return HueLight(int(id), str(data["name"]))
 
-    def turn_on(self) -> None:
-        self._put({"on": True})
-
-    def turn_off(self) -> None:
-        self._put({"on": False})
-
-    def toggle(self) -> None:
-        new_state = not self.is_on()
-        self._put({"on": new_state})
-
-    def is_on(self) -> bool:
-        state = Api.get(f"/lights/{self.id}")
-        if state:
-            return state["state"]["on"]
-        return False
-
     def dim(self, value: Union[float, int], transition_time: float = 1) -> None:
-        normalized_value = Interface.normalize_dim(value)
-        normalized_time = Interface.normalize_transition_time(transition_time)
-        self._put(
-            {
-                "on": True,
-                "bri": normalized_value,
-                "transition_time": normalized_time,
-            }
-        )
+        if not self.capability.dim:
+            return
+        super().dim(value, transition_time)
 
     def color_xy(self, x: int, y: int, transition_time: float = 1) -> None:
-        # TODO color_xy()
-        pass
+        if not self.capability.color:
+            return
+        super().color_xy(x, y, transition_time)
 
     def mood(self, mood: Mood) -> None:
-        # TODO mood()
-        pass
+        self.dim(mood.brightness)
+        self.color_xy(mood.x, mood.y)
 
-    def _put(self, body: Dict[str, Any]) -> None:
-        Api.put(f"/lights/{self.id}/state", body)
+
+class Capability:
+    def __init__(self, type: str, dim: bool, color: bool) -> None:
+        self.type = type
+        self.dim = dim
+        self.color = color
+
+
+class Capabilities(Enum):
+    none = Capability("N/A", dim=True, color=True)
+    socket = Capability("On/Off plug-in unit", dim=False, color=False)
+    dimmable = Capability("Dimmable light", dim=True, color=False)
+
+    @staticmethod
+    def find(type: str) -> Union[Capability, None]:
+        for capability in Capabilities:
+            if isinstance(capability.value, Capability):
+                if capability.value.type == type:
+                    return capability.value
