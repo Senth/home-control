@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Any, Dict, Union
 from ..interface import Interface
 from ..moods import Mood
@@ -8,6 +9,17 @@ class HueLight(Interface):
     def __init__(self, id: int, name: str) -> None:
         super().__init__(name)
         self.id = id
+
+    @staticmethod
+    def find(name: str) -> Union[HueLight, None]:
+        """Search for a light in the hue bridge"""
+        name = name.lower()
+        lights = Api.get(f"/lights")
+
+        if lights:
+            for id, data in lights.items():
+                if "name" in data and str(data["name"]).lower() == name:
+                    return HueLight(int(id), str(data["name"]))
 
     def turn_on(self) -> None:
         self._put({"on": True})
