@@ -8,13 +8,13 @@ from .hue.light import HueLight
 
 class Devices(Enum):
     ac = TradfriSocket("AC")
-    ball = TradfriSocket("Ball lights")
+    ball_lights = HueLight(6, "Ball lights")
     bamboo = TradfriLight("Bamboo lamp")
     billy = TradfriSocket("Billy lights")
     ceiling = TradfriLight("Ceiling light")
     cylinder = TradfriLight("Cylinder lamp")
-    hall_ceiling = HueLight(4, "Hallen taklampa")
-    hall_painting = TradfriSocket("Hall light")
+    hallway_ceiling = HueLight(4, "Hallway ceiling light")
+    hallway_panting = HueLight(7, "Hallway painting lights")
     kitchen_advent = TradfriSocket("Adventsstake kök")
     led_strip = TradfriSocket("LED strip")
     micro = TradfriSocket("Micro lights")

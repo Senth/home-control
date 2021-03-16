@@ -7,6 +7,7 @@ from .api import Api
 
 
 class HueLight(HueInterface):
+    # TODO REMOVE id and get ids automatically from the Hue Bridge
     def __init__(self, id: int, name: str) -> None:
         super().__init__(id, name, "lights", "state")
         self.capability = self._get_capability()
