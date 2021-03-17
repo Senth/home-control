@@ -1,16 +1,23 @@
 from pytradfri.command import Command
 from pytradfri.api.libcoap_api import APIFactory
 from pytradfri.error import RequestTimeout
-from typing import Any, List, Union
+from typing import Any, Callable, List, Union
 from time import sleep
 from ...config import config
 
 
 class Api:
-    _api_factory = APIFactory(
-        host=config.tradfri.host, psk_id=config.tradfri.identity, psk=config.tradfri.key
-    )
-    _api = _api_factory.request
+    _api_factory: APIFactory
+    _api: Callable
+
+    @staticmethod
+    def init():
+        Api._api_factory = APIFactory(
+            host=config.tradfri.host,
+            psk_id=config.tradfri.identity,
+            psk=config.tradfri.key,
+        )
+        Api._api = Api._api_factory.request
 
     @staticmethod
     def execute(

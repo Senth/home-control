@@ -1,25 +1,21 @@
 from __future__ import annotations
 from enum import Enum
 from typing import Union
-from .tradfri.light import TradfriLight
-from .tradfri.socket import TradfriSocket
 from .hue.light import HueLight
 
 
 class Devices(Enum):
-    ac = TradfriSocket("AC")
     ball_lights = HueLight(6, "Ball lights")
-    bamboo = TradfriLight("Bamboo lamp")
-    billy = TradfriSocket("Billy lights")
-    ceiling = TradfriLight("Ceiling light")
-    cylinder = TradfriLight("Cylinder lamp")
+    bamboo = HueLight(17, "Bamboo lamp")
+    billy = HueLight(9, "Billy lights")
+    ceiling = HueLight(16, "Ceiling")
+    cylinder = HueLight(10, "Cylinder lamp")
     hallway_ceiling = HueLight(4, "Hallway ceiling light")
     hallway_panting = HueLight(7, "Hallway painting lights")
-    kitchen_advent = TradfriSocket("Adventsstake kök")
-    led_strip = TradfriSocket("LED strip")
-    micro = TradfriSocket("Micro lights")
-    monitor = TradfriSocket("Monitor lights")
-    sun_lamp = TradfriSocket("Sun lamp")
+    # kitchen_advent = TradfriSocket("Adventsstake kök")
+    led_strip = HueLight(11, "LED strip")
+    micro = HueLight(12, "Micro lights")
+    monitor = HueLight(8, "Monitor lights")
     window = HueLight(5, "Window lights")
 
     @staticmethod

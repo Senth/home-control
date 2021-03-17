@@ -154,7 +154,12 @@ class ControlAmbient(Controller):
     def _get_interfaces(self) -> List[Enum]:
         # Winter lights
         if Date.between((11, 28), (1, 31)):
-            return [Groups.cozy, Devices.hallway_panting, Groups.kitchen]
+            return [
+                Devices.ball_lights,
+                Devices.window,
+                Devices.hallway_panting,
+                Groups.kitchen,
+            ]
         else:  # Regular lights
             return [Devices.hallway_panting, Devices.ball_lights]
 
@@ -185,7 +190,7 @@ class ControlMatteusTurnOff(Controller):
         super().__init__("Turn off Matteus")
 
     def _get_interfaces(self) -> List[Enum]:
-        return [Devices.led_strip, Groups.matteus, Devices.bamboo]
+        return [Groups.matteus]
 
     def update(self):
         if Network.mobile_matteus.is_on() or Network.is_guest_home(
@@ -228,7 +233,7 @@ class ControlTurnOffEmma(Controller):
         super().__init__("Turn off Emma lights")
 
     def _get_interfaces(self) -> List[Enum]:
-        return [Groups.emma]
+        return []  # TODO turn off emma
 
     def update(self):
         # Turn off if Emma isn't home and there's no guest
@@ -248,7 +253,7 @@ class ControlTurnOffLights(Controller):
         super().__init__("Turn off all lights")
 
     def _get_interfaces(self) -> List[Enum]:
-        return [Groups.cozy, Devices.hallway_panting, Devices.ceiling]
+        return [Groups.living_room, Groups.kitchen, Groups.hallway]
 
     def update(self):
         if Network.is_someone_home():
