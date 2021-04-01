@@ -22,7 +22,7 @@ def _run_forever(
     if delay > 0:
         sleep(delay)
 
-    _logger.info(f"Started thread {function.__name__}")
+    _logger.info(f"Started thread {function.__class__}")
     while True:
         try:
             function()
