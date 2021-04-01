@@ -57,10 +57,10 @@ class Controller:
                     logger.debug(
                         f"State changed from {last_state} -> {controller.state}"
                     )
-                    if controller.state == States.on:
-                        controller.turn_on()
-                    elif controller.state == States.off:
+                    if controller.state == States.off:
                         controller.turn_off()
+                    elif controller.state == States.on:
+                        controller.turn_on()
 
                 # Brightness updated
                 if controller.brightness != last_brightness:
