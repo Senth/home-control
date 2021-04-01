@@ -22,13 +22,13 @@ def _run_forever(
     if delay > 0:
         sleep(delay)
 
-    _logger.info(f"Started thread {function.__class__}")
+    _logger.info(f"Started thread {function.__qualname__}")
     while True:
         try:
             function()
         except Exception:
             trace = traceback.format_exc()
-            _logger.error(f"Error in thread {function.__name__}:\n{trace}")
+            _logger.error(f"Error in thread {function.__qualname__}:\n{trace}")
 
         if seconds_between_calls > 0:
             sleep(seconds_between_calls)
