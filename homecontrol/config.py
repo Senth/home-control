@@ -1,14 +1,14 @@
-from os import path, makedirs
+import argparse
+import importlib.machinery
+import importlib.util
+import logging
+import logging.handlers
+import site
+import sys
+from os import makedirs, path
 from platform import system
 from tempfile import gettempdir
 from typing import Any, Union
-import sys
-import site
-import importlib.util
-import importlib.machinery
-import argparse
-import logging
-import logging.handlers
 
 _app_name = "home-control"
 _config_dir = path.join("config", _app_name)

@@ -1,8 +1,9 @@
-from typing import Any, Dict, Union
-from ...config import config
-import requests
 import json
+from typing import Any, Dict, Union
 
+import requests
+
+from ...config import config
 
 logger = config.logger
 

@@ -1,7 +1,7 @@
-from .device import Device
-from .unifi_api import UnifiApi
 from time import time
 
+from .device import Device
+from .unifi_api import UnifiApi
 
 api = UnifiApi()
 

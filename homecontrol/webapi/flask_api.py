@@ -1,14 +1,14 @@
 from flask import Flask
-from ..config import config
-from .kill import kill_blueprint
-from .power import power_blueprint
-from .dim import dim_blueprint
-from .info import get_info_blueprint
-from .effect import effect_blueprint, get_effects_blueprint
-from .color import color_blueprint
-from .mood import mood_blueprint
-from .log import log_blueprint
 
+from ..config import config
+from .color import color_blueprint
+from .dim import dim_blueprint
+from .effect import effect_blueprint, get_effects_blueprint
+from .info import get_info_blueprint
+from .kill import kill_blueprint
+from .log import log_blueprint
+from .mood import mood_blueprint
+from .power import power_blueprint
 
 _logger = config.logger
 

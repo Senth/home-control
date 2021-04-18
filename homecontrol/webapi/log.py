@@ -1,8 +1,9 @@
 from typing import Any, Dict
-from ..data.stats import Stats
-from flask import Blueprint, request, abort
-from . import success
 
+from flask import Blueprint, abort, request
+
+from ..data.stats import Stats
+from . import success
 
 log_blueprint = Blueprint("log", __package__)
 

@@ -1,9 +1,9 @@
-from .effect import Effect
 from ..devices import Devices
+from .effect import Effect
 from .transitions import (
     BrightnessColorTransitionFactory,
-    ColorTransition,
     BrightnessTransition,
+    ColorTransition,
 )
 
 

@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from typing import Union
-from .interface import HueInterface
+
 from .api import Api
+from .interface import HueInterface
 
 
 class HueGroup(HueInterface):

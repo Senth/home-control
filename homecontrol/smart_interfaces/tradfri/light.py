@@ -1,8 +1,9 @@
 from typing import Union
-from .api import Api
-from .device import TradfriDevice
+
 from ..interface import Interface
 from ..moods import Mood
+from .api import Api
+from .device import TradfriDevice
 
 
 class TradfriLight(TradfriDevice):

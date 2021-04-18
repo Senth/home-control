@@ -1,8 +1,9 @@
 from typing import Any, Dict, Union
-from . import execute, success, get_delay, trim_name
-from flask import Blueprint, request, abort
-from ..smart_interfaces import SmartInterfaces
 
+from flask import Blueprint, abort, request
+
+from ..smart_interfaces import SmartInterfaces
+from . import execute, get_delay, success, trim_name
 
 dim_blueprint = Blueprint("dim", __package__)
 

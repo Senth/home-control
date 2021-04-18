@@ -1,4 +1,5 @@
-from flask import jsonify, Blueprint
+from flask import Blueprint, jsonify
+
 from ..data.luminance import Luminance
 from ..data.weather import Weather
 

@@ -1,6 +1,8 @@
 from __future__ import annotations
+
 from enum import Enum
 from typing import Union
+
 from .sunrise_bamboo import SunriseBamboo
 from .test_effect import TestEffect
 

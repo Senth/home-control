@@ -1,9 +1,11 @@
 from __future__ import annotations
+
 from enum import Enum
 from typing import Any, Dict, Union
+
 from ..moods import Mood
-from .interface import HueInterface
 from .api import Api
+from .interface import HueInterface
 
 
 class HueLight(HueInterface):

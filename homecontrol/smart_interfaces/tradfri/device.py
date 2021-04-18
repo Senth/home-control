@@ -2,6 +2,7 @@ from typing import List
 
 from pytradfri.device import Device
 from pytradfri.gateway import Gateway
+
 from ..interface import Interface
 from .api import Api
 

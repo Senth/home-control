@@ -1,7 +1,8 @@
-from datetime import time, date, datetime
-from typing import Tuple
-from dateutil import tz
+from datetime import date, datetime, time
 from enum import Enum
+from typing import Tuple
+
+from dateutil import tz
 
 
 class Time:

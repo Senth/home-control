@@ -1,13 +1,14 @@
+from datetime import time
+from enum import Enum
+from time import sleep
+from typing import List, Union
+
+from .config import config
+from .data.luminance import Luminance
+from .data.network import GuestOf, Network
 from .smart_interfaces.devices import Devices
 from .smart_interfaces.groups import Groups
-from .data.network import Network, GuestOf
-from .utils.time import Days, Time, Day, Date
-from .data.luminance import Luminance
-from .config import config
-from time import sleep
-from datetime import time
-from typing import List, Union
-from enum import Enum
+from .utils.time import Date, Day, Days, Time
 
 
 class States(Enum):
@@ -54,9 +55,7 @@ class Controller:
 
                 # Controller state updated
                 if controller.state != last_state:
-                    logger.debug(
-                        f"State changed from {last_state} -> {controller.state}"
-                    )
+                    logger.debug(f"State changed from {last_state} -> {controller.state}")
                     if controller.state == States.off:
                         controller.turn_off()
                     elif controller.state == States.on:
@@ -106,10 +105,9 @@ class ControlMatteus(Controller):
 
     def update(self):
         # Only when Matteus is home and between 10 and 03
-        if (
-            Network.mobile_matteus.is_on()
-            or Network.is_guest_home(GuestOf.both, GuestOf.matteus)
-        ) and Time.between(time(10), time(3)):
+        if (Network.mobile_matteus.is_on() or Network.is_guest_home(GuestOf.both, GuestOf.matteus)) and Time.between(
+            time(10), time(3)
+        ):
             # On when it's dark
             if Luminance.is_dark():
                 self.state = States.on
@@ -193,9 +191,7 @@ class ControlMatteusTurnOff(Controller):
         return [Groups.matteus]
 
     def update(self):
-        if Network.mobile_matteus.is_on() or Network.is_guest_home(
-            GuestOf.both, GuestOf.matteus
-        ):
+        if Network.mobile_matteus.is_on() or Network.is_guest_home(GuestOf.both, GuestOf.matteus):
             self.state = States.on
 
     def turn_on(self):
@@ -237,9 +233,7 @@ class ControlTurnOffEmma(Controller):
 
     def update(self):
         # Turn off if Emma isn't home and there's no guest
-        if Network.mobile_emma.is_on() or Network.is_guest_home(
-            GuestOf.both, GuestOf.emma
-        ):
+        if Network.mobile_emma.is_on() or Network.is_guest_home(GuestOf.both, GuestOf.emma):
             self.state = States.on
 
     def turn_on(self):

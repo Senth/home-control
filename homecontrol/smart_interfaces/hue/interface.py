@@ -1,4 +1,5 @@
 from typing import Any, Dict, Union
+
 from ..interface import Interface
 from ..moods import Mood
 from .api import Api

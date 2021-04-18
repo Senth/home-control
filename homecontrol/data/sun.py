@@ -1,6 +1,8 @@
-from suntime import Sun
-from dateutil import tz
 import datetime
+
+from dateutil import tz
+from suntime import Sun
+
 from ..config import config
 
 sun = Sun(config.location.lat, config.location.long)

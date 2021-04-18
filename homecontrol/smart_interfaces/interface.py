@@ -1,4 +1,5 @@
 from typing import Union
+
 from .moods import Mood
 
 

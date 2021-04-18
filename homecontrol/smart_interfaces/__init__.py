@@ -1,9 +1,11 @@
-from homecontrol.smart_interfaces.hue.group import HueGroup
 from typing import List, Union
+
+from homecontrol.smart_interfaces.hue.group import HueGroup
+
 from .devices import Devices
 from .groups import Groups
-from .interface import Interface
 from .hue.light import HueLight
+from .interface import Interface
 
 
 class SmartInterfaces:

@@ -1,8 +1,10 @@
-from pytradfri.command import Command
-from pytradfri.api.libcoap_api import APIFactory
-from pytradfri.error import RequestTimeout
-from typing import Any, Callable, List, Union
 from time import sleep
+from typing import Any, Callable, List, Union
+
+from pytradfri.api.libcoap_api import APIFactory
+from pytradfri.command import Command
+from pytradfri.error import RequestTimeout
+
 from ...config import config
 
 

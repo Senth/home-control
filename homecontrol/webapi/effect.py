@@ -1,9 +1,10 @@
-from ..smart_interfaces.effects import Effects
 from typing import Any, Dict, List
-from flask import Blueprint, request, abort, jsonify
-from . import success, trim_name
-from ..utils.executor import EffectExecutor
 
+from flask import Blueprint, abort, jsonify, request
+
+from ..smart_interfaces.effects import Effects
+from ..utils.executor import EffectExecutor
+from . import success, trim_name
 
 effect_blueprint = Blueprint("effect", __package__)
 

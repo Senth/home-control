@@ -1,9 +1,11 @@
+from typing import List, Union
+
 from pytradfri.gateway import Gateway
 from pytradfri.group import Group
-from typing import List, Union
-from .api import Api
+
 from ..interface import Interface
-from ..moods import Moods, Mood
+from ..moods import Mood, Moods
+from .api import Api
 
 
 class TradfriGroup(Interface):

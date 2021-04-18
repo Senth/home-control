@@ -1,9 +1,10 @@
+from apscheduler.schedulers.background import BackgroundScheduler
+
+from .controller import Controller
 from .data.network import Network
 from .data.weather import Weather
-from .controller import Controller
-from .webapi import flask_api
 from .utils.thread import start_thread
-from apscheduler.schedulers.background import BackgroundScheduler
+from .webapi import flask_api
 
 
 def main():

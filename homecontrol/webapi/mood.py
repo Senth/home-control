@@ -1,9 +1,10 @@
-from ..smart_interfaces.moods import Moods, Mood
-from ..smart_interfaces import SmartInterfaces
 from typing import Any, Dict
-from flask import Blueprint, request, abort
-from . import execute, success, trim_name
 
+from flask import Blueprint, abort, request
+
+from ..smart_interfaces import SmartInterfaces
+from ..smart_interfaces.moods import Mood, Moods
+from . import execute, success, trim_name
 
 mood_blueprint = Blueprint("mood", __package__)
 

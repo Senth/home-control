@@ -1,7 +1,9 @@
 from typing import Any, Callable, Dict, List
-from flask import Blueprint, request, abort
-from . import execute, success, get_delay, trim_name
+
+from flask import Blueprint, abort, request
+
 from ..smart_interfaces import SmartInterfaces
+from . import execute, get_delay, success, trim_name
 
 color_blueprint = Blueprint("color", __package__)
 

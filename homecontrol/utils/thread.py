@@ -1,9 +1,11 @@
 from __future__ import annotations
-from typing import Callable
-from threading import Thread
-from ..config import config
-from time import sleep
+
 import traceback
+from threading import Thread
+from time import sleep
+from typing import Callable
+
+from ..config import config
 
 _logger = config.logger
 

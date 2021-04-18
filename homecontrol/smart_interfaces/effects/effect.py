@@ -1,8 +1,9 @@
 from time import sleep
 from typing import List
-from .transitions import Transition
-from ..interface import Interface
+
 from ...config import config
+from ..interface import Interface
+from .transitions import Transition
 
 _logger = config.logger
 

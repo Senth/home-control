@@ -1,8 +1,9 @@
-from .ip_device import IpDevice
-from .device import Device
-from .unifi_device import UnifiDevice, api as _unifi_api
 from ...config import config
+from .device import Device
 from .guest_of import GuestOf
+from .ip_device import IpDevice
+from .unifi_device import UnifiDevice
+from .unifi_device import api as _unifi_api
 
 _logger = config.logger
 

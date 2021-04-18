@@ -1,7 +1,9 @@
 from __future__ import annotations
+
 from enum import Enum
-from .hue.group import HueGroup
 from typing import Union
+
+from .hue.group import HueGroup
 
 
 class Groups(Enum):

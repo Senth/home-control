@@ -1,8 +1,10 @@
 from typing import Any, Dict
-from . import success, execute, trim_name
-from ..smart_interfaces import SmartInterfaces
+
+from flask import Blueprint, abort, request
+
 from ..config import config
-from flask import Blueprint, request, abort
+from ..smart_interfaces import SmartInterfaces
+from . import execute, success, trim_name
 
 power_blueprint = Blueprint("power", __package__)
 logger = config.logger

@@ -1,9 +1,10 @@
-import requests
 import logging
+
+import requests
+
 from ..config import config
 from ..utils.time import Date
 from .stats import Stats
-
 
 logger = logging.getLogger(__name__)
 
