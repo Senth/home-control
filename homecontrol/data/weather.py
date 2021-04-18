@@ -4,7 +4,6 @@ import requests
 
 from ..config import config
 from ..utils.time import Date
-from .stats import Stats
 
 logger = logging.getLogger(__name__)
 
@@ -34,15 +33,12 @@ class Weather:
 
             if name == "tcc_mean":
                 Weather.cloud_cover = value
-                Stats.log("cloud cover", value)
                 logger.info("Weather.cloud_cover = " + str(value))
             if name == "t":
                 Weather.temperature = value
-                Stats.log("outside temperature", value)
                 logger.info("Weather.temperature = " + str(value))
             if name == "pmean":
                 Weather._precipitation = value
-                Stats.log("precipitation", value)
                 logger.info("Weather.precipitation = " + str(value))
 
     @staticmethod
