@@ -8,7 +8,7 @@ from .hue.group import HueGroup
 
 class Groups(Enum):
     # Rooms
-    # emma = TradfriGroup("Emma") # TODO migrate
+    emma = HueGroup(5, "Emma")
     hallway = HueGroup(3, "Hallway")
     living_room = HueGroup(1, "Living Room")
     kitchen = HueGroup(4, "Kitchen")

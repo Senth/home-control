@@ -229,7 +229,7 @@ class ControlTurnOffEmma(Controller):
         super().__init__("Turn off Emma lights")
 
     def _get_interfaces(self) -> List[Enum]:
-        return []  # TODO turn off emma
+        return [Groups.emma]
 
     def update(self):
         # Turn off if Emma isn't home and there's no guest
