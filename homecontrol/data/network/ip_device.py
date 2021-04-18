@@ -56,10 +56,7 @@ class IpDevice(Device):
 
         if last_off_time >= self._off_times_check and self._off_times == 0:
             self.turned_on()
-        if (
-            last_off_time == self._off_times_check
-            and self._off_times > self._off_times_check
-        ):
+        if last_off_time == self._off_times_check and self._off_times > self._off_times_check:
             self.turned_off()
         else:
             _logger.debug(f"NetworkDevice: {self.ip} {self._off_times}")

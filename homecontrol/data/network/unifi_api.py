@@ -43,7 +43,7 @@ class UnifiApi:
             name = str(group["name"])
 
             # Create new
-            if not id in self._usergroups:
+            if id not in self._usergroups:
                 self._usergroups[id] = _UserGroup(id, name)
             # Update existing
             else:

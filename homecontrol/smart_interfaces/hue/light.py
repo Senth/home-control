@@ -37,7 +37,7 @@ class HueLight(HueInterface):
     def find(name: str) -> Union[HueLight, None]:
         """Search for a light in the hue bridge"""
         name = name.lower()
-        lights = Api.get(f"/lights")
+        lights = Api.get("/lights")
 
         if lights:
             for id, data in lights.items():

@@ -15,5 +15,5 @@ class Stats:
             try:
                 with open(config.stats_file, "a+") as file:
                     file.write(output)
-            except:
+            except Exception:
                 logger.warning("Couldn't log stat", exc_info=True)

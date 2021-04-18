@@ -14,7 +14,6 @@ class Devices(Enum):
     cylinder = HueLight(10, "Cylinder lamp")
     hallway_ceiling = HueLight(4, "Hallway ceiling light")
     hallway_panting = HueLight(7, "Hallway painting lights")
-    # kitchen_advent = TradfriSocket("Adventsstake kök")
     led_strip = HueLight(11, "LED strip")
     micro = HueLight(12, "Micro lights")
     monitor = HueLight(8, "Monitor lights")

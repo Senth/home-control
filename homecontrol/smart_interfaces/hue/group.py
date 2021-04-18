@@ -13,7 +13,7 @@ class HueGroup(HueInterface):
     @staticmethod
     def find(name: str) -> Union[HueGroup, None]:
         name = name.lower()
-        groups = Api.get(f"/groups")
+        groups = Api.get("/groups")
 
         if groups:
             for id, data in groups.items():
