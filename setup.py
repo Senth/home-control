@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -13,7 +13,7 @@ setup(
     description="Personal python script to automate various home devices",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    packages=["homecontrol"],
+    packages=find_packages(),
     entry_points={"console_scripts": ["home-control=homecontrol.__main__:main"]},
     include_package_data=True,
     data_files=[("config/home-control", ["config/config.example.py"])],
