@@ -21,15 +21,11 @@ class Device:
         if not self._on:
             _logger.info("Device: {} turned on".format(self.name))
             self._on = True
-            if self._log:
-                Stats.log(self.name, "on")
 
     def turned_off(self) -> None:
         if self._on:
             _logger.info("Device: {} turned off".format(self.name))
             self._on = False
-            if self._log:
-                Stats.log(self.name, "off")
 
     def is_on(self) -> bool:
         return self._on

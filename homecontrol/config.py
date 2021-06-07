@@ -28,9 +28,7 @@ else:
     _sys_config_example = path.join(sys.prefix, _example_file)
     _user_config_example = path.join(site.getuserbase(), _example_file)
     if not path.exists(_sys_config_example) and not path.exists(_user_config_example):
-        print(
-            f"Error: no configuration found. It should be here: '{_user_config_file}'"
-        )
+        print(f"Error: no configuration found. It should be here: '{_user_config_file}'")
         print("run: locate " + _example_file)
         print("This should help you find the current config location.")
         print(
@@ -39,12 +37,8 @@ else:
         sys.exit(1)
 
     print("This seems like it's the first time you run this program.")
-    print(
-        f"For this program to work properly you have to configure it by editing '{_user_config_file}'"
-    )
-    print(
-        "In the same folder there's an example file 'config.example.py' you can copy to 'config.py'."
-    )
+    print(f"For this program to work properly you have to configure it by editing '{_user_config_file}'")
+    print("In the same folder there's an example file 'config.example.py' you can copy to 'config.py'.")
     sys.exit(0)
 
 # Import config
@@ -70,7 +64,7 @@ class Config:
         self.tradfri: Tradfri = Tradfri()
         self.hue: Hue = Hue()
         self.webapi: WebApi = WebApi()
-        self.stats_file: Union[str, bool] = False
+        self.stats_file: Union[str, None] = None
         self.app_name: str = _app_name
         self.logger: logging.Logger
         self.debug = False
@@ -231,14 +225,10 @@ class Config:
             log_level = logging.INFO
 
         # Set app logging
-        timed_rotating_handler = logging.handlers.TimedRotatingFileHandler(
-            log_location, when="midnight"
-        )
+        timed_rotating_handler = logging.handlers.TimedRotatingFileHandler(log_location, when="midnight")
         timed_rotating_handler.setLevel(log_level)
         timed_rotating_handler.setFormatter(
-            logging.Formatter(
-                "%(asctime)s:%(levelname)s: %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
-            )
+            logging.Formatter("%(asctime)s:%(levelname)s: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
         )
 
         # Stream output
