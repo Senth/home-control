@@ -8,7 +8,7 @@ logger = config.logger
 
 
 class Stats:
-    db: Union[sqlite3.Connection, None]
+    db: Union[sqlite3.Connection, None] = None
 
     @staticmethod
     def log(category, value):
