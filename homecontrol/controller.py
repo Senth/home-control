@@ -83,7 +83,7 @@ class Controller:
 
     def dim(self, transition_time: float = 60):
         if self.state == States.on and self.brightness:
-            logger.info(f"Dimming {self.name} to {self.brightness} @ {datetime.now(tz.tzlocal()).time()}")
+            logger.info(f"Dimming {self.name} to {self.brightness}")
             for interface_enum in self._get_interfaces():
                 interface_enum.value.dim(
                     self.brightness,
