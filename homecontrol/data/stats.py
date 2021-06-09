@@ -1,6 +1,5 @@
 import sqlite3
 import time
-from typing import Union
 
 from ..config import config
 
@@ -8,17 +7,12 @@ logger = config.logger
 
 
 class Stats:
-    db: Union[sqlite3.Connection, None] = None
-
     @staticmethod
     def log(category, value):
-        # Init
-        if not Stats.db:
-            Stats.init()
-
         if config.stats_file:
+            db = Stats.init()
             try:
-                cursor = Stats.db.execute(
+                cursor = db.execute(
                     "INSERT INTO stat (timestamp, type, value) VALUES(?, ?, ?)",
                     (
                         int(time.time()),
@@ -27,18 +21,19 @@ class Stats:
                     ),
                 )
                 cursor.close()
-                Stats.db.commit()
+                db.commit()
             except sqlite3.Error:
                 logger.warning("Couldn't log stat", exc_info=True)
+            db.close()
 
     @staticmethod
-    def init():
-        if config.stats_file:
-            Stats.db = sqlite3.connect(str(config.stats_file))
-            cursor = Stats.db.cursor()
+    def init() -> sqlite3.Connection:
+        db = sqlite3.connect(str(config.stats_file))
+        cursor = db.cursor()
 
-            cursor.execute(
-                "CREATE TABLE IF NOT EXISTS stat (timestamp INTEGER NOT NULL, type TEXT NOT NULL, value TEXT NOT NULL)"
-            )
-            cursor.close()
-            Stats.db.commit()
+        cursor.execute(
+            "CREATE TABLE IF NOT EXISTS stat (timestamp INTEGER NOT NULL, type TEXT NOT NULL, value TEXT NOT NULL)"
+        )
+        cursor.close()
+        db.commit()
+        return db
