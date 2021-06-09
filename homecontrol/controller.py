@@ -1,7 +1,9 @@
-from datetime import time
+from datetime import datetime, time
 from enum import Enum
 from time import sleep
 from typing import List, Union
+
+from dateutil import tz
 
 from .config import config
 from .data.luminance import Luminance
@@ -81,7 +83,7 @@ class Controller:
 
     def dim(self, transition_time: float = 60):
         if self.state == States.on and self.brightness:
-            logger.info(f"Dimming {self.name} to {self.brightness}")
+            logger.info(f"Dimming {self.name} to {self.brightness} @ {datetime.now(tz.tzlocal()).time()}")
             for interface_enum in self._get_interfaces():
                 interface_enum.value.dim(
                     self.brightness,
