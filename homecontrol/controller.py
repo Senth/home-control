@@ -304,6 +304,7 @@ class ControlHallCeiling(Controller):
 controllers: List[Controller] = [
     ControlMatteus(),
     ControlMonitor(),
+    ControlSpeakers(),
     ControlAmbient(),
     ControlWindows(),
     #     ControlSunLamp(),
