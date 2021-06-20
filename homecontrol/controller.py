@@ -147,6 +147,20 @@ class ControlMonitor(Controller):
                 self.state = States.on
 
 
+class ControlSpeakers(Controller):
+    def __init__(self) -> None:
+        self.turn_on_with_computer = True
+        super().__init__("Speakers")
+
+    def _get_interfaces(self) -> List[Enum]:
+        return [Devices.speakers]
+
+    def update(self):
+        if Network.is_matteus_home() or Network.is_someone_home():
+            if Network.mina.is_on() and self.turn_on_with_computer:
+                self.state = States.on
+
+
 class ControlAmbient(Controller):
     def __init__(self) -> None:
         super().__init__("Ambient")

@@ -285,5 +285,4 @@ class WebApi:
         self.port: int = 5001
 
 
-global config
 config = Config(_user_config)

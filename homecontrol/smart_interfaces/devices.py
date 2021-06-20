@@ -17,6 +17,7 @@ class Devices(Enum):
     led_strip = HueLight(11, "LED strip")
     micro = HueLight(12, "Micro lights")
     monitor = HueLight(8, "Monitor lights")
+    speakers = HueLight(13, "Matteus's Speakers")
     window = HueLight(5, "Window lights")
 
     @staticmethod
