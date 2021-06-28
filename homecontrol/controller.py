@@ -204,7 +204,7 @@ class ControlMatteusTurnOff(Controller):
         super().__init__("Turn off Matteus")
 
     def _get_interfaces(self) -> List[Enum]:
-        return [Groups.matteus]
+        return [Groups.matteus_lights]
 
     def update(self):
         if Network.mobile_matteus.is_on() or Network.is_guest_home(GuestOf.both, GuestOf.matteus):
