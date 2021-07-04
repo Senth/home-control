@@ -2,11 +2,10 @@ from time import time
 from typing import Any, Dict, Union
 
 from pyunifi.controller import Controller
+from tealprint import TealPrint
 
 from ...config import config
 from .guest_of import GuestOf
-
-_logger = config.logger
 
 
 class _UserGroup:
@@ -20,6 +19,22 @@ class _UserGroup:
 
 class UnifiApi:
     def __init__(self) -> None:
+        self._controller: Controller
+        self._clients: Dict[str, Any] = {}
+        self._usergroups: Dict[str, _UserGroup] = {}
+
+    def update(self) -> None:
+        try:
+            if getattr(self, "_controller", None) is None:
+                self._init_controller()
+
+            self._update_user_groups()
+            self._update_clients()
+            self._update_last_active()
+        except:
+            TealPrint.error("Something went wrong connecting to UNIFI", print_exception=True)
+
+    def _init_controller(self) -> None:
         self._controller = Controller(
             config.unifi.host,
             config.unifi.username,
@@ -28,16 +43,9 @@ class UnifiApi:
             site_id=config.unifi.site_id,
             ssl_verify=True,
         )
-        self._clients: Dict[str, Any] = {}
-        self._usergroups: Dict[str, _UserGroup] = {}
-
-    def update(self) -> None:
-        self._update_user_groups()
-        self._update_clients()
-        self._update_last_active()
 
     def _update_user_groups(self) -> None:
-        _logger.debug("Getting UNIFI user groups")
+        TealPrint.debug("Getting UNIFI user groups")
         for group in self._controller.get_user_groups():
             id = str(group["_id"])
             name = str(group["name"])
@@ -50,13 +58,13 @@ class UnifiApi:
                 self._usergroups[id].name = name
 
     def _update_clients(self) -> None:
-        _logger.debug("Getting UNIFI clients")
+        TealPrint.debug("Getting UNIFI clients")
         for client in self._controller.get_clients():
             # logger.debug("Client info: " + str(client))
             self._clients[client["mac"]] = client
 
     def _update_last_active(self) -> None:
-        _logger.debug("Updating last active time")
+        TealPrint.debug("Updating last active time")
         for client in self._clients.values():
             if "usergroup_id" in client:
                 group_id = client["usergroup_id"]
@@ -74,7 +82,7 @@ class UnifiApi:
 
             if group.was_home != group.is_home:
                 state_msg = "home" if group.is_home else "away"
-                _logger.info(f"Usergroup {group.name} is {state_msg}")
+                TealPrint.info(f"Usergroup {group.name} is {state_msg}")
 
     def _get_default_group(self) -> _UserGroup:
         for group in self._usergroups.values():
