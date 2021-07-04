@@ -38,7 +38,7 @@ class Network:
     )
     mobile_emma = UnifiDevice(
         name="Mobile Emma",
-        mac_address="a6:c7:fd:0c:a4:05",
+        mac_address="5e:0b:26:29:41:6d",
         max_off_time=420,
     )
 
@@ -52,11 +52,7 @@ class Network:
 
     @staticmethod
     def is_someone_home() -> bool:
-        return (
-            Network.mobile_matteus.is_on()
-            or Network.mobile_emma.is_on()
-            or Network.is_guest_home()
-        )
+        return Network.mobile_matteus.is_on() or Network.mobile_emma.is_on() or Network.is_guest_home()
 
     @staticmethod
     def is_guest_home(*guest_of: GuestOf) -> bool:

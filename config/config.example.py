@@ -27,7 +27,6 @@ STATS_FILE = "/home/senth/personal-data.csv"
 # Unifi settings
 UNIFI_USERNAME = ""
 UNIFI_PASSWORD = ""
-UNIFI_USERGROUP_OWNER = ""
 UNIFI_HOST = "192.168.0.254"
 
 # (Optional) Unifi port. Defaults to 8444

@@ -10,6 +10,8 @@ from platform import system
 from tempfile import gettempdir
 from typing import Any, Union
 
+from tealprint import TealLevel, TealPrint
+
 _app_name = "home-control"
 _config_dir = path.join("config", _app_name)
 _config_file = path.join(_config_dir, "config.py")
@@ -67,6 +69,7 @@ class Config:
         self.stats_file: Union[str, None] = None
         self.app_name: str = _app_name
         self.logger: logging.Logger
+        self.level: TealLevel = TealLevel.info
         self.debug = False
         self.verbose = False
 
@@ -100,12 +103,14 @@ class Config:
         Args:
             args (list): All the parsed arguments
         """
-        if args.verbose:
-            self.verbose = True
-
         if args.debug:
             self.debug = True
             self.verbose = True
+            TealPrint.level = TealLevel.debug
+
+        elif args.verbose:
+            self.verbose = True
+            TealPrint.level = TealLevel.verbose
 
     def _get_optional_variables(self):
         """Get optional values from the config file"""
@@ -201,11 +206,6 @@ class Config:
         except AttributeError:
             _print_missing("UNIFI_HOST")
 
-        try:
-            self.unifi.usergroup_owner = _user_config.UNIFI_USERGROUP_OWNER
-        except AttributeError:
-            _print_missing("UNIFI_USERGROUP_OWNER")
-
     def _init_logger(self):
         os = system()
         if os == "Windows":
@@ -273,7 +273,6 @@ class Unifi:
     def __init__(self):
         self.username: str = ""
         self.password: str = ""
-        self.usergroup_owner: str = ""
         self.host: str = ""
         self.port: int = 8444
         self.site_id: str = "default"

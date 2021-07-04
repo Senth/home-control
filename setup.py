@@ -24,6 +24,7 @@ setup(
         "pyunifi",
         "suntime",
         "flask",
+        "tealprint",
     ],
     classifiers=[
         "Licence :: OSI Approved :: MIT Licence",
