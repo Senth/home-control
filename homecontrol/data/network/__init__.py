@@ -9,11 +9,12 @@ _logger = config.logger
 
 
 class Network:
-    mina = IpDevice(
-        ip="192.168.0.248",
-        name="Cerina",
+    zen = IpDevice(
+        ip="192.168.0.249",
+        name="Zen",
         updates_every=10,
         off_times=2,
+        log=True,
         timeout=1,
     )
     work_matteus = IpDevice(

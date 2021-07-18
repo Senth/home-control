@@ -1,9 +1,7 @@
-from datetime import datetime, time
+from datetime import time
 from enum import Enum
 from time import sleep
 from typing import List, Union
-
-from dateutil import tz
 
 from .config import config
 from .data.luminance import Luminance
@@ -140,7 +138,7 @@ class ControlMonitor(Controller):
     def update(self):
         if Network.is_matteus_home() and Luminance.is_dark():
             # Stationary Computer
-            if Network.mina.is_on() and Time.between(time(7), time(3)):
+            if Network.zen.is_on() and Time.between(time(7), time(3)):
                 self.state = States.on
             # Work laptop
             elif Network.work_matteus.is_on() and Time.between(time(7), time(18)):
@@ -157,7 +155,7 @@ class ControlSpeakers(Controller):
 
     def update(self):
         if Network.is_matteus_home() or Network.is_someone_home():
-            if Network.mina.is_on() and self.turn_on_with_computer:
+            if Network.zen.is_on() and self.turn_on_with_computer:
                 self.state = States.on
 
 
@@ -303,7 +301,7 @@ class ControlHallCeiling(Controller):
 
 controllers: List[Controller] = [
     ControlMatteus(),
-    ControlMonitor(),
+    # ControlMonitor(),
     ControlSpeakers(),
     ControlAmbient(),
     ControlWindows(),

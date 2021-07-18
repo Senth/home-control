@@ -20,11 +20,13 @@ class Device:
     def turned_on(self) -> None:
         if not self._on:
             _logger.info("Device: {} turned on".format(self.name))
+            Stats.log("device", f'{{"power":"on","device":"{self.name}"}}')
             self._on = True
 
     def turned_off(self) -> None:
         if self._on:
             _logger.info("Device: {} turned off".format(self.name))
+            Stats.log("device", f'{{"power":"off","device":"{self.name}"}}')
             self._on = False
 
     def is_on(self) -> bool:
