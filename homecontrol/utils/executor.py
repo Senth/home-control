@@ -6,11 +6,9 @@ from datetime import datetime
 from typing import Any, Callable, Dict, List
 
 from dateutil import tz
+from tealprint import TealPrint
 
-from ..config import config
 from ..smart_interfaces.effects.effect import Effect
-
-logger = config.logger
 
 
 class Executor(threading.Thread):
@@ -32,24 +30,18 @@ class Executor(threading.Thread):
     def terminate_all_running() -> None:
         Executor.clear_all_done()
 
-        logger.debug(
-            f"Executor.terminate_running_actions() for {len(Executor._threads)} threads"
-        )
+        TealPrint.verbose(f"Executor.terminate_running_actions() for {len(Executor._threads)} threads")
         for thread in Executor._threads:
             thread.terminate()
         Executor._threads = []
 
     @staticmethod
     def clear_all_done() -> None:
-        Executor._threads = [
-            thread for thread in Executor._threads if thread.is_alive()
-        ]
+        Executor._threads = [thread for thread in Executor._threads if thread.is_alive()]
 
 
 class DelayedExecutor(Executor):
-    def __init__(
-        self, action: Callable, args: List, kwargs: Dict[str, Any], delay: float
-    ) -> None:
+    def __init__(self, action: Callable, args: List, kwargs: Dict[str, Any], delay: float) -> None:
         """Run a function after delay seconds
 
         Args:
@@ -66,9 +58,7 @@ class DelayedExecutor(Executor):
 
     def run(self) -> None:
         """Logic to run in another thread. Never call this directly."""
-        logger.debug(
-            f"DelayedExecutor.run() Delaying execution with {self._delay} seconds"
-        )
+        TealPrint.verbose(f"DelayedExecutor.run() Delaying execution with {self._delay} seconds")
         time.sleep(self._delay)
 
         if not self._terminate:
@@ -76,9 +66,7 @@ class DelayedExecutor(Executor):
 
 
 class TimedExecutor(Executor):
-    def __init__(
-        self, action: Callable, args: List, kwargs: Dict[str, Any], time: datetime
-    ) -> None:
+    def __init__(self, action: Callable, args: List, kwargs: Dict[str, Any], time: datetime) -> None:
         super().__init__(name="TimedExecutor")
         self._args = args
         self._kwargs = kwargs
@@ -87,7 +75,7 @@ class TimedExecutor(Executor):
 
     def run(self) -> None:
         """Logic to run in another thread. Never call this directly."""
-        logger.debug(f"TimedExecutor.run() Running at {self._time}")
+        TealPrint.verbose(f"TimedExecutor.run() Running at {self._time}")
 
         while self._time > datetime.now(tz.tzlocal()) and not self._terminate:
             time.sleep(5)

@@ -1,11 +1,8 @@
-import logging
-
 import requests
+from tealprint import TealPrint
 
 from ..config import config
 from ..utils.time import Date
-
-logger = logging.getLogger(__name__)
 
 
 class Weather:
@@ -21,7 +18,7 @@ class Weather:
         try:
             Weather._weather_info = request.json()
         except ValueError:
-            pass
+            TealPrint.warning("Error fetching weather information")
 
     @staticmethod
     def _set_weather_info():
@@ -33,13 +30,13 @@ class Weather:
 
             if name == "tcc_mean":
                 Weather.cloud_cover = value
-                logger.info("Weather.cloud_cover = " + str(value))
+                TealPrint.info("Weather.cloud_cover = " + str(value))
             if name == "t":
                 Weather.temperature = value
-                logger.info("Weather.temperature = " + str(value))
+                TealPrint.info("Weather.temperature = " + str(value))
             if name == "pmean":
                 Weather._precipitation = value
-                logger.info("Weather.precipitation = " + str(value))
+                TealPrint.info("Weather.precipitation = " + str(value))
 
     @staticmethod
     def _is_cloudy():

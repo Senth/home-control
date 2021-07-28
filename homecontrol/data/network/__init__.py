@@ -1,11 +1,10 @@
-from ...config import config
+from tealprint import TealPrint
+
 from .device import Device
 from .guest_of import GuestOf
 from .ip_device import IpDevice
 from .unifi_device import UnifiDevice
 from .unifi_device import api as _unifi_api
-
-_logger = config.logger
 
 
 class Network:
@@ -61,9 +60,9 @@ class Network:
 
     @staticmethod
     def update() -> None:
-        _logger.debug("Network.update()")
+        TealPrint.debug("Network.update()")
         try:
             _unifi_api.update()
             Device.update_all()
         except Exception as e:
-            _logger.error("Exception during Network.update()", e)
+            TealPrint.error("Exception during Network.update()", e)

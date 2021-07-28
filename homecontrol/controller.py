@@ -3,7 +3,8 @@ from enum import Enum
 from time import sleep
 from typing import List, Union
 
-from .config import config
+from tealprint import TealPrint
+
 from .data.luminance import Luminance
 from .data.network import GuestOf, Network
 from .smart_interfaces.devices import Devices
@@ -15,9 +16,6 @@ class States(Enum):
     initial = "initial"
     on = "on"
     off = "off"
-
-
-logger = config.logger
 
 
 def _calculate_ambient() -> States:
@@ -55,7 +53,7 @@ class Controller:
 
                 # Controller state updated
                 if controller.state != last_state:
-                    logger.debug(f"State changed from {last_state} -> {controller.state}")
+                    TealPrint.debug(f"State changed from {last_state} -> {controller.state}")
                     if controller.state == States.off:
                         controller.turn_off()
                     elif controller.state == States.on:
@@ -67,7 +65,7 @@ class Controller:
             sleep(1)
 
     def turn_on(self) -> None:
-        logger.info("Turning on " + self.name)
+        TealPrint.info("Turning on " + self.name)
         for interface_enum in self._get_interfaces():
             interface_enum.value.turn_on()
         # Dim to correct value
@@ -75,13 +73,13 @@ class Controller:
             self.dim(transition_time=0)
 
     def turn_off(self) -> None:
-        logger.info("Turning off " + self.name)
+        TealPrint.info("Turning off " + self.name)
         for interface_enum in self._get_interfaces():
             interface_enum.value.turn_off()
 
     def dim(self, transition_time: float = 60):
         if self.state == States.on and self.brightness:
-            logger.info(f"Dimming {self.name} to {self.brightness}")
+            TealPrint.info(f"Dimming {self.name} to {self.brightness}")
             for interface_enum in self._get_interfaces():
                 interface_enum.value.dim(
                     self.brightness,
@@ -89,11 +87,11 @@ class Controller:
                 )
 
     def _get_interfaces(self) -> List[Enum]:
-        logger.error(f"Not implemented {self.name}._get_interfaces()")
+        TealPrint.error(f"Not implemented {self.name}._get_interfaces()")
         raise RuntimeError("Not implemented _get_interfaces")
 
     def update(self):
-        logger.error(f"Not implemented {self.name}._update()")
+        TealPrint.error(f"Not implemented {self.name}._update()")
 
 
 class ControlMatteus(Controller):

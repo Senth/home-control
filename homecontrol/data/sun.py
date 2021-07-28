@@ -2,12 +2,11 @@ import datetime
 
 from dateutil import tz
 from suntime import Sun
+from tealprint import TealPrint
 
 from ..config import config
 
 sun = Sun(config.location.lat, config.location.long)
-
-logger = config.logger
 
 
 def tomorrow():
@@ -29,11 +28,11 @@ class Sun:
         if now > Sun._sunrise:
             Sun._last_sunrise = Sun._sunrise
             Sun._sunrise = sun.get_local_sunrise_time(tomorrow())
-            logger.info("Sun.update(): Passed sunrise, updating to next day")
+            TealPrint.info("Sun.update(): Passed sunrise, updating to next day")
 
         if now > Sun._sunset:
             Sun._sunset = sun.get_local_sunset_time(tomorrow())
-            logger.info("Sun.update(): Passed sunset, updating to next day")
+            TealPrint.info("Sun.update(): Passed sunset, updating to next day")
 
     @staticmethod
     def print():
