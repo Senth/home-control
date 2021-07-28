@@ -1,6 +1,5 @@
-from typing import Any, Dict
-
-from flask import Blueprint, abort, request
+from flask import Blueprint, abort
+from homecontrol.webapi.util import get_json
 
 from ..smart_interfaces import SmartInterfaces
 from ..smart_interfaces.moods import Mood, Moods
@@ -11,7 +10,7 @@ mood_blueprint = Blueprint("mood", __package__)
 
 @mood_blueprint.route("/mood", methods=["POST"])
 def mood() -> str:
-    body: Dict[str, Any] = request.get_json(force=True)
+    body = get_json()
 
     # Check required parameters
     if not "mood" in body:

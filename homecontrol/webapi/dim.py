@@ -1,6 +1,7 @@
-from typing import Any, Dict, Union
+from typing import Union
 
-from flask import Blueprint, abort, request
+from flask import Blueprint, abort
+from homecontrol.webapi.util import get_json
 
 from ..smart_interfaces import SmartInterfaces
 from . import execute, get_delay, success, trim_name
@@ -10,7 +11,7 @@ dim_blueprint = Blueprint("dim", __package__)
 
 @dim_blueprint.route("/dim", methods=["POST"])
 def dim() -> str:
-    body: Dict[str, Any] = request.get_json(force=True)
+    body = get_json()
 
     # Check required parameters
     if not "value" in body:

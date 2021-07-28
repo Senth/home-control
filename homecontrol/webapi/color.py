@@ -1,6 +1,7 @@
 from typing import Any, Callable, Dict, List
 
-from flask import Blueprint, abort, request
+from flask import Blueprint, abort
+from homecontrol.webapi.util import get_json
 
 from ..smart_interfaces import SmartInterfaces
 from . import execute, get_delay, success, trim_name
@@ -12,7 +13,7 @@ MAX_COLOR_INT = 65535
 
 @color_blueprint.route("/color", methods=["POST"])
 def color() -> str:
-    body: Dict[str, Any] = request.get_json(force=True)
+    body = get_json()
 
     # Check for required parameters
     if not "name" in body:
@@ -31,12 +32,7 @@ def color() -> str:
 
         # Int
         if isinstance(body["x"], int) and isinstance(body["y"], int):
-            if (
-                body["x"] < 0
-                or MAX_COLOR_INT < body["x"]
-                or body["y"] < 0
-                or MAX_COLOR_INT < body["y"]
-            ):
+            if body["x"] < 0 or MAX_COLOR_INT < body["x"] or body["y"] < 0 or MAX_COLOR_INT < body["y"]:
                 abort(400, error_msg)
             args.extend([body["x"], body["y"]])
 

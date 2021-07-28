@@ -1,6 +1,6 @@
-from typing import Any, Dict
+from homecontrol.webapi.util import get_json
 
-from flask import Blueprint, abort, request
+from flask import Blueprint, abort
 
 from ..data.stats import Stats
 from . import success
@@ -10,7 +10,7 @@ log_blueprint = Blueprint("log", __package__)
 
 @log_blueprint.route("/log", methods=["POST"])
 def log() -> str:
-    body: Dict[str, Any] = request.get_json(force=True)
+    body = get_json()
 
     # Check required parameters
     if not "category" in body:

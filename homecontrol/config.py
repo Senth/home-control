@@ -106,10 +106,12 @@ class Config:
         if args.debug:
             self.debug = True
             self.verbose = True
+            self.level = TealLevel.debug
             TealPrint.level = TealLevel.debug
 
         elif args.verbose:
             self.verbose = True
+            self.level = TealLevel.verbose
             TealPrint.level = TealLevel.verbose
 
     def _get_optional_variables(self):

@@ -9,12 +9,11 @@ from .kill import kill_blueprint
 from .log import log_blueprint
 from .mood import mood_blueprint
 from .power import power_blueprint
-
-_logger = config.logger
+from tealprint import TealPrint
 
 
 def run_api() -> None:
-    _logger.debug("Flask API: Initializing")
+    TealPrint.debug("Flask API: Initializing")
 
     api = Flask(__package__)
     api.config["DEBUG"] = config.debug
@@ -27,7 +26,7 @@ def run_api() -> None:
         log_level = "WARNING"
     api.config["LOG_LEVEL"] = log_level
 
-    _logger.debug("Flask API: Registering Blueprints")
+    TealPrint.debug("Flask API: Registering Blueprints")
     # Register blueprints
     # GET
     api.register_blueprint(get_info_blueprint)
@@ -42,5 +41,5 @@ def run_api() -> None:
     api.register_blueprint(mood_blueprint)
     api.register_blueprint(log_blueprint)
 
-    _logger.debug("Flask API: Starting...")
+    TealPrint.debug("Flask API: Starting...")
     api.run(port=config.webapi.port)

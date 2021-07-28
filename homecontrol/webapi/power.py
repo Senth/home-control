@@ -1,20 +1,18 @@
-from typing import Any, Dict
+from flask import Blueprint, abort
+from homecontrol.webapi.util import get_json
+from tealprint import TealPrint
 
-from flask import Blueprint, abort, request
-
-from ..config import config
 from ..smart_interfaces import SmartInterfaces
 from . import execute, success, trim_name
 
 power_blueprint = Blueprint("power", __package__)
-logger = config.logger
 
 
 @power_blueprint.route("/power", methods=["POST"])
 def power() -> str:
-    body: Dict[str, Any] = request.get_json(force=True)
+    body = get_json()
 
-    logger.debug(f"/power, body: {body}")
+    TealPrint.debug(f"/power, body: {body}")
 
     # Check required parameters
     if not "value" in body:

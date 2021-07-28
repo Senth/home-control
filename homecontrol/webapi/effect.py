@@ -1,6 +1,7 @@
-from typing import Any, Dict, List
+from homecontrol.webapi.util import get_json
+from typing import List
 
-from flask import Blueprint, abort, jsonify, request
+from flask import Blueprint, abort, jsonify
 
 from ..smart_interfaces.effects import Effects
 from ..utils.executor import EffectExecutor
@@ -11,7 +12,7 @@ effect_blueprint = Blueprint("effect", __package__)
 
 @effect_blueprint.route("/effect", methods=["POST"])
 def effect() -> str:
-    body: Dict[str, Any] = request.get_json(force=True)
+    body = get_json()
 
     # Check required parameters
     if not "name" in body:
