@@ -153,7 +153,7 @@ class ControlSpeakers(Controller):
 
     def update(self):
         if Network.is_matteus_home() or Network.is_someone_home():
-            if Network.zen.is_on() and self.turn_on_with_computer:
+            if (Network.zen.is_on() or Network.work_matteus.is_on()) and self.turn_on_with_computer:
                 self.state = States.on
 
 

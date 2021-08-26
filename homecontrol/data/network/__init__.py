@@ -64,5 +64,5 @@ class Network:
         try:
             _unifi_api.update()
             Device.update_all()
-        except Exception as e:
-            TealPrint.error("Exception during Network.update()", e)
+        except Exception:
+            TealPrint.error("Exception during Network.update()", print_exception=True)
