@@ -4,8 +4,8 @@ from ..utils.time import Date
 from .sun import Sun
 from .weather import Weather
 
-SUMMER_START = (4, 1)
-AUTUMN_EARLY_START = (9, 1)
+SUMMER_START = (4, 20)
+AUTUMN_EARLY_START = (8, 20)
 AUTUMN_LATE_START = (9, 20)
 WINTER_START = (11, 1)
 SPRING_EARLY_START = (2, 15)
@@ -23,7 +23,7 @@ class Luminance:
 
         # Else the sun is up and we check whether the weather is dark
         if Luminance._is_weather_dark():
-            TealPrint.debug("is_weadther_down() -> True", indent=1)
+            TealPrint.debug("is_weather_down() -> True", indent=1)
             # If it's summer, only check an hour after sunrise before sunset
             if Date.between(SUMMER_START, AUTUMN_EARLY_START):
                 TealPrint.debug("Is summer", indent=2)
