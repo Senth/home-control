@@ -12,9 +12,9 @@ class Groups(Enum):
     hallway = HueGroup(3, "Hallway")
     living_room = HueGroup(1, "Living Room")
     kitchen = HueGroup(4, "Kitchen")
-    matteus_lights = HueGroup(7, "Matteus lights")
 
     # Zones
+    matteus_lights = HueGroup(7, "Matteus lights")
 
     @staticmethod
     def from_name(name: str) -> Union[Groups, None]:
