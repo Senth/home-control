@@ -12,7 +12,7 @@ class Devices(Enum):
     billy = HueLight(9, "Billy lights")
     ceiling = HueLight(16, "Ceiling")
     cylinder = HueLight(10, "Cylinder lamp")
-    hallway_ceiling = HueLight(4, "Hallway ceiling light")
+    hallway_ceiling = HueLight(24, "Hallway ceiling light")
     hallway_panting = HueLight(7, "Hallway painting lights")
     led_strip = HueLight(11, "LED strip")
     micro = HueLight(12, "Micro lights")
