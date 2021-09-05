@@ -37,8 +37,8 @@ class LightSensor(Sensor):
     _update_interval = 60 * 5
     _threshold = 500
 
-    def __init__(self, id: int, log: bool = False) -> None:
-        super().__init__(id, LightSensor._update_interval, log)
+    def __init__(self, id: int, name: str, log: bool = False) -> None:
+        super().__init__(id, name, LightSensor._update_interval, log)
         self.light_level: int = 0
         self.level_name = LightLevels.light
 

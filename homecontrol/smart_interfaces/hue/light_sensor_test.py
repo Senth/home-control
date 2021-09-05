@@ -4,7 +4,7 @@ from .light_sensor import LightLevels, LightSensor
 
 
 def light_sensor(name: LightLevels, level: int) -> LightSensor:
-    ls = LightSensor(0, False)
+    ls = LightSensor(0, "", False)
     ls.level_name = name
     ls.light_level = level
     return ls

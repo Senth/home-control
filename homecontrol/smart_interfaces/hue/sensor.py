@@ -9,12 +9,12 @@ from .api import Api
 class Sensor:
     sensors: List[Sensor] = []
 
-    def __init__(self, id: int, update_interval_seconds: float, log: bool) -> None:
+    def __init__(self, id: int, name: str, update_interval_seconds: float, log: bool) -> None:
         self.id = id
         self._update_interval_seconds = update_interval_seconds
         self.log = log
         self.last_update = 0
-        self.name = ""
+        self.name = name
         Sensor.sensors.append(self)
 
     @staticmethod
@@ -27,7 +27,6 @@ class Sensor:
             self.last_update = time.time()
             data = self._get_data()
             if data:
-                self.name = data["name"]
                 self.on_update(data)
 
     def on_update(self, data: Dict[str, Any]) -> None:
