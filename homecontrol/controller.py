@@ -167,11 +167,11 @@ class ControlAmbient(Controller):
             return [
                 Devices.ball_lights,
                 Devices.window,
-                Devices.hallway_panting,
+                Devices.hallway_painting,
                 Groups.kitchen,
             ]
         else:  # Regular lights
-            return [Devices.hallway_panting, Devices.ball_lights]
+            return [Devices.hallway_painting, Devices.ball_lights]
 
     def update(self):
         self.state = _calculate_ambient()
