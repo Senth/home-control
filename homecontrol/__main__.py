@@ -9,16 +9,6 @@ from .webapi import flask_api
 
 
 def main():
-    # Initial update
-    Weather.update()
-
-    # Schedule stuff
-    scheduler = BackgroundScheduler()
-
-    # Update information
-    scheduler.add_job(Weather.update, "cron", hour="*", minute=3)
-    scheduler.start()
-
     start_thread(Sensor.update_all, seconds_between_calls=5)
     start_thread(Network.update, seconds_between_calls=5)
     start_thread(Controller.update_all, seconds_between_calls=1, delay=10)
