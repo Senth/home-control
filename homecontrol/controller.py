@@ -5,10 +5,10 @@ from typing import List, Union
 
 from tealprint import TealPrint
 
-from .data.luminance import Luminance
 from .data.network import GuestOf, Network
 from .smart_interfaces.devices import Devices
 from .smart_interfaces.groups import Groups
+from .smart_interfaces.sensors import LightLevels, Sensors
 from .utils.time import Date, Day, Days, Time
 
 
@@ -21,8 +21,8 @@ class States(Enum):
 def _calculate_ambient() -> States:
     # Only when someone's home
     if Network.is_someone_home():
-        # Only when it's dark
-        if Luminance.is_dark():
+        # Dark
+        if Sensors.light_sensor.is_level_or_below(LightLevels.partially_dark):
             # Weekends
             if Day.is_day(Days.saturday, Days.sunday):
                 if Time.between(time(9), time(2)):
@@ -107,7 +107,7 @@ class ControlMatteus(Controller):
             time(10), time(3)
         ):
             # On when it's dark
-            if Luminance.is_dark():
+            if Sensors.light_sensor.is_level_or_below(LightLevels.dark):
                 self.state = States.on
 
         # Update dim
@@ -134,7 +134,7 @@ class ControlMonitor(Controller):
         return [Devices.monitor]
 
     def update(self):
-        if Network.is_matteus_home() and Luminance.is_dark():
+        if Network.is_matteus_home() and Sensors.light_sensor.is_level_or_below(LightLevels.dark):
             # Stationary Computer
             if Network.zen.is_on() and Time.between(time(7), time(3)):
                 self.state = States.on
@@ -189,7 +189,7 @@ class ControlWindows(Controller):
             return []
 
     def update(self):
-        if Luminance.is_sun_down():
+        if Sensors.light_sensor.is_level_or_below(LightLevels.dark):
             self.state = _calculate_ambient()
 
 
@@ -293,7 +293,7 @@ class ControlHallCeiling(Controller):
     def update(self):
         if Network.is_someone_home():
             if Time.between(time(11), time(17)):
-                if Luminance.is_dark():
+                if Sensors.light_sensor.is_level_or_below(LightLevels.dark):
                     self.state = States.on
 
 

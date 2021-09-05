@@ -14,6 +14,7 @@ class Sensor:
         self._update_interval_seconds = update_interval_seconds
         self.log = log
         self.last_update = 0
+        self.name = ""
         Sensor.sensors.append(self)
 
     @staticmethod
@@ -25,6 +26,7 @@ class Sensor:
         if self._should_update():
             data = self._get_data()
             if data:
+                self.name = data["name"]
                 self.on_update(data)
 
     def on_update(self, data: Dict[str, Any]) -> None:

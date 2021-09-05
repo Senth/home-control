@@ -63,7 +63,6 @@ class Config:
         # Default values
         self.unifi: Unifi = Unifi()
         self.location: Location = Location()
-        self.tradfri: Tradfri = Tradfri()
         self.hue: Hue = Hue()
         self.webapi: WebApi = WebApi()
         self.stats_file: Union[str, None] = None
@@ -75,10 +74,15 @@ class Config:
 
         self._get_optional_variables()
         self._check_required_variables()
-        self._parse_args()
+        # self._parse_args()
         self._init_logger()
 
     def _parse_args(self):
+        # Skip if tests
+        # raise RuntimeError(f"ARGS: {sys.argv}")
+        if len(sys.argv) > 0 and sys.argv[1] == "--rootdir" or sys.argv[1] == "-ra" or sys.argv[1] == "discover":
+            return
+
         # Get arguments first to get verbosity before we get everything else
         parser = argparse.ArgumentParser()
 
@@ -159,21 +163,6 @@ class Config:
     def _check_required_variables(self):
         """Check that all required variables are set in the user config file"""
         try:
-            self.tradfri.host = _user_config.TRADFRI_HOST
-        except AttributeError:
-            _print_missing("TRADFRI_HOST")
-
-        try:
-            self.tradfri.identity = _user_config.TRADFRI_IDENTITY
-        except AttributeError:
-            _print_missing("TRADFRI_IDENTITY")
-
-        try:
-            self.tradfri.key = _user_config.TRADFRI_KEY
-        except AttributeError:
-            _print_missing("TRADFRI_KEY")
-
-        try:
             self.hue.host = _user_config.HUE_HOST
         except AttributeError:
             _print_missing("HUE_HOST")
@@ -247,13 +236,6 @@ class Config:
         ap_logger.setLevel(ap_log_level)
         ap_logger.addHandler(timed_rotating_handler)
         ap_logger.addHandler(stream_handler)
-
-
-class Tradfri:
-    def __init__(self):
-        self.host = ""
-        self.identity = ""
-        self.key = ""
 
 
 class Hue:
