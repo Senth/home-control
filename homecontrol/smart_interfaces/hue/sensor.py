@@ -24,6 +24,7 @@ class Sensor:
 
     def update(self) -> None:
         if self._should_update():
+            self.last_update = time.time()
             data = self._get_data()
             if data:
                 self.name = data["name"]
