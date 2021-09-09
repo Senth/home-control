@@ -2,6 +2,7 @@ from pathlib import Path
 
 from blulib.config_parser import ConfigParser
 from tealprint import TealPrint
+from tealprint.tealprint import TealLevel
 
 from ..config import General, Hue, Location, Unifi, config
 
@@ -27,6 +28,10 @@ class ConfigGateway:
             "log_level",
             "stats_file",
         )
+
+        # Convert log_level str to TealLevel
+        if isinstance(general.log_level, str):
+            general.log_level = TealLevel[general.log_level]
 
         return general
 
