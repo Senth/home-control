@@ -2,10 +2,11 @@ import sys
 from subprocess import DEVNULL, CalledProcessError, run
 from time import time
 
+from tealprint import TealPrint
+from tealprint.tealprint import TealLevel
+
 from ...config import config
 from .device import Device
-
-_logger = config.logger
 
 
 class IpDevice(Device):
@@ -42,7 +43,7 @@ class IpDevice(Device):
         try:
             out = DEVNULL
 
-            if config.debug:
+            if config.general.log_level == TealLevel.debug:
                 out = sys.stdout
 
             run(
@@ -59,4 +60,4 @@ class IpDevice(Device):
         if last_off_time == self._off_times_check and self._off_times > self._off_times_check:
             self.turned_off()
         else:
-            _logger.debug(f"NetworkDevice: {self.ip} {self._off_times}")
+            TealPrint.debug(f"NetworkDevice: {self.ip} {self._off_times}")

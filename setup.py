@@ -19,12 +19,13 @@ setup(
     data_files=[("config/home-control", ["config/config.example.py"])],
     install_requires=[
         "apscheduler",
+        "blulib==0.1.0",
         "requests",
         "pytradfri",
         "pyunifi",
         "suntime",
         "flask",
-        "tealprint",
+        "tealprint==0.1.0",
     ],
     classifiers=[
         "Licence :: OSI Approved :: MIT Licence",

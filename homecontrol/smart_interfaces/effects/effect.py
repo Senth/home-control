@@ -1,11 +1,10 @@
 from time import sleep
 from typing import List
 
-from ...config import config
+from tealprint import TealPrint
+
 from ..interface import Interface
 from .transitions import Transition
-
-_logger = config.logger
 
 
 class Effect:
@@ -33,7 +32,7 @@ class Effect:
         if not self.running:
             self.running = True
 
-            _logger.debug("Effect.run() " + self.name)
+            TealPrint.debug("Effect.run() " + self.name)
             for transition in self.transitions:
                 if self.aborted:
                     self.running = False

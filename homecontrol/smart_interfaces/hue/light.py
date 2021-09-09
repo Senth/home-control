@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Dict, Union
+from typing import Any, Dict, Optional, Union
 
 from ..moods import Mood
 from .api import Api
@@ -12,7 +12,13 @@ class HueLight(HueInterface):
     # TODO REMOVE id and get ids automatically from the Hue Bridge
     def __init__(self, id: int, name: str) -> None:
         super().__init__(id, name, "lights", "state")
-        self.capability = self._get_capability()
+        self._capability: Optional[Capability] = None
+
+    @property
+    def capability(self) -> Capability:
+        if not self._capability:
+            self._capability = self._get_capability()
+        return self._capability
 
     def _get_capability(self) -> Capability:
         data = self._get_data()

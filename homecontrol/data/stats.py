@@ -1,15 +1,15 @@
 import sqlite3
 import time
 
-from ..config import config
+from tealprint import TealPrint
 
-logger = config.logger
+from ..config import config
 
 
 class Stats:
     @staticmethod
     def log(category, value):
-        if config.stats_file:
+        if config.general.stats_file:
             db = Stats.init()
             try:
                 cursor = db.execute(
@@ -23,12 +23,12 @@ class Stats:
                 cursor.close()
                 db.commit()
             except sqlite3.Error:
-                logger.warning("Couldn't log stat", exc_info=True)
+                TealPrint.error("Couldn't log stat", print_exception=True)
             db.close()
 
     @staticmethod
     def init() -> sqlite3.Connection:
-        db = sqlite3.connect(str(config.stats_file))
+        db = sqlite3.connect(str(config.general.stats_file))
         cursor = db.cursor()
 
         cursor.execute(

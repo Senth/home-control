@@ -1,4 +1,5 @@
 from flask import Flask
+from tealprint import TealLevel, TealPrint
 
 from ..config import config
 from .color import color_blueprint
@@ -9,18 +10,17 @@ from .kill import kill_blueprint
 from .log import log_blueprint
 from .mood import mood_blueprint
 from .power import power_blueprint
-from tealprint import TealPrint
 
 
 def run_api() -> None:
     TealPrint.debug("Flask API: Initializing")
 
     api = Flask(__package__)
-    api.config["DEBUG"] = config.debug
+    api.config["DEBUG"] = config.general.log_level == TealLevel.debug
     # FIXME different logging for --debug, --verbose, and default
-    if config.debug:
+    if config.general.log_level == TealLevel.debug:
         log_level = "DEBUG"
-    elif config.verbose:
+    elif config.general.log_level == TealLevel.verbose:
         log_level = "INFO"
     else:
         log_level = "WARNING"
@@ -42,4 +42,4 @@ def run_api() -> None:
     api.register_blueprint(log_blueprint)
 
     TealPrint.debug("Flask API: Starting...")
-    api.run(port=config.webapi.port)
+    api.run(port=config.general.port)

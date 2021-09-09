@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from typing import List
 
-from ...config import config
-from ..stats import Stats
+from tealprint import TealPrint
 
-_logger = config.logger
+from ..stats import Stats
 
 
 class Device:
@@ -19,14 +18,14 @@ class Device:
 
     def turned_on(self) -> None:
         if not self._on:
-            _logger.info("Device: {} turned on".format(self.name))
+            TealPrint.info("Device: {} turned on".format(self.name))
             if self._log:
                 Stats.log("device", f'{{"power":"on","device":"{self.name}"}}')
             self._on = True
 
     def turned_off(self) -> None:
         if self._on:
-            _logger.info("Device: {} turned off".format(self.name))
+            TealPrint.info("Device: {} turned off".format(self.name))
             if self._log:
                 Stats.log("device", f'{{"power":"off","device":"{self.name}"}}')
             self._on = False

@@ -1,4 +1,4 @@
-from .hue.light_sensor import LightLevels, LightSensor
+from .hue.light_sensor import LightSensor
 
 
 class Sensors:

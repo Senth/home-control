@@ -1,9 +1,7 @@
 from typing import List
 
-from ...config import config
 from ..interface import Interface
-
-_logger = config.logger
+from tealprint import TealPrint
 
 
 class Transition:
@@ -15,11 +13,7 @@ class Transition:
         self.transition_time = transition_time
 
     def run(self, interfaces: List[Interface]):
-        _logger.debug(
-            "Transition.run() Nothing running, transition_time {} seconds ".format(
-                self.transition_time
-            )
-        )
+        TealPrint.debug("Transition.run() Nothing running, transition_time {} seconds ".format(self.transition_time))
 
 
 class ColorTransition(Transition):
@@ -29,10 +23,8 @@ class ColorTransition(Transition):
         self.y = y
 
     def run(self, interfaces: List[Interface]):
-        _logger.debug(
-            "ColorTransition.run() Transitioning to ({}, {}) in {}".format(
-                self.x, self.y, self.transition_time
-            )
+        TealPrint.debug(
+            "ColorTransition.run() Transitioning to ({}, {}) in {}".format(self.x, self.y, self.transition_time)
         )
         for interface in interfaces:
             interface.color_xy(self.x, self.y, self.transition_time)
@@ -50,7 +42,7 @@ class BrightnessTransition(Transition):
         self.brightness = brightness
 
     def run(self, interfaces: List[Interface]):
-        _logger.debug(
+        TealPrint.debug(
             "BrightnessTransition.run() Transitioning to light level {} in {} seconds".format(
                 self.brightness, self.transition_time
             )
@@ -73,18 +65,12 @@ class BrightnessColorTransitionFactory:
         transition_time,
     ):
 
-        part_count = (
-            transition_time / BrightnessColorTransitionFactory.TRANSITION_TIME_PART / 2
-        )
+        part_count = transition_time / BrightnessColorTransitionFactory.TRANSITION_TIME_PART / 2
         brightness_parts = BrightnessColorTransitionFactory._calculate_parts(
             brightness_from, brightness_to, part_count
         )
-        color_x_parts = BrightnessColorTransitionFactory._calculate_parts(
-            color_x_from, color_x_to, part_count
-        )
-        color_y_parts = BrightnessColorTransitionFactory._calculate_parts(
-            color_y_from, color_y_to, part_count
-        )
+        color_x_parts = BrightnessColorTransitionFactory._calculate_parts(color_x_from, color_x_to, part_count)
+        color_y_parts = BrightnessColorTransitionFactory._calculate_parts(color_y_from, color_y_to, part_count)
 
         part_count = len(brightness_parts)
 
@@ -102,22 +88,14 @@ class BrightnessColorTransitionFactory:
             # Color transition
             x = color_x_parts[i]
             y = color_y_parts[i]
-            transitions.append(
-                ColorTransition(
-                    x, y, BrightnessColorTransitionFactory.TRANSITION_TIME_PART
-                )
-            )
+            transitions.append(ColorTransition(x, y, BrightnessColorTransitionFactory.TRANSITION_TIME_PART))
 
             # Wait transition
             transitions.append(Transition(0.5))
 
             # Brightness transition
             brightness = brightness_parts[i]
-            transitions.append(
-                BrightnessTransition(
-                    brightness, BrightnessColorTransitionFactory.TRANSITION_TIME_PART
-                )
-            )
+            transitions.append(BrightnessTransition(brightness, BrightnessColorTransitionFactory.TRANSITION_TIME_PART))
 
         return transitions
 

@@ -8,7 +8,8 @@ from tealprint import TealPrint
 from .data.network import GuestOf, Network
 from .smart_interfaces.devices import Devices
 from .smart_interfaces.groups import Groups
-from .smart_interfaces.sensors import LightLevels, Sensors
+from .smart_interfaces.hue.light_sensor import LightLevels
+from .smart_interfaces.sensors import Sensors
 from .utils.time import Date, Day, Days, Time
 
 
