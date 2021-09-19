@@ -46,7 +46,7 @@ class HueInterface(Interface):
             {
                 "on": True,
                 "bri": normalized_value,
-                "transition_time": normalized_time,
+                "transitiontime": normalized_time,
             }
         )
 

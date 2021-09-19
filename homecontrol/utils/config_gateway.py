@@ -1,8 +1,7 @@
 from pathlib import Path
 
 from blulib.config_parser import ConfigParser
-from tealprint import TealPrint
-from tealprint.tealprint import TealLevel
+from tealprint import TealLevel, TealPrint
 
 from ..config import General, Hue, Location, Unifi, config
 
