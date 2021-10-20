@@ -293,8 +293,10 @@ class ControlHallCeiling(Controller):
 
     def update(self):
         if Network.is_someone_home():
-            if Time.between(time(11), time(17)):
-                if Sensors.light_sensor.is_level_or_below(LightLevels.dark):
+            if Sensors.light_sensor.is_level_or_below(LightLevels.dark):
+                if Day.is_workday() and Time.between(time(8), time(17)):
+                    self.state = States.on
+                elif Day.is_weekend() and Time.between(time(11), time(17)):
                     self.state = States.on
 
 
