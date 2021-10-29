@@ -34,6 +34,14 @@ class Day:
             if date.today().weekday() == day.value:
                 return True
         return False
+    
+    @staticmethod
+    def is_weekend() -> bool:
+        return Day.is_day(Days.saturday, Days.sunday)
+    
+    @staticmethod
+    def is_workday() -> bool:
+        return not Day.is_weekend()
 
 
 class Date:
