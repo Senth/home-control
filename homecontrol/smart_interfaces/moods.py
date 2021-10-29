@@ -3,35 +3,18 @@ from __future__ import annotations
 from enum import Enum
 from typing import Union
 
-_MAX_COLOR_INT = 65535
+from ..core.entities.color import Color
 
 
 class Mood:
-    def __init__(
-        self,
-        name: str,
-        brightness: Union[int, float],
-        x: Union[int, float],
-        y: Union[int, float],
-    ) -> None:
+    def __init__(self, name: str, brightness: Union[int, float], color: Color) -> None:
         self.name = name
         self.brightness = brightness
-
-        # X color
-        if isinstance(x, int):
-            self.x = x
-        else:
-            self.x = int(x * _MAX_COLOR_INT)
-
-        # Y color
-        if isinstance(y, int):
-            self.y = y
-        else:
-            self.y = int(y * _MAX_COLOR_INT)
+        self.color = color
 
 
 class Moods(Enum):
-    sunset = Mood("Sunset", 1, 0.68, 0.32)
+    sunset = Mood("Sunset", 1, Color.from_xy(0.68, 0.32))
 
     @staticmethod
     def from_name(name: str) -> Union[Moods, None]:

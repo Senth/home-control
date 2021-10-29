@@ -1,7 +1,8 @@
-from homecontrol.webapi.util import get_json
 from typing import List
 
 from flask import Blueprint, abort, jsonify
+from flask.wrappers import Response
+from homecontrol.webapi.util import get_json
 
 from ..smart_interfaces.effects import Effects
 from ..utils.executor import EffectExecutor
@@ -40,7 +41,7 @@ get_effects_blueprint = Blueprint("get_effects", __package__)
 
 
 @get_effects_blueprint.route("/effects", methods=["GET"])
-def effects() -> str:
+def effects() -> Response:
     effects: List[str] = []
     for effect in Effects:
         effects.append(effect.value.name)

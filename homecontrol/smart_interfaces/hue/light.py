@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any, Dict, Optional, Union
 
-from ..moods import Mood
+from ...core.entities.color import Color
 from .api import Api
 from .interface import HueInterface
 
@@ -55,14 +55,10 @@ class HueLight(HueInterface):
             return
         super().dim(value, transition_time)
 
-    def color_xy(self, x: int, y: int, transition_time: float = 1) -> None:
+    def color(self, color: Color, transition_time: float = 1) -> None:
         if not self.capability.color:
             return
-        super().color_xy(x, y, transition_time)
-
-    def mood(self, mood: Mood) -> None:
-        self.dim(mood.brightness)
-        self.color_xy(mood.x, mood.y)
+        super().color(color, transition_time)
 
 
 class Capability:
@@ -76,6 +72,7 @@ class Capabilities(Enum):
     none = Capability("N/A", dim=True, color=True)
     socket = Capability("On/Off plug-in unit", dim=False, color=False)
     dimmable = Capability("Dimmable light", dim=True, color=False)
+    color = Capability("Color light", dim=True, color=True)
 
     @staticmethod
     def find(type: str) -> Union[Capability, None]:

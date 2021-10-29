@@ -1,5 +1,8 @@
 from typing import Any, Dict, Union
 
+from tealprint import TealPrint
+
+from ...core.entities.color import Color
 from ..interface import Interface
 from ..moods import Mood
 from .api import Api
@@ -50,13 +53,29 @@ class HueInterface(Interface):
             }
         )
 
-    def color_xy(self, x: int, y: int, transition_time: float = 1) -> None:
-        pass
-        # TODO color_xy()
+    def color(self, color: Color, transition_time: float = 1) -> None:
+        normalized_time = Interface.normalize_transition_time(transition_time)
+        body = {
+            "on": True,
+            "transitiontime": normalized_time,
+        }
+        if color.x and color.y:
+            body["xy"] = [color.x, color.y]
+        elif color.hue:
+            body["hue"] = color.hue
+        elif color.saturation:
+            body["sat"] = color.saturation
+        elif color.temperature:
+            body["ct"] = color.temperature
+        else:
+            TealPrint.warning(f"Didn't specify any color when calling color()")
+            return
+
+        self._put(body)
 
     def mood(self, mood: Mood) -> None:
         self.dim(mood.brightness)
-        self.color_xy(mood.x, mood.y)
+        self.color(mood.color)
 
     def _put(self, body: Dict[str, Any]) -> None:
         Api.put(f"/{self.type}/{self.id}/{self.action}", body)

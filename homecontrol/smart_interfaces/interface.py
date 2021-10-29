@@ -1,5 +1,6 @@
 from typing import Union
 
+from ..core.entities.color import Color
 from .moods import Mood
 
 
@@ -45,7 +46,7 @@ class Interface:
     def update(self) -> None:
         pass
 
-    def color_xy(self, x: int, y: int, transition_time: float = 1) -> None:
+    def color(self, color: Color, transition_time: float = 1) -> None:
         """Set the color of the light or group
 
         Args:
