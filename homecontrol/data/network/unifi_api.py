@@ -68,7 +68,8 @@ class UnifiApi:
         for client in self._clients.values():
             if "usergroup_id" in client:
                 group_id = client["usergroup_id"]
-            else:
+
+            if not group_id:
                 group_id = self._get_default_group().id
 
             group = self._usergroups[group_id]
