@@ -22,7 +22,7 @@ def mood() -> str:
     lights = trim_name(body["lights"])
     interfaces = SmartInterfaces.get_interfaces(lights)
 
-    mood_enum = Moods[body["mood"]]
+    mood_enum = Moods.from_name(body["mood"])
     if not mood_enum:
         abort(404, f"Didn't find a mood with the name {body['mood']}.")
     mood: Mood = mood_enum.value
