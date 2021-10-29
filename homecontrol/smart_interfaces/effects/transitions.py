@@ -62,7 +62,7 @@ class BrightnessColorTransitionFactory:
         transition_time,
     ):
 
-        part_count = transition_time / BrightnessColorTransitionFactory.TRANSITION_TIME_PART / 2
+        part_count = int(transition_time / BrightnessColorTransitionFactory.TRANSITION_TIME_PART / 2)
         brightness_parts = BrightnessColorTransitionFactory._calculate_individual_parts(
             brightness_from, brightness_to, part_count
         )
