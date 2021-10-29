@@ -54,7 +54,7 @@ class Controller:
 
                 # Controller state updated
                 if controller.state != last_state:
-                    TealPrint.debug(f"State changed from {last_state} -> {controller.state}")
+                    TealPrint.debug(f"{controller.name}: State changed from {last_state} -> {controller.state}")
                     if controller.state == States.off:
                         controller.turn_off()
                     elif controller.state == States.on:
