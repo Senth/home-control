@@ -8,13 +8,13 @@ from .hue.group import HueGroup
 
 class Groups(Enum):
     # Rooms
-    emma = HueGroup(5, "Emma")
-    hallway = HueGroup(3, "Hallway")
-    living_room = HueGroup(1, "Living Room")
-    kitchen = HueGroup(4, "Kitchen")
+    emma = HueGroup("Emma")
+    hallway = HueGroup("Hallway")
+    living_room = HueGroup("Living Room")
+    kitchen = HueGroup("Kitchen")
 
     # Zones
-    matteus_lights = HueGroup(7, "Matteus lights")
+    matteus_lights = HueGroup("Matteus lights")
 
     @staticmethod
     def from_name(name: str) -> Union[Groups, None]:

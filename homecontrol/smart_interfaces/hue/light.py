@@ -9,9 +9,8 @@ from .interface import HueInterface
 
 
 class HueLight(HueInterface):
-    # TODO REMOVE id and get ids automatically from the Hue Bridge
-    def __init__(self, id: int, name: str) -> None:
-        super().__init__(id, name, "lights", "state")
+    def __init__(self, name: str) -> None:
+        super().__init__(name, "lights", "state")
         self._capability: Optional[Capability] = None
 
     @property
@@ -32,23 +31,13 @@ class HueLight(HueInterface):
     def _get_data(self) -> Union[Dict[str, Any], None]:
         return Api.get(f"/lights/{self.id}")
 
-    def _get_state(self) -> Union[Dict[str, Any], None]:
-        data = self._get_data()
-        if data and "state" in data:
-            state = data["state"]
-            if isinstance(state, dict):
-                return state
-
     @staticmethod
     def find(name: str) -> Union[HueLight, None]:
         """Search for a light in the hue bridge"""
-        name = name.lower()
-        lights = Api.get("/lights")
-
-        if lights:
-            for id, data in lights.items():
-                if "name" in data and str(data["name"]).lower() == name:
-                    return HueLight(int(id), str(data["name"]))
+        hue_light = HueLight(name)
+        if hue_light.id != HueInterface.INVALID_ID:
+            return hue_light
+        return None
 
     def dim(self, value: Union[float, int], transition_time: float = 1) -> None:
         if not self.capability.dim:

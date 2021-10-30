@@ -9,11 +9,44 @@ from .api import Api
 
 
 class HueInterface(Interface):
-    def __init__(self, id: int, name: str, type: str, action: str) -> None:
+    INVALID_ID = -1
+
+    def __init__(self, name: str, type: str, action: str) -> None:
         super().__init__(name)
-        self.id = id
+        self._id = HueInterface.INVALID_ID
         self.type = type
         self.action = action
+
+    @property
+    def id(self) -> int:
+        if self._id == HueInterface.INVALID_ID:
+            self._id = self._get_id()
+
+            if self._id != HueInterface.INVALID_ID:
+                TealPrint.info(f"Found id {self._id} for HueInterface {self.name}")
+            else:
+                TealPrint.warning(f"Could not find id for HueInterface {self.name}")
+
+        return self._id
+
+    @id.setter
+    def id(self, id: int):
+        self._id = id
+
+    def _get_id(self) -> int:
+        # Get all interfaces of type
+        all = Api.get(f"/{self.type}")
+        if not all:
+            TealPrint.warning(f"Could not get all /{self.type} for {self.name}")
+            return HueInterface.INVALID_ID
+
+        for id_str, object in all.items():
+            if "name" in object:
+                name = str(object["name"])
+                if name.lower() == self.name.lower():
+                    return int(id_str)
+
+        return HueInterface.INVALID_ID
 
     def _get_data(self) -> Union[Dict[str, Any], None]:
         return Api.get(f"/{self.type}/{self.id}")

@@ -7,18 +7,18 @@ from .hue.light import HueLight
 
 
 class Devices(Enum):
-    ball_lights = HueLight(6, "Ball lights")
-    bamboo = HueLight(17, "Bamboo lamp")
-    billy = HueLight(9, "Billy lights")
-    ceiling = HueLight(16, "Ceiling")
-    cylinder = HueLight(10, "Cylinder lamp")
-    hallway_ceiling = HueLight(24, "Hallway ceiling light")
-    hallway_painting = HueLight(7, "Hallway painting lights")
-    led_strip = HueLight(11, "LED strip")
-    micro = HueLight(12, "Micro lights")
-    monitor = HueLight(8, "Monitor lights")
-    speakers = HueLight(13, "Matteus's Speakers")
-    window = HueLight(5, "Window lights")
+    ball_lights = HueLight("Ball lights")
+    bamboo = HueLight("Bamboo lamp")
+    billy = HueLight("Billy lights")
+    ceiling = HueLight("Ceiling")
+    cylinder = HueLight("Cylinder lamp")
+    hallway_ceiling = HueLight("Hallway ceiling light")
+    hallway_painting = HueLight("Hallway painting lights")
+    led_strip = HueLight("LED strip")
+    micro = HueLight("Micro lights")
+    monitor = HueLight("Monitor lights")
+    speakers = HueLight("Matteus's Speakers")
+    window = HueLight("Window lights")
 
     @staticmethod
     def from_name(name: str) -> Union[Devices, None]:
