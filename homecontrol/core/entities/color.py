@@ -9,11 +9,11 @@ class Color:
     """Common package for setting the color"""
 
     def __init__(self) -> None:
-        self.x: Optional[float]
-        self.y: Optional[float]
-        self.saturation: Optional[int]
-        self.hue: Optional[int]
-        self.temperature: Optional[int]
+        self.x: Optional[float] = None
+        self.y: Optional[float] = None
+        self.saturation: Optional[int] = None
+        self.hue: Optional[int] = None
+        self.temperature: Optional[int] = None
 
     def __members(self):
         return [
