@@ -1,10 +1,11 @@
-from datetime import time
+from datetime import datetime, time
 from enum import Enum
 from time import sleep
-from typing import List, Union
+from typing import List, Optional, Union
 
 from tealprint import TealPrint
 
+from .core.entities.color import Color
 from .data.network import GuestOf, Network
 from .smart_interfaces.devices import Devices
 from .smart_interfaces.groups import Groups
@@ -40,6 +41,7 @@ class Controller:
     def __init__(self, name: str) -> None:
         self.state: States = States.initial
         self.brightness: Union[float, int, None] = None
+        self.color: Optional[Color] = None
         self.name = name
 
     @staticmethod
@@ -60,9 +62,13 @@ class Controller:
                     elif controller.state == States.on:
                         controller.turn_on()
 
+                if controller.color != controller.color:
+                    controller.colorize()
+
                 # Brightness updated
                 if controller.brightness != last_brightness:
                     controller.dim()
+
             sleep(1)
 
     def turn_on(self) -> None:
@@ -86,6 +92,12 @@ class Controller:
                     self.brightness,
                     transition_time=transition_time,
                 )
+
+    def colorize(self):
+        if self.state == States.on:
+            TealPrint.info(f"Colorize {self.name} to {self.color}")
+            for interface_enum in self._get_interfaces():
+                interface_enum.value.color(self.color)
 
     def _get_interfaces(self) -> List[Enum]:
         TealPrint.error(f"Not implemented {self.name}._get_interfaces()")
@@ -125,6 +137,51 @@ class ControlMatteus(Controller):
         # Don't turn off between 8 and 10 (Because we've turned it on)
         if not Time.between(time(8), time(10)):
             super().turn_off()
+
+
+class ControlBamboo(Controller):
+    def __init__(self) -> None:
+        super().__init__("Bamboo")
+
+    def _get_interfaces(self) -> List[Enum]:
+        return [Devices.bamboo]
+
+    def update(self):
+        # Only when Matteus or Matteus guest is home
+        if not Network.mobile_matteus.is_on() and not Network.is_guest_home(GuestOf.both, GuestOf.matteus):
+            return
+
+        if not Time.between(time(15), time(3)):
+            return
+
+        # Turn on
+        if Sensors.light_sensor.is_level_or_below(LightLevels.partially_dark):
+            self.state = States.on
+
+        # Set brightness and color
+        if Sensors.light_sensor.is_level_or_below(LightLevels.fully_dark):
+            if Time.between(time(15), time(19)):
+                self.brightness = 0.6
+                self.color = Color.from_xy(0.37, 0.37)
+            elif Time.between(time(19), time(22)):
+                self.brightness = _calculate_dynamic_brightness(time(19), time(22), 0.6, 0.2)
+                self.color = _calculate_dynamic_color(
+                    time(19), time(22), Color.from_xy(0.37, 0.37), Color.from_xy(0.45, 0.41)
+                )
+            elif Time.between(time(22), time(23, 30)):
+                self.brightness = 1
+                self.color = _calculate_dynamic_color(
+                    time(22), time(23, 30), Color.from_xy(0.45, 0.41), Color.from_xy(0.7, 0.3)
+                )
+            else:
+                self.brightness = 1
+                self.color = Color.from_xy(0.7, 0.3)
+        elif Sensors.light_sensor.is_level_or_below(LightLevels.dark):
+            self.brightness = 0.75
+            self.color = Color.from_xy(0.36, 0.36)
+        elif Sensors.light_sensor.is_level_or_below(LightLevels.partially_dark):
+            self.brightness = 0.9
+            self.color = Color.from_xy(0.32, 0.32)
 
 
 class ControlMonitor(Controller):
@@ -295,11 +352,11 @@ class ControlHallCeiling(Controller):
         if Network.is_someone_home():
             if Sensors.light_sensor.is_level_or_below(LightLevels.dark):
                 if Day.is_workday():
-                    # Start at 10 if Emma's door is open
-                    if Network.is_emma_home() and (not Network.is_guest_home(GuestOf.emma) or not Network.is_matteus_home()):
-                        if Time.between(time(10), time(17)):
+                    # Only start at 8 Emma has a guest and Matteus is home
+                    if Network.is_matteus_home() and Network.is_guest_home(GuestOf.emma):
+                        if Time.between(time(8), time(17)):
                             self.state = States.on
-                    elif Time.between(time(8), time(17)):
+                    elif Time.between(time(10), time(17)):
                         self.state = States.on
                 elif Day.is_weekend() and Time.between(time(11), time(17)):
                     self.state = States.on
@@ -307,6 +364,7 @@ class ControlHallCeiling(Controller):
 
 controllers: List[Controller] = [
     ControlMatteus(),
+    ControlBamboo(),
     # ControlMonitor(),
     ControlSpeakers(),
     ControlAmbient(),
@@ -318,3 +376,34 @@ controllers: List[Controller] = [
     ControlTurnOffLights(),
     ControlHallCeiling(),
 ]
+
+
+def _calculate_dynamic_brightness(
+    time_start: time, time_end: time, brightness_start: float, brightness_end: float
+) -> float:
+    percentage = Time.percentage_between(time_start, time_end)
+    return _diff(brightness_start, brightness_end, percentage)
+
+
+def _calculate_dynamic_color(time_start: time, time_end: time, color_start: Color, color_end: Color) -> Color:
+    percentage = Time.percentage_between(time_start, time_end)
+
+    color = Color()
+
+    if color_start.x and color_end.x:
+        color.x = _diff(color_start.x, color_end.x, percentage)
+    if color_start.y and color_end.y:
+        color.y = _diff(color_start.y, color_end.y, percentage)
+    if color_start.hue and color_end.hue:
+        color.hue = int(_diff(color_start.hue, color_end.hue, percentage))
+    if color_start.saturation and color_end.saturation:
+        color.saturation = int(_diff(color_start.saturation, color_end.saturation, percentage))
+    if color_start.temperature and color_end.temperature:
+        color.temperature = int(_diff(color_start.temperature, color_end.temperature, percentage))
+
+    return color
+
+
+def _diff(start: Union[int, float], end: Union[int, float], percentage: float) -> float:
+    total_diff = end - start
+    return round(start + total_diff * percentage, 2)

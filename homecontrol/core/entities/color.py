@@ -15,6 +15,29 @@ class Color:
         self.hue: Optional[int]
         self.temperature: Optional[int]
 
+    def __members(self):
+        return [
+            self.x,
+            self.y,
+            self.saturation,
+            self.hue,
+            self.temperature,
+        ]
+
+    def __eq__(self, other) -> bool:
+        if type(other) is type(self):
+            return self.__members() == other.__members()
+        return False
+
+    def __hash__(self) -> int:
+        return hash(self.__members())
+
+    def __repr__(self) -> str:
+        return str(self.__members())
+
+    def __str__(self) -> str:
+        return str(self.__members())
+
     @staticmethod
     def from_xy(x: float, y: float) -> Color:
         color = Color()

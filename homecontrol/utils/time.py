@@ -1,4 +1,4 @@
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from enum import Enum
 from typing import Tuple
 
@@ -15,6 +15,24 @@ class Time:
             return start <= now < end
         else:  # Over midnight
             return start <= now or now < end
+
+    @staticmethod
+    def percentage_between(start: time, end: time) -> float:
+        now = datetime.now(tz.tzlocal())
+        datetime_start = datetime(now.year, now.month, now.day, start.hour, start.minute)
+        datetime_end = datetime(now.year, now.month, now.day, end.hour, end.minute)
+
+        # Over midnight
+        if start >= end:
+            datetime_end = datetime_end + timedelta(days=1)
+
+        datetime_diff = datetime_end - datetime_start
+        total_diff_sec = datetime_diff.total_seconds()
+
+        datetime_diff = now - datetime_start
+        diff_sec = datetime_diff.total_seconds()
+
+        return diff_sec / total_diff_sec
 
 
 class Days(Enum):
@@ -34,11 +52,11 @@ class Day:
             if date.today().weekday() == day.value:
                 return True
         return False
-    
+
     @staticmethod
     def is_weekend() -> bool:
         return Day.is_day(Days.saturday, Days.sunday)
-    
+
     @staticmethod
     def is_workday() -> bool:
         return not Day.is_weekend()
