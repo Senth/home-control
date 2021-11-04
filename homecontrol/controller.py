@@ -38,11 +38,16 @@ def _calculate_ambient() -> States:
 
 
 class Controller:
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, only_apply_when_on: bool = False) -> None:
+        """
+        params:
+          only_apply_when_on(bool): Only change dim/color if the light is currently turned on
+        """
         self.state: States = States.initial
         self.brightness: Union[float, int, None] = None
         self.color: Optional[Color] = None
         self.name = name
+        self.only_apply_when_on = only_apply_when_on
 
     @staticmethod
     def update_all() -> None:
@@ -88,16 +93,29 @@ class Controller:
         if self.state == States.on and self.brightness:
             TealPrint.info(f"Dimming {self.name} to {self.brightness}")
             for interface_enum in self._get_interfaces():
-                interface_enum.value.dim(
-                    self.brightness,
-                    transition_time=transition_time,
-                )
+                if self._should_apply(interface_enum):
+                    interface_enum.value.dim(
+                        self.brightness,
+                        transition_time=transition_time,
+                    )
 
     def colorize(self):
         if self.state == States.on:
             TealPrint.info(f"Colorize {self.name} to {self.color}")
             for interface_enum in self._get_interfaces():
-                interface_enum.value.color(self.color)
+                if self._should_apply(interface_enum):
+                    interface_enum.value.color(self.color)
+
+    def _should_apply(self, interface_enum: Enum) -> bool:
+        if self.only_apply_when_on:
+            TealPrint.verbose(f"{self.name} only apply if it's on", indent=1)
+            if interface_enum.value.is_on():
+                TealPrint.verbose(f"{self.name}.{interface_enum.value.name} is on", indent=2)
+            else:
+                TealPrint.verbose(f"Not applying... {self.name}.{interface_enum.value.name} is off", indent=2)
+                return False
+
+        return True
 
     def _get_interfaces(self) -> List[Enum]:
         TealPrint.error(f"Not implemented {self.name}._get_interfaces()")
@@ -141,7 +159,7 @@ class ControlMatteus(Controller):
 
 class ControlBamboo(Controller):
     def __init__(self) -> None:
-        super().__init__("Bamboo")
+        super().__init__("Bamboo", only_apply_when_on=True)
 
     def _get_interfaces(self) -> List[Enum]:
         return [Devices.bamboo]
@@ -160,14 +178,17 @@ class ControlBamboo(Controller):
 
         # Set brightness and color
         if Sensors.light_sensor.is_level_or_below(LightLevels.fully_dark):
+            # 15 - 19
             if Time.between(time(15), time(19)):
                 self.brightness = 0.6
                 self.color = Color.from_xy(0.37, 0.37)
+            # 19 - 22
             elif Time.between(time(19), time(22)):
                 self.brightness = _calculate_dynamic_brightness(time(19), time(22), 0.6, 0.2)
                 self.color = _calculate_dynamic_color(
                     time(19), time(22), Color.from_xy(0.37, 0.37), Color.from_xy(0.45, 0.41)
                 )
+            # 22:00 - 22:30
             elif Time.between(time(22), time(23, 30)):
                 self.brightness = 1
                 self.color = _calculate_dynamic_color(
@@ -349,22 +370,25 @@ class ControlHallCeiling(Controller):
         return [Devices.hallway_ceiling]
 
     def update(self):
-        if Network.is_someone_home():
-            if Sensors.light_sensor.is_level_or_below(LightLevels.dark):
-                if Day.is_workday():
-                    # Only start at 8 Emma has a guest and Matteus is home
-                    if Network.is_matteus_home() and Network.is_guest_home(GuestOf.emma):
-                        if Time.between(time(8), time(17)):
-                            self.state = States.on
-                    elif Time.between(time(10), time(17)):
-                        self.state = States.on
-                elif Day.is_weekend() and Time.between(time(11), time(17)):
+        if not Network.is_someone_home():
+            return
+
+        if Sensors.light_sensor.is_level_or_above(LightLevels.partially_dark):
+            return
+
+        if Day.is_workday():
+            if Network.is_matteus_home() and Network.is_guest_home():
+                if Time.between(time(8), time(17)):
                     self.state = States.on
+            elif Time.between(time(10), time(17)):
+                self.state = States.on
+        elif Day.is_weekend() and Time.between(time(11), time(17)):
+            self.state = States.on
 
 
 controllers: List[Controller] = [
     ControlMatteus(),
-    # ControlBamboo(),
+    ControlBamboo(),
     # ControlMonitor(),
     ControlSpeakers(),
     ControlAmbient(),
