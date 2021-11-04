@@ -405,5 +405,9 @@ def _calculate_dynamic_color(time_start: time, time_end: time, color_start: Colo
 
 
 def _diff(start: Union[int, float], end: Union[int, float], percentage: float) -> float:
+    if percentage < 0 or percentage > 1:
+        TealPrint.error(f"Percentage in _diff({start}, {end}, {percentage}) is out of bounds")
+        return start
+
     total_diff = end - start
     return round(start + total_diff * percentage, 2)

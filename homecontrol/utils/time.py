@@ -19,18 +19,21 @@ class Time:
     @staticmethod
     def percentage_between(start: time, end: time) -> float:
         now = datetime.now(tz.tzlocal())
-        datetime_start = datetime(now.year, now.month, now.day, start.hour, start.minute)
-        datetime_end = datetime(now.year, now.month, now.day, end.hour, end.minute)
+        datetime_start = datetime(now.year, now.month, now.day, start.hour, start.minute, tzinfo=tz.tzlocal())
+        datetime_end = datetime(now.year, now.month, now.day, end.hour, end.minute, tzinfo=tz.tzlocal())
 
         # Over midnight
         if start >= end:
-            datetime_end = datetime_end + timedelta(days=1)
+            datetime_start = datetime_start + timedelta(days=-1)
 
         datetime_diff = datetime_end - datetime_start
         total_diff_sec = datetime_diff.total_seconds()
 
         datetime_diff = now - datetime_start
         diff_sec = datetime_diff.total_seconds()
+
+        if total_diff_sec <= 0:
+            return 0
 
         return diff_sec / total_diff_sec
 
