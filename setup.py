@@ -27,7 +27,7 @@ setup(
         "pyunifi",
         "suntime",
         "flask",
-        "tealprint==0.2.0",
+        "tealprint==0.2.1",
     ],
     classifiers=[
         "Environment :: Console",
