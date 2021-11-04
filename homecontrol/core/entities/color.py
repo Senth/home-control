@@ -16,13 +16,13 @@ class Color:
         self.temperature: Optional[int] = None
 
     def __members(self):
-        return [
+        return (
             self.x,
             self.y,
             self.saturation,
             self.hue,
             self.temperature,
-        ]
+        )
 
     def __eq__(self, other) -> bool:
         if type(other) is type(self):
