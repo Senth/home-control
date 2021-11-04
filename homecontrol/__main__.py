@@ -1,3 +1,5 @@
+from time import sleep
+
 from .config import config
 from .controller import Controller
 from .data.network import Network
@@ -25,6 +27,7 @@ def main():
     start_thread(Controller.update_all, seconds_between_calls=1, delay=10)
 
     # Run Web API
+    sleep(60)
     flask_api.run_api()
 
 
