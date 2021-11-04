@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 import logging.handlers
 from typing import Any, Optional
@@ -9,11 +11,20 @@ _app_name = "home-control"
 
 class Config:
     def __init__(self):
-        self.general: General = General()
+        self._general: General = General()
         self.unifi: Unifi = Unifi()
         self.location: Location = Location()
         self.hue: Hue = Hue()
         self.app_name: str = _app_name
+
+    @property
+    def general(self) -> General:
+        return self._general
+
+    @general.setter
+    def general(self, general: General) -> None:
+        self._general = general
+        TealPrint.level = general.log_level
 
     def add_args_settings(self, args: Any) -> None:
         """Set additional configuration from script arguments"""
