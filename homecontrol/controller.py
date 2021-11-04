@@ -1,9 +1,9 @@
-from datetime import datetime, time
+from datetime import time
 from enum import Enum
 from time import sleep
 from typing import List, Optional, Union
 
-from tealprint import TealPrint
+from tealprint import TealLevel, TealPrint
 
 from .core.entities.color import Color
 from .data.network import GuestOf, Network
@@ -108,12 +108,17 @@ class Controller:
 
     def _should_apply(self, interface_enum: Enum) -> bool:
         if self.only_apply_when_on:
-            TealPrint.verbose(f"{self.name} only apply if it's on", indent=1)
+            TealPrint.push_indent(TealLevel.verbose)
+            TealPrint.verbose(f"{self.name} only apply if it's on", push_indent=True)
             if interface_enum.value.is_on():
-                TealPrint.verbose(f"{self.name}.{interface_enum.value.name} is on", indent=2)
+                TealPrint.verbose(f"{self.name}.{interface_enum.value.name} is on")
             else:
-                TealPrint.verbose(f"Not applying... {self.name}.{interface_enum.value.name} is off", indent=2)
+                TealPrint.verbose(
+                    f"Not applying... {self.name}.{interface_enum.value.name} is off",
+                )
                 return False
+            TealPrint.pop_indent()
+            TealPrint.pop_indent()
 
         return True
 

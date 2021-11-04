@@ -4,7 +4,7 @@ import logging
 import logging.handlers
 from typing import Any, Optional
 
-from tealprint import TealLevel, TealPrint
+from tealprint import TealConfig, TealLevel
 
 _app_name = "home-control"
 
@@ -24,17 +24,17 @@ class Config:
     @general.setter
     def general(self, general: General) -> None:
         self._general = general
-        TealPrint.level = general.log_level
+        TealConfig.level = general.log_level
 
     def add_args_settings(self, args: Any) -> None:
         """Set additional configuration from script arguments"""
         if args.debug:
             self.general.log_level = TealLevel.debug
-            TealPrint.level = TealLevel.debug
+            TealConfig.level = TealLevel.debug
 
         elif args.verbose:
             self.general.log_level = TealLevel.verbose
-            TealPrint.level = TealLevel.verbose
+            TealConfig.level = TealLevel.verbose
 
         self._update_external_loggers()
 
