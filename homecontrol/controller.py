@@ -100,7 +100,7 @@ class Controller:
                     )
 
     def colorize(self):
-        if self.state == States.on:
+        if self.state == States.on and self.color:
             TealPrint.info(f"Colorize {self.name} to {self.color}")
             for interface_enum in self._get_interfaces():
                 if self._should_apply(interface_enum):
