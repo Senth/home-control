@@ -5,6 +5,8 @@ from typing import List, Optional, Union
 
 from tealprint import TealLevel, TealPrint
 
+from homecontrol.smart_interfaces.effects import transitions
+
 from .core.entities.color import Color
 from .data.network import GuestOf, Network
 from .smart_interfaces.devices import Devices
@@ -80,9 +82,10 @@ class Controller:
         TealPrint.info("Turning on " + self.name)
         for interface_enum in self._get_interfaces():
             interface_enum.value.turn_on()
-        # Dim to correct value
         if self.brightness:
             self.dim(transition_time=0)
+        if self.color:
+            self.colorize()
 
     def turn_off(self) -> None:
         TealPrint.info("Turning off " + self.name)
