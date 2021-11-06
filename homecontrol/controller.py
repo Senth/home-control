@@ -57,6 +57,7 @@ class Controller:
             for controller in controllers:
                 last_state = controller.state
                 last_brightness = controller.brightness
+                last_color = controller.color
 
                 controller.state = States.off
                 controller.update()
@@ -69,7 +70,7 @@ class Controller:
                     elif controller.state == States.on:
                         controller.turn_on()
 
-                if controller.color != controller.color:
+                if controller.color != last_color:
                     controller.colorize()
 
                 # Brightness updated
@@ -189,18 +190,18 @@ class ControlBamboo(Controller):
             # 15 - 19
             if Time.between(time(15), time(19)):
                 self.brightness = 0.6
-                self.color = Color.from_xy(0.37, 0.37)
+                self.color = Color.from_xy(0.4, 0.39)
             # 19 - 22
             elif Time.between(time(19), time(22)):
                 self.brightness = _calculate_dynamic_brightness(time(19), time(22), 0.6, 0.2)
                 self.color = _calculate_dynamic_color(
-                    time(19), time(22), Color.from_xy(0.37, 0.37), Color.from_xy(0.45, 0.41)
+                    time(19), time(22), Color.from_xy(0.4, 0.39), Color.from_xy(0.48, 0.39)
                 )
             # 22:00 - 22:30
             elif Time.between(time(22), time(23, 30)):
                 self.brightness = 1
                 self.color = _calculate_dynamic_color(
-                    time(22), time(23, 30), Color.from_xy(0.45, 0.41), Color.from_xy(0.7, 0.3)
+                    time(22), time(23, 30), Color.from_xy(0.48, 0.39), Color.from_xy(0.67, 0.31)
                 )
             else:
                 self.brightness = 1
@@ -385,7 +386,9 @@ class ControlHallCeiling(Controller):
             return
 
         if Day.is_workday():
-            if Network.is_matteus_home() and Network.is_guest_home():
+            if (Network.is_matteus_home() and Network.is_guest_home()) or (
+                Network.is_matteus_home() and not Network.is_emma_home()
+            ):
                 if Time.between(time(8), time(17)):
                     self.state = States.on
             elif Time.between(time(10), time(17)):
