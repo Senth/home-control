@@ -21,7 +21,7 @@ setup(
     data_files=[("config", [f"config/{project_slug}-example.cfg"])],
     install_requires=[
         "apscheduler",
-        "blulib==0.1.0",
+        "blulib==0.1.1",
         "requests",
         "pytradfri",
         "pyunifi",
