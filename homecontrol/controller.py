@@ -169,6 +169,7 @@ class ControlMatteus(Controller):
 class ControlBamboo(Controller):
     def __init__(self) -> None:
         super().__init__("Bamboo", only_apply_when_on=True)
+        self.default_color = Color.from_xy(0.4, 0.39)
 
     def _get_interfaces(self) -> List[Enum]:
         return [Devices.bamboo]
@@ -186,16 +187,16 @@ class ControlBamboo(Controller):
             self.state = States.on
 
         # Set brightness and color
+        self.color = self.default_color
         if Sensors.light_sensor.is_level_or_below(LightLevels.fully_dark):
             # 15 - 19
             if Time.between(time(15), time(19)):
                 self.brightness = 0.6
-                self.color = Color.from_xy(0.4, 0.39)
             # 19 - 22
             elif Time.between(time(19), time(22)):
                 self.brightness = _calculate_dynamic_brightness(time(19), time(22), 0.6, 0.2)
                 self.color = _calculate_dynamic_color(
-                    time(19), time(22), Color.from_xy(0.4, 0.39), Color.from_xy(0.48, 0.39)
+                    time(19), time(22), self.default_color, Color.from_xy(0.48, 0.39)
                 )
             # 22:00 - 22:30
             elif Time.between(time(22), time(23, 30)):
@@ -207,11 +208,9 @@ class ControlBamboo(Controller):
                 self.brightness = 1
                 self.color = Color.from_xy(0.7, 0.3)
         elif Sensors.light_sensor.is_level_or_below(LightLevels.dark):
-            self.brightness = 0.75
-            self.color = Color.from_xy(0.36, 0.36)
+            self.brightness = 0.7
         elif Sensors.light_sensor.is_level_or_below(LightLevels.partially_dark):
-            self.brightness = 0.9
-            self.color = Color.from_xy(0.32, 0.32)
+            self.brightness = 0.8
 
 
 class ControlMonitor(Controller):
