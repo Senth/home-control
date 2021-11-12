@@ -18,14 +18,14 @@ class Device:
 
     def turned_on(self) -> None:
         if not self._on:
-            TealPrint.info("Device: {} turned on".format(self.name))
+            TealPrint.info("📱 Device: {} turned on".format(self.name))
             if self._log:
                 Stats.log("device", f'{{"power":"on","device":"{self.name}"}}')
             self._on = True
 
     def turned_off(self) -> None:
         if self._on:
-            TealPrint.info("Device: {} turned off".format(self.name))
+            TealPrint.info("📴 Device: {} turned off".format(self.name))
             if self._log:
                 Stats.log("device", f'{{"power":"off","device":"{self.name}"}}')
             self._on = False

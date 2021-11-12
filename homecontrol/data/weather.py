@@ -18,7 +18,7 @@ class Weather:
         try:
             Weather._weather_info = request.json()
         except ValueError:
-            TealPrint.warning("Error fetching weather information")
+            TealPrint.warning("⚠ Error fetching weather information")
 
     @staticmethod
     def _set_weather_info():
@@ -30,13 +30,13 @@ class Weather:
 
             if name == "tcc_mean":
                 Weather.cloud_cover = value
-                TealPrint.info("Weather.cloud_cover = " + str(value))
+                TealPrint.info("☁ Weather.cloud_cover = " + str(value))
             if name == "t":
                 Weather.temperature = value
-                TealPrint.info("Weather.temperature = " + str(value))
+                TealPrint.info("♨ Weather.temperature = " + str(value))
             if name == "pmean":
                 Weather._precipitation = value
-                TealPrint.info("Weather.precipitation = " + str(value))
+                TealPrint.info("🌧 Weather.precipitation = " + str(value))
 
     @staticmethod
     def _is_cloudy():

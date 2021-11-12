@@ -13,7 +13,7 @@ class ConfigGateway:
 
     def check_config_exists(self) -> None:
         if not self.path.exists():
-            TealPrint.warning(f"Could not find the configuration file: {self.path}", exit=True)
+            TealPrint.warning(f"⚠ Could not find the configuration file: {self.path}", exit=True)
 
     def read(self) -> None:
         self.parser.read(self.path)
@@ -90,5 +90,5 @@ class ConfigGateway:
 
     def _print_missing(self, section: str, var_name: str) -> None:
         TealPrint.warning(
-            f"Missing '{var_name} under [{section}] in your configuration {self.path}. Please add it.", exit=True
+            f"⚠ Missing '{var_name} under [{section}] in your configuration {self.path}. Please add it.", exit=True
         )

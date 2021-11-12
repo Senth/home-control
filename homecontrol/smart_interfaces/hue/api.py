@@ -14,8 +14,8 @@ class Api:
         TealPrint.debug(f"jsonBody: {jsonBody}")
         response = requests.put(Api._url(path), json=body)
         if response.status_code != 200:
-            TealPrint.warning(f"response.status_code: {response.status_code}")
-            TealPrint.warning(f"response.json: {response.json()}")
+            TealPrint.warning(f"⚠ response.status_code: {response.status_code}")
+            TealPrint.warning(f"⚠ response.json: {response.json()}")
 
     @staticmethod
     def get(path: str) -> Union[Dict[str, Any], None]:

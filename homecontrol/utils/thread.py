@@ -18,13 +18,13 @@ def _run_forever(function: Callable, seconds_between_calls: float, delay: float)
     if delay > 0:
         sleep(delay)
 
-    TealPrint.info(f"Started thread {function.__qualname__}")
+    TealPrint.info(f"🧵 Started thread {function.__qualname__}")
     while True:
         try:
             function()
         except Exception:
             trace = traceback.format_exc()
-            TealPrint.warning(f"Error in thread {function.__qualname__}:\n{trace}")
+            TealPrint.warning(f"⚠🧵 Error in thread {function.__qualname__}:\n{trace}")
 
         if seconds_between_calls > 0:
             sleep(seconds_between_calls)

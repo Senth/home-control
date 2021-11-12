@@ -32,7 +32,7 @@ class UnifiApi:
             self._update_clients()
             self._update_last_active()
         except:
-            TealPrint.error("Something went wrong connecting to UNIFI", print_exception=True)
+            TealPrint.error("❗ Something went wrong connecting to UNIFI", print_exception=True)
 
     def _init_controller(self) -> None:
         self._controller = Controller(
@@ -60,7 +60,6 @@ class UnifiApi:
     def _update_clients(self) -> None:
         TealPrint.debug("Getting UNIFI clients")
         for client in self._controller.get_clients():
-            # logger.debug("Client info: " + str(client))
             self._clients[client["mac"]] = client
 
     def _update_last_active(self) -> None:
@@ -83,7 +82,7 @@ class UnifiApi:
 
             if group.was_home != group.is_home:
                 state_msg = "home" if group.is_home else "away"
-                TealPrint.info(f"Usergroup {group.name} is {state_msg}")
+                TealPrint.info(f"👨‍👨‍👧‍👦 Usergroup {group.name} is {state_msg}")
 
     def _get_default_group(self) -> _UserGroup:
         for group in self._usergroups.values():

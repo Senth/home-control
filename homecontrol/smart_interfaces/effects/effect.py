@@ -32,7 +32,7 @@ class Effect:
         if not self.running:
             self.running = True
 
-            TealPrint.debug("Effect.run() " + self.name)
+            TealPrint.verbose("✨ Effect.run() " + self.name)
             for transition in self.transitions:
                 if self.aborted:
                     self.running = False

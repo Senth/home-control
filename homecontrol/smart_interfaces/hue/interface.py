@@ -23,9 +23,9 @@ class HueInterface(Interface):
             self._id = self._get_id()
 
             if self._id != HueInterface.INVALID_ID:
-                TealPrint.info(f"Found id {self._id} for HueInterface {self.name}")
+                TealPrint.info(f"ℹ Found id {self._id} for HueInterface {self.name}")
             else:
-                TealPrint.warning(f"Could not find id for HueInterface {self.name}")
+                TealPrint.warning(f"⚠ Could not find id for HueInterface {self.name}")
 
         return self._id
 
@@ -37,7 +37,7 @@ class HueInterface(Interface):
         # Get all interfaces of type
         all = Api.get(f"/{self.type}")
         if not all:
-            TealPrint.warning(f"Could not get all /{self.type} for {self.name}")
+            TealPrint.warning(f"⚠ Could not get all /{self.type} for {self.name}")
             return HueInterface.INVALID_ID
 
         for id_str, object in all.items():
@@ -101,7 +101,7 @@ class HueInterface(Interface):
         elif color.temperature:
             body["ct"] = color.temperature
         else:
-            TealPrint.warning(f"Didn't specify any color when calling color()")
+            TealPrint.warning(f"⚠🚦 Didn't specify any color when calling color()")
             return
 
         self._put(body)

@@ -80,7 +80,7 @@ class Controller:
             sleep(1)
 
     def turn_on(self) -> None:
-        TealPrint.info("Turning on " + self.name)
+        TealPrint.info("⚪ Turning on " + self.name)
         for interface_enum in self._get_interfaces():
             interface_enum.value.turn_on()
         if self.brightness:
@@ -89,13 +89,13 @@ class Controller:
             self.colorize()
 
     def turn_off(self) -> None:
-        TealPrint.info("Turning off " + self.name)
+        TealPrint.info("⚫ Turning off " + self.name)
         for interface_enum in self._get_interfaces():
             interface_enum.value.turn_off()
 
     def dim(self, transition_time: float = 60):
         if self.state == States.on and self.brightness:
-            TealPrint.info(f"Dimming {self.name} to {self.brightness}")
+            TealPrint.info(f"🔅 Dimming {self.name} to {self.brightness}")
             for interface_enum in self._get_interfaces():
                 if self._should_apply(interface_enum):
                     interface_enum.value.dim(
@@ -105,33 +105,34 @@ class Controller:
 
     def colorize(self):
         if self.state == States.on and self.color:
-            TealPrint.info(f"Colorize {self.name} to {self.color}")
+            TealPrint.info(f"🚦 Colorize {self.name} to {self.color}")
             for interface_enum in self._get_interfaces():
                 if self._should_apply(interface_enum):
                     interface_enum.value.color(self.color)
 
     def _should_apply(self, interface_enum: Enum) -> bool:
+        should_apply = True
         if self.only_apply_when_on:
             TealPrint.push_indent(TealLevel.verbose)
-            TealPrint.verbose(f"{self.name} only apply if it's on", push_indent=True)
+            TealPrint.verbose(f"❔ {self.name} only apply if it's on", push_indent=True)
             if interface_enum.value.is_on():
-                TealPrint.verbose(f"{self.name}.{interface_enum.value.name} is on")
+                TealPrint.verbose(f"🟢 {self.name}.{interface_enum.value.name} is on")
             else:
                 TealPrint.verbose(
-                    f"Not applying... {self.name}.{interface_enum.value.name} is off",
+                    f"🔴 Not applying... {self.name}.{interface_enum.value.name} is off",
                 )
-                return False
+                should_apply = False
             TealPrint.pop_indent()
             TealPrint.pop_indent()
 
-        return True
+        return should_apply
 
     def _get_interfaces(self) -> List[Enum]:
-        TealPrint.error(f"Not implemented {self.name}._get_interfaces()")
-        raise RuntimeError("Not implemented _get_interfaces")
+        TealPrint.error(f"❗ Not implemented {self.name}._get_interfaces()")
+        raise RuntimeError("❗ Not implemented _get_interfaces")
 
     def update(self):
-        TealPrint.error(f"Not implemented {self.name}._update()")
+        TealPrint.error(f"❗ Not implemented {self.name}._update()")
 
 
 class ControlMatteus(Controller):
@@ -440,7 +441,7 @@ def _calculate_dynamic_color(time_start: time, time_end: time, color_start: Colo
 
 def _diff(start: Union[int, float], end: Union[int, float], percentage: float) -> float:
     if percentage < 0 or percentage > 1:
-        TealPrint.error(f"Percentage in _diff({start}, {end}, {percentage}) is out of bounds")
+        TealPrint.error(f"❗ Percentage in _diff({start}, {end}, {percentage}) is out of bounds")
         return start
 
     total_diff = end - start

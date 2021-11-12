@@ -60,9 +60,9 @@ class Network:
 
     @staticmethod
     def update() -> None:
-        TealPrint.debug("Network.update()")
+        TealPrint.debug("🔄 Network.update()")
         try:
             _unifi_api.update()
             Device.update_all()
         except Exception:
-            TealPrint.error("Exception during Network.update()", print_exception=True)
+            TealPrint.error("❗ Exception during Network.update()", print_exception=True)

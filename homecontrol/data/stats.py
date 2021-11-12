@@ -23,7 +23,7 @@ class Stats:
                 cursor.close()
                 db.commit()
             except sqlite3.Error:
-                TealPrint.error("Couldn't log stat", print_exception=True)
+                TealPrint.error("❗ Couldn't log stat", print_exception=True)
             db.close()
 
     @staticmethod

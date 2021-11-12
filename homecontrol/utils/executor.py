@@ -30,7 +30,7 @@ class Executor(threading.Thread):
     def terminate_all_running() -> None:
         Executor.clear_all_done()
 
-        TealPrint.verbose(f"Executor.terminate_running_actions() for {len(Executor._threads)} threads")
+        TealPrint.verbose(f"🪓 Executor.terminate_running_actions() for {len(Executor._threads)} threads")
         for thread in Executor._threads:
             thread.terminate()
         Executor._threads = []
@@ -58,7 +58,7 @@ class DelayedExecutor(Executor):
 
     def run(self) -> None:
         """Logic to run in another thread. Never call this directly."""
-        TealPrint.verbose(f"DelayedExecutor.run() Delaying execution with {self._delay} seconds")
+        TealPrint.verbose(f"⏳ DelayedExecutor.run() Delaying execution with {self._delay} seconds")
         time.sleep(self._delay)
 
         if not self._terminate:
@@ -75,7 +75,7 @@ class TimedExecutor(Executor):
 
     def run(self) -> None:
         """Logic to run in another thread. Never call this directly."""
-        TealPrint.verbose(f"TimedExecutor.run() Running at {self._time}")
+        TealPrint.verbose(f"⌚ TimedExecutor.run() Running at {self._time}")
 
         while self._time > datetime.now(tz.tzlocal()) and not self._terminate:
             time.sleep(5)

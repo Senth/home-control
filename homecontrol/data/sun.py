@@ -16,9 +16,7 @@ def tomorrow():
 class Sun:
     _sunset = sun.get_local_sunset_time()
     _sunrise = sun.get_local_sunrise_time()
-    _last_sunrise = sun.get_local_sunrise_time(
-        datetime.datetime.now(tz.tzlocal()) - datetime.timedelta(days=1)
-    )
+    _last_sunrise = sun.get_local_sunrise_time(datetime.datetime.now(tz.tzlocal()) - datetime.timedelta(days=1))
 
     @staticmethod
     def update():
@@ -28,17 +26,11 @@ class Sun:
         if now > Sun._sunrise:
             Sun._last_sunrise = Sun._sunrise
             Sun._sunrise = sun.get_local_sunrise_time(tomorrow())
-            TealPrint.info("Sun.update(): Passed sunrise, updating to next day")
+            TealPrint.info("🌄 Sun.update(): Passed sunrise, updating to next day")
 
         if now > Sun._sunset:
             Sun._sunset = sun.get_local_sunset_time(tomorrow())
-            TealPrint.info("Sun.update(): Passed sunset, updating to next day")
-
-    @staticmethod
-    def print():
-        print(f"Sunrise: {Sun._sunrise} , sunset: {Sun._sunset}")
-        print(f"is_up(): {Sun.is_up()}")
-        print(f"is_bright(): {Sun.is_up_shortened()}")
+            TealPrint.info("🌇 Sun.update(): Passed sunset, updating to next day")
 
     @staticmethod
     def is_up():
