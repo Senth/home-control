@@ -1,4 +1,4 @@
-from datetime import time
+from datetime import datetime, time, timedelta
 from enum import Enum
 from time import sleep
 from typing import List, Optional, Union
@@ -298,9 +298,7 @@ class ControlMatteusTurnOff(Controller):
         pass
 
 
-class ControlLedStripOff(Controller):
-    """Will only turn off the LED strip if TV is on and Matteus is the only one home"""
-
+class ControlLedStrip(Controller):
     def __init__(self):
         super().__init__("Turn off LED Strip")
 
@@ -310,18 +308,32 @@ class ControlLedStripOff(Controller):
     def update(self):
         self.state = States.on
 
-        # Only if Matteus is alone home
+        # Turn off when watching TV and home alone
         if (
-            Network.mobile_matteus.is_on()
-            and not Network.mobile_emma.is_on()
+            Network.is_matteus_home()
+            and not Network.is_emma_home()
             and not Network.is_guest_home(GuestOf.both, GuestOf.matteus)
+            and Network.tv.is_on()
         ):
-            # Only if TV is on
-            if Network.tv.is_on():
-                self.state = States.off
+            self.state = States.off
+                
+        # Turn off when turning off the stationary computer
+        if (
+            Network.is_matteus_home()
+            and not Network.zen.is_on()
+        ):
+            self.state = States.off
 
-    def turn_on(self):
-        pass
+    def turn_on(self) -> None:
+        """Only turn on if it was on recently"""
+        diff_time = datetime.now() - self.turned_off_time
+        if diff_time > timedelta(hours=1, minutes=30):
+            super().turn_on()
+    
+    def turn_off(self) -> None:
+        if Devices.led_strip.value.is_on():
+            self.turned_off_time = datetime.now()
+            super().turn_off()
 
 
 class ControlTurnOffEmma(Controller):
@@ -406,7 +418,7 @@ controllers: List[Controller] = [
     ControlWindows(),
     #     ControlSunLamp(),
     ControlMatteusTurnOff(),
-    ControlLedStripOff(),
+    ControlLedStrip(),
     ControlTurnOffEmma(),
     ControlTurnOffLights(),
     ControlHallCeiling(),
