@@ -299,8 +299,11 @@ class ControlMatteusTurnOff(Controller):
 
 
 class ControlLedStrip(Controller):
+    MAX_DIFF_TIME = timedelta(hours=1, minutes=30)
+
     def __init__(self):
-        super().__init__("Turn off LED Strip")
+        super().__init__("LED Strip")
+        self.turned_off_time = datetime(2010, 1, 1)
 
     def _get_interfaces(self) -> List[Enum]:
         return [Devices.led_strip]
@@ -316,20 +319,20 @@ class ControlLedStrip(Controller):
             and Network.tv.is_on()
         ):
             self.state = States.off
-                
+
         # Turn off when turning off the stationary computer
-        if (
-            Network.is_matteus_home()
-            and not Network.zen.is_on()
-        ):
+        if Network.is_matteus_home() and not Network.zen.is_on():
             self.state = States.off
 
     def turn_on(self) -> None:
         """Only turn on if it was on recently"""
+        TealPrint.verbose(f"💡 {self.name}: Trying to turn it on", push_indent=True)
         diff_time = datetime.now() - self.turned_off_time
-        if diff_time > timedelta(hours=1, minutes=30):
+        TealPrint.verbose(f"⏲ {diff_time} since stopped, should be max {ControlLedStrip.MAX_DIFF_TIME}")
+        TealPrint.pop_indent()
+        if diff_time < ControlLedStrip.MAX_DIFF_TIME:
             super().turn_on()
-    
+
     def turn_off(self) -> None:
         if Devices.led_strip.value.is_on():
             self.turned_off_time = datetime.now()
