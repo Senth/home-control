@@ -311,17 +311,20 @@ class ControlLedStrip(Controller):
     def update(self):
         self.state = States.on
 
+        # Turn off when not home
+        if not Network.is_matteus_home():
+            self.state = States.off
+
         # Turn off when watching TV and home alone
         if (
-            Network.is_matteus_home()
+            Network.tv.is_on()
             and not Network.is_emma_home()
             and not Network.is_guest_home(GuestOf.both, GuestOf.matteus)
-            and Network.tv.is_on()
         ):
             self.state = States.off
 
         # Turn off when turning off the stationary computer
-        if Network.is_matteus_home() and not Network.zen.is_on():
+        if not Network.zen.is_on():
             self.state = States.off
 
     def turn_on(self) -> None:
