@@ -22,9 +22,9 @@ class _Range:
 class LightLevels(Enum):
     fully_dark = _Range(0, 6000)
     dark = _Range(6000, 11000)
-    partially_dark = _Range(11000, 13500)
-    partially_light = _Range(13500, 16000)
-    light = _Range(16000, 999999)
+    partially_dark = _Range(11000, 15000)
+    partially_light = _Range(15000, 18000)
+    light = _Range(18000, 999999)
     unknown = _Range(-1, -1)
 
     @staticmethod
