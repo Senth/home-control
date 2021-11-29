@@ -4,6 +4,8 @@ import json
 from enum import Enum
 from typing import Any, Dict
 
+from tealprint import TealPrint
+
 from ...data.stats import Stats
 from .sensor import Sensor
 
@@ -18,11 +20,11 @@ class _Range:
 
 
 class LightLevels(Enum):
-    fully_dark = _Range(0, 5000)
-    dark = _Range(5000, 10000)
-    partially_dark = _Range(10000, 12500)
-    partially_light = _Range(12500, 15000)
-    light = _Range(15000, 999999)
+    fully_dark = _Range(0, 6000)
+    dark = _Range(6000, 11000)
+    partially_dark = _Range(11000, 13500)
+    partially_light = _Range(13500, 16000)
+    light = _Range(16000, 999999)
     unknown = _Range(-1, -1)
 
     @staticmethod
@@ -59,6 +61,8 @@ class LightSensor(Sensor):
                 "level_value": self.light_level,
             }
             Stats.log("light_level", json.dumps(info))
+
+            TealPrint.verbose(f"☀ {self.name}: {self.light_level} lux, range: {self.level_name.name}")
 
     def update_light_level(self) -> None:
         new_level = LightLevels.from_level(self.light_level)
