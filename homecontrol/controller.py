@@ -170,7 +170,7 @@ class ControlMatteus(Controller):
 class ControlBamboo(Controller):
     def __init__(self) -> None:
         super().__init__("Bamboo", only_apply_when_on=True)
-        self.default_color = Color.from_xy(0.4, 0.39)
+        self.default_color = Color.from_xy(0.43, 0.39)
 
     def _get_interfaces(self) -> List[Enum]:
         return [Devices.bamboo]
@@ -209,26 +209,9 @@ class ControlBamboo(Controller):
                 self.brightness = 1
                 self.color = Color.from_xy(0.7, 0.3)
         elif Sensors.light_sensor.is_level_or_below(LightLevels.dark):
-            self.brightness = 0.7
+            self.brightness = 0.65
         elif Sensors.light_sensor.is_level_or_below(LightLevels.partially_dark):
-            self.brightness = 0.8
-
-
-class ControlMonitor(Controller):
-    def __init__(self) -> None:
-        super().__init__("Monitor")
-
-    def _get_interfaces(self) -> List[Enum]:
-        return [Devices.monitor]
-
-    def update(self):
-        if Network.is_matteus_home() and Sensors.light_sensor.is_level_or_below(LightLevels.dark):
-            # Stationary Computer
-            if Network.zen.is_on() and Time.between(time(7), time(3)):
-                self.state = States.on
-            # Work laptop
-            elif Network.work_matteus.is_on() and Time.between(time(7), time(18)):
-                self.state = States.on
+            self.brightness = 0.75
 
 
 class ControlSpeakers(Controller):
@@ -375,19 +358,6 @@ class ControlTurnOffLights(Controller):
         pass
 
 
-# class ControlSunLamp(Controller):
-#     def __init__(self):
-#         super().__init__("Sun Lamp")
-
-#     def _get_interfaces(self) -> List[Enum]:
-#         return Lights.sun_lamp
-
-#     def update(self):
-#         if Time.between(time(4), time(8)):
-#             if Luminance.is_dark():
-#                 self.state = States.on
-
-
 class ControlHallCeiling(Controller):
     def __init__(self):
         super().__init__("Hall Ceiling")
@@ -418,11 +388,9 @@ class ControlHallCeiling(Controller):
 controllers: List[Controller] = [
     ControlMatteus(),
     ControlBamboo(),
-    # ControlMonitor(),
     ControlSpeakers(),
     ControlAmbient(),
     ControlWindows(),
-    #     ControlSunLamp(),
     ControlMatteusTurnOff(),
     ControlLedStrip(),
     ControlTurnOffEmma(),
