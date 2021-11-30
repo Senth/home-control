@@ -1,4 +1,5 @@
 from flask import Blueprint, abort
+from flask.wrappers import Response
 from homecontrol.webapi.util import get_json
 from tealprint import TealPrint
 
@@ -9,7 +10,7 @@ power_blueprint = Blueprint("power", __package__)
 
 
 @power_blueprint.route("/power", methods=["POST"])
-def power() -> str:
+def power() -> Response:
     body = get_json()
 
     TealPrint.debug(f"/power, body: {body}")

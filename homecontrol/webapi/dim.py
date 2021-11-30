@@ -1,6 +1,7 @@
 from typing import Union
 
 from flask import Blueprint, abort
+from flask.wrappers import Response
 from homecontrol.webapi.util import get_json
 
 from ..smart_interfaces import SmartInterfaces
@@ -10,7 +11,7 @@ dim_blueprint = Blueprint("dim", __package__)
 
 
 @dim_blueprint.route("/dim", methods=["POST"])
-def dim() -> str:
+def dim() -> Response:
     body = get_json()
 
     # Check required parameters

@@ -4,6 +4,7 @@ from typing import Any, Callable, Dict, List, Union
 
 from dateutil import tz
 from flask import abort, jsonify
+from flask.wrappers import Response
 
 from ..utils.executor import DelayedExecutor, TimedExecutor
 
@@ -132,5 +133,5 @@ def get_time(time_str: str) -> Union[datetime, None]:
         return time
 
 
-def success() -> str:
+def success() -> Response:
     return jsonify({"success": True})

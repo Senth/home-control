@@ -1,4 +1,5 @@
 from flask import Blueprint, abort
+from flask.wrappers import Response
 from homecontrol.webapi.util import get_json
 
 from ..smart_interfaces import SmartInterfaces
@@ -9,7 +10,7 @@ mood_blueprint = Blueprint("mood", __package__)
 
 
 @mood_blueprint.route("/mood", methods=["POST"])
-def mood() -> str:
+def mood() -> Response:
     body = get_json()
 
     # Check required parameters

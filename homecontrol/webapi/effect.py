@@ -12,7 +12,7 @@ effect_blueprint = Blueprint("effect", __package__)
 
 
 @effect_blueprint.route("/effect", methods=["POST"])
-def effect() -> str:
+def effect() -> Response:
     body = get_json()
 
     # Check required parameters

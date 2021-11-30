@@ -1,6 +1,7 @@
 from typing import Any, Callable, Dict, List
 
 from flask import Blueprint, abort
+from flask.wrappers import Response
 from homecontrol.webapi.util import get_json
 
 from ..core.entities.color import Color
@@ -11,7 +12,7 @@ color_blueprint = Blueprint("color", __package__)
 
 
 @color_blueprint.route("/color", methods=["POST"])
-def color() -> str:
+def color() -> Response:
     body = get_json()
 
     # Check for required parameters
