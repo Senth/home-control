@@ -1,6 +1,9 @@
+from apscheduler.schedulers.background import BackgroundScheduler
+
 from .config import config
 from .controller import Controller
 from .data.network import Network
+from .data.weather import Weather
 from .smart_interfaces.hue.sensor import Sensor
 from .utils.arg_parser import parse_args
 from .utils.config_gateway import ConfigGateway
@@ -23,6 +26,12 @@ def main():
     start_thread(Sensor.update_all, seconds_between_calls=5)
     start_thread(Network.update, seconds_between_calls=5)
     start_thread(Controller.update_all, seconds_between_calls=1, delay=10)
+
+    # Weather
+    Weather.update()
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(Weather.update, "cron", minute=3)
+    scheduler.start()
 
     # Run Web API
     flask_api.run_api()
