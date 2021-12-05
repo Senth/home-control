@@ -113,7 +113,5 @@ class HueInterface(Interface):
 
     def _put(self, body: Dict[str, Any]) -> None:
         url = f"/{self.type}/{self.id}/{self.action}"
-        TealPrint.push_indent(TealLevel.verbose)
-        TealPrint.verbose(f"📞 Hue API: url: {url}, body: {body}")
-        TealPrint.pop_indent()
+        TealPrint.verbose(f"📞 Hue API:  {url}, body: {body}")
         Api.put(url, body)

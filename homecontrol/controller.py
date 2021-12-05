@@ -80,7 +80,8 @@ class Controller:
             sleep(1)
 
     def turn_on(self) -> None:
-        TealPrint.info("⚪ Turning on " + self.name)
+        TealPrint.info("⚪ Turning on " + self.name, push_indent=True)
+
         for interface_enum in self._get_interfaces():
             interface_enum.value.turn_on()
         if self.brightness:
@@ -88,32 +89,36 @@ class Controller:
         if self.color:
             self.colorize()
 
+        TealPrint.pop_indent()
+
     def turn_off(self) -> None:
-        TealPrint.info("⚫ Turning off " + self.name)
+        TealPrint.info("⚫ Turning off " + self.name, push_indent=True)
         for interface_enum in self._get_interfaces():
             interface_enum.value.turn_off()
+        TealPrint.pop_indent()
 
     def dim(self, transition_time: float = 60):
         if self.state == States.on and self.brightness:
-            TealPrint.info(f"🔅 Dimming {self.name} to {self.brightness}")
+            TealPrint.info(f"🔅 Dimming {self.name} to {self.brightness}", push_indent=True)
             for interface_enum in self._get_interfaces():
                 if self._should_apply(interface_enum):
                     interface_enum.value.dim(
                         self.brightness,
                         transition_time=transition_time,
                     )
+            TealPrint.pop_indent()
 
     def colorize(self):
         if self.state == States.on and self.color:
-            TealPrint.info(f"🚦 Colorize {self.name} to {self.color}")
+            TealPrint.info(f"🚦 Colorize {self.name} to {self.color}", push_indent=True)
             for interface_enum in self._get_interfaces():
                 if self._should_apply(interface_enum):
                     interface_enum.value.color(self.color)
+            TealPrint.pop_indent()
 
     def _should_apply(self, interface_enum: Enum) -> bool:
         should_apply = True
         if self.only_apply_when_on:
-            TealPrint.push_indent(TealLevel.verbose)
             TealPrint.verbose(f"❔ {self.name} only apply if it's on", push_indent=True)
             if interface_enum.value.is_on():
                 TealPrint.verbose(f"🟢 {self.name}.{interface_enum.value.name} is on")
@@ -122,7 +127,6 @@ class Controller:
                     f"🔴 Not applying... {self.name}.{interface_enum.value.name} is off",
                 )
                 should_apply = False
-            TealPrint.pop_indent()
             TealPrint.pop_indent()
 
         return should_apply
