@@ -113,5 +113,5 @@ class HueInterface(Interface):
 
     def _put(self, body: Dict[str, Any]) -> None:
         url = f"/{self.type}/{self.id}/{self.action}"
-        TealPrint.verbose(f"📞 Hue API:  {url}, body: {body}")
+        TealPrint.verbose(f"📞 Hue API: {url}, body: {body}")
         Api.put(url, body)
