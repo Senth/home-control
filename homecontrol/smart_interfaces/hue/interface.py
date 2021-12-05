@@ -1,6 +1,7 @@
 from typing import Any, Dict, Union
 
 from tealprint import TealPrint
+from tealprint.teallevel import TealLevel
 
 from ...core.entities.color import Color
 from ..interface import Interface
@@ -111,4 +112,8 @@ class HueInterface(Interface):
         self.color(mood.color)
 
     def _put(self, body: Dict[str, Any]) -> None:
-        Api.put(f"/{self.type}/{self.id}/{self.action}", body)
+        url = f"/{self.type}/{self.id}/{self.action}"
+        TealPrint.push_indent(TealLevel.verbose)
+        TealPrint.verbose(f"📞 Hue API: url: {url}, body: {body}")
+        TealPrint.pop_indent()
+        Api.put(url, body)
