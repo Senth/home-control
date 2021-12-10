@@ -401,6 +401,9 @@ class ControlChristmasLightsWhenNotHome(Controller):
             return []
 
     def update(self) -> None:
+        if not Date.has_christmas_lights():
+            return
+
         if Network.is_someone_home():
             return
 
