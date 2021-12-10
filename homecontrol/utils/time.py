@@ -76,3 +76,7 @@ class Date:
             return start <= now <= end
         else:  # Across the year
             return start <= now or now <= end
+        
+    @staticmethod
+    def has_christmas_lights() -> bool:
+        return Date.between((11, 28), (1, 31))
