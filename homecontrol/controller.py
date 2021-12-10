@@ -395,7 +395,10 @@ class ControlChristmasLightsWhenNotHome(Controller):
         self.delayed_turn_on: Optional[datetime] = None
 
     def _get_interfaces(self) -> List[Enum]:
-        return [Devices.billy, Devices.kitchen_christmas, Devices.window]
+        if Date.has_christmas_lights():
+            return [Devices.billy, Devices.kitchen_christmas, Devices.window]
+        else:
+            return []
 
     def update(self) -> None:
         if Network.is_someone_home():
