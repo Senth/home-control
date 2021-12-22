@@ -32,7 +32,7 @@ class Network:
     )
     mobile_matteus = UnifiDevice(
         name="Mobile Matteus",
-        mac_address="04:d6:aa:62:d5:ae",
+        mac_address="fa:2f:79:bf:01:f4",
         log=True,
         max_off_time=240,
     )
