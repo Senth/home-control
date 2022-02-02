@@ -1,5 +1,5 @@
 from time import time
-from typing import Any, Dict, Union
+from typing import Any, Dict, Optional, Union
 
 from pyunifi.controller import Controller
 from tealprint import TealPrint
@@ -59,12 +59,15 @@ class UnifiApi:
 
     def _update_clients(self) -> None:
         TealPrint.debug("Getting UNIFI clients")
+        clients: Dict[str, Any] = {}
         for client in self._controller.get_clients():
-            self._clients[client["mac"]] = client
+            clients[client["mac"]] = client
+        self._clients = clients
 
     def _update_last_active(self) -> None:
-        TealPrint.debug("Updating last active time")
+        TealPrint.debug("Updating last active time for usergroups")
         for client in self._clients.values():
+            group_id: str = ""
             if "usergroup_id" in client:
                 group_id = client["usergroup_id"]
 
@@ -72,7 +75,6 @@ class UnifiApi:
                 group_id = self._get_default_group().id
 
             group = self._usergroups[group_id]
-            group.was_home = group.is_home
             group.last_active_time = time()
 
         # Log if Home/Away was changed

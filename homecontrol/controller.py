@@ -201,7 +201,7 @@ class ControlBamboo(Controller):
                 self.color = _calculate_dynamic_color(
                     time(19), time(22), self.default_color, Color.from_xy(0.48, 0.39)
                 )
-            # 22:00 - 22:30
+            # 22:00 - 23:30
             elif Time.between(time(22), time(23, 30)):
                 self.brightness = 1
                 self.color = _calculate_dynamic_color(
