@@ -4,7 +4,6 @@ from typing import List
 from ..smart_interfaces.devices import Devices
 from ..smart_interfaces.hue.light_sensor import LightLevels
 from ..smart_interfaces.sensors import Sensors
-from ..utils.time import Date
 from .controller import Controller, calculate_ambient
 
 

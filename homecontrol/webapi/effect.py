@@ -16,7 +16,7 @@ def effect() -> Response:
     body = get_json()
 
     # Check required parameters
-    if not "name" in body:
+    if "name" not in body:
         abort(400, 'Missing "name" field in body')
 
     if not isinstance(body["name"], str):

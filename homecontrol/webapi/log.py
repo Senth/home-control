@@ -1,7 +1,6 @@
-from homecontrol.webapi.util import get_json
-
 from flask import Blueprint, abort
 from flask.wrappers import Response
+from homecontrol.webapi.util import get_json
 
 from ..data.stats import Stats
 from . import success
@@ -14,10 +13,10 @@ def log() -> Response:
     body = get_json()
 
     # Check required parameters
-    if not "category" in body:
+    if "category" not in body:
         abort(400, 'Missing "category" field in body')
 
-    if not "value" in body:
+    if "value" not in body:
         abort(400, 'Missing "value" field in body')
 
     Stats.log(body["category"], body["value"])

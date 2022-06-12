@@ -1,7 +1,7 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from .config import config
-from .controller import Controller
+from .controllers.controller import Controller
 from .data.network import Network
 from .data.weather import Weather
 from .smart_interfaces.hue.sensor import Sensor

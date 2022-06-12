@@ -16,10 +16,10 @@ def power() -> Response:
     TealPrint.debug(f"/power, body: {body}")
 
     # Check required parameters
-    if not "value" in body:
+    if "value" not in body:
         abort(400, 'Missing "value" in body')
 
-    if not "name" in body:
+    if "name" not in body:
         abort(400, 'Missing "name" in body')
 
     name = trim_name(body["name"])

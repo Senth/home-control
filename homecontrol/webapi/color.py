@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, List
+from typing import Any, Dict, List
 
 from flask import Blueprint, abort
 from flask.wrappers import Response
@@ -16,7 +16,7 @@ def color() -> Response:
     body = get_json()
 
     # Check for required parameters
-    if not "name" in body:
+    if "name" not in body:
         abort(400, 'Missing "value" in body')
 
     name = trim_name(body["name"])

@@ -14,10 +14,10 @@ def mood() -> Response:
     body = get_json()
 
     # Check required parameters
-    if not "mood" in body:
+    if "mood" not in body:
         abort(400, 'Missing "mood" in body')
 
-    if not "lights" in body:
+    if "lights" not in body:
         abort(400, 'Missing "lights" in body')
 
     lights = trim_name(body["lights"])
