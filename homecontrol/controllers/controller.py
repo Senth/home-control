@@ -9,11 +9,7 @@ from tealprint import TealPrint
 
 from ..core.entities.color import Color
 from ..data.network import Network
-from ..smart_interfaces.devices import Devices
-from ..smart_interfaces.groups import Groups
-from ..smart_interfaces.hue.light_sensor import LightLevels
-from ..smart_interfaces.sensors import Sensors
-from ..utils.time import Date, Day, Days, Time
+from ..utils.time import Day, Days, Time
 
 
 class States(Enum):
@@ -22,19 +18,17 @@ class States(Enum):
     off = "off"
 
 
-def _calculate_ambient() -> States:
+def calculate_ambient() -> States:
     # Only when someone's home
     if Network.is_someone_home():
-        # Dark
-        if Sensors.light_sensor.is_level_or_below(LightLevels.partially_dark):
-            # Weekends
-            if Day.is_day(Days.saturday, Days.sunday):
-                if Time.between(time(9), time(2)):
-                    return States.on
-            # Weekdays
-            else:
-                if Time.between(time(7), time(2)):
-                    return States.on
+        # Weekends
+        if Day.is_day(Days.saturday, Days.sunday):
+            if Time.between(time(9), time(2)):
+                return States.on
+        # Weekdays
+        else:
+            if Time.between(time(7), time(2)):
+                return States.on
 
     return States.off
 
@@ -140,69 +134,6 @@ class Controller:
 
     def update(self):
         TealPrint.error(f"❗ Not implemented {self.name}._update()")
-
-
-class ControlAmbient(Controller):
-    def __init__(self) -> None:
-        super().__init__("Ambient")
-
-    def _get_interfaces(self) -> List[Enum]:
-        # Winter lights
-        if Date.has_christmas_lights():
-            return [
-                Devices.ball_lights,
-                Devices.window,
-                Devices.hallway_painting,
-                Groups.kitchen,
-            ]
-        else:  # Regular lights
-            return [Devices.hallway_painting, Devices.ball_lights]
-
-    def update(self):
-        self.state = _calculate_ambient()
-
-
-class ControlWindows(Controller):
-    def __init__(self) -> None:
-        super().__init__("Windows")
-
-    def _get_interfaces(self) -> List[Enum]:
-        # Only active when we don't have Christmas lights
-        if not Date.has_christmas_lights():
-            return [Devices.window, Devices.micro]
-        else:
-            return []
-
-    def update(self):
-        if Sensors.light_sensor.is_level_or_below(LightLevels.dark):
-            self.state = _calculate_ambient()
-
-
-class ControlHallCeiling(Controller):
-    def __init__(self):
-        super().__init__("Hall Ceiling")
-        self.brightness = 1.0
-
-    def _get_interfaces(self) -> List[Enum]:
-        return [Devices.hallway_ceiling]
-
-    def update(self):
-        if not Network.is_someone_home():
-            return
-
-        if Sensors.light_sensor.is_level_or_above(LightLevels.partially_dark):
-            return
-
-        if Day.is_workday():
-            if (Network.is_matteus_home() and Network.is_guest_home()) or (
-                Network.is_matteus_home() and not Network.is_emma_home()
-            ):
-                if Time.between(time(8), time(17)):
-                    self.state = States.on
-            elif Time.between(time(10), time(17)):
-                self.state = States.on
-        elif Day.is_weekend() and Time.between(time(11), time(17)):
-            self.state = States.on
 
 
 def calculate_dynamic_brightness(

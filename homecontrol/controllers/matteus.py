@@ -32,7 +32,7 @@ class ControlMatteus(Controller):
             time(10), time(3)
         ):
             # On when it's dark
-            if Sensors.light_sensor.is_level_or_below(LightLevels.dark):
+            if Sensors.kitchen_light.is_level_or_below(LightLevels.dark):
                 self.state = States.on
 
         # Update dim
@@ -68,12 +68,12 @@ class ControlBamboo(Controller):
             return
 
         # Turn on
-        if Sensors.light_sensor.is_level_or_below(LightLevels.partially_dark):
+        if Sensors.kitchen_light.is_level_or_below(LightLevels.partially_dark):
             self.state = States.on
 
         # Set brightness and color
         self.color = self.default_color
-        if Sensors.light_sensor.is_level_or_below(LightLevels.fully_dark):
+        if Sensors.kitchen_light.is_level_or_below(LightLevels.fully_dark):
             # 15 - 19
             if Time.between(time(15), time(19)):
                 self.brightness = 0.6
@@ -90,9 +90,9 @@ class ControlBamboo(Controller):
             else:
                 self.brightness = 1
                 self.color = Color.from_xy(0.7, 0.3)
-        elif Sensors.light_sensor.is_level_or_below(LightLevels.dark):
+        elif Sensors.kitchen_light.is_level_or_below(LightLevels.dark):
             self.brightness = 0.65
-        elif Sensors.light_sensor.is_level_or_below(LightLevels.partially_dark):
+        elif Sensors.kitchen_light.is_level_or_below(LightLevels.partially_dark):
             self.brightness = 0.75
 
 

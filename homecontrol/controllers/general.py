@@ -56,7 +56,7 @@ class ControlChristmasLightsWhenNotHome(Controller):
         if Time.between(time(23), time(7)):
             return
 
-        if Sensors.light_sensor.is_level_or_above(LightLevels.partially_dark):
+        if Sensors.livingroom_light.is_level_or_above(LightLevels.partially_dark):
             return
 
         # Start delayed turn on

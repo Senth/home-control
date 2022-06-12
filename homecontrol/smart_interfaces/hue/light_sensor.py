@@ -20,12 +20,12 @@ class _Range:
 
 
 class LightLevels(Enum):
-    fully_dark = _Range(0, 6000)
-    dark = _Range(6000, 11000)
-    partially_dark = _Range(11000, 15000)
-    partially_light = _Range(15000, 18000)
-    light = _Range(18000, 999999)
-    unknown = _Range(-1, -1)
+    fully_dark = 0
+    dark = 1
+    partially_dark = 2
+    partially_light = 3
+    light = 4
+    unknown = 5
 
     @staticmethod
     def from_level(level: int) -> LightLevels:
@@ -39,10 +39,19 @@ class LightSensor(Sensor):
     _update_interval = 60 * 5
     _threshold = 500
 
-    def __init__(self, id: int, name: str, log: bool = False) -> None:
+    def __init__(
+        self, id: int, name: str, dark: int, partially_dark: int, partially_light: int, light: int, log: bool = False
+    ) -> None:
         super().__init__(id, name, LightSensor._update_interval, log)
         self.light_level: int = 0
         self.level_name = LightLevels.light
+        self.ranges = {
+            LightLevels.fully_dark: _Range(0, dark),
+            LightLevels.dark: _Range(dark, partially_dark),
+            LightLevels.partially_dark: _Range(partially_dark, partially_light),
+            LightLevels.partially_light: _Range(partially_light, light),
+            LightLevels.light: _Range(light, 999999),
+        }
 
     def is_level_or_below(self, level: LightLevels) -> bool:
         return self.level_name.value.min <= level.value.min
