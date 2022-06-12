@@ -21,13 +21,11 @@ setup(
     data_files=[("config", [f"config/{project_slug}-example.cfg"])],
     install_requires=[
         "apscheduler",
-        "blulib==0.1.1",
+        "blulib",
         "requests",
-        "pytradfri",
         "pyunifi",
-        "suntime",
         "flask",
-        "tealprint==0.2.1",
+        "tealprint",
     ],
     classifiers=[
         "Environment :: Console",
