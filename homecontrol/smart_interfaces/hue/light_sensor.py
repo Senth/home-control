@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from tealprint import TealPrint
 
