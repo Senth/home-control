@@ -68,7 +68,7 @@ class ControlBamboo(Controller):
             return
 
         # Turn on
-        if Sensors.kitchen_light.is_level_or_below(LightLevels.partially_dark):
+        if Sensors.kitchen_light.is_level_or_below(LightLevels.dark):
             self.state = States.on
 
         # Set brightness and color
@@ -92,8 +92,6 @@ class ControlBamboo(Controller):
                 self.color = Color.from_xy(0.7, 0.3)
         elif Sensors.kitchen_light.is_level_or_below(LightLevels.dark):
             self.brightness = 0.65
-        elif Sensors.kitchen_light.is_level_or_below(LightLevels.partially_dark):
-            self.brightness = 0.75
 
 
 class ControlSpeakers(Controller):
