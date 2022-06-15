@@ -42,7 +42,7 @@ class ControlPainting(Controller):
         super().__init__("Painting")
 
     def _get_interfaces(self) -> List[Enum]:
-        return [Devices.ball_lights]
+        return [Devices.hallway_painting]
 
     def update(self):
         if Sensors.livingroom_light.is_level_or_below(LightLevels.partially_dark):
