@@ -1,5 +1,5 @@
 from time import time
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Union
 
 from pyunifi.controller import Controller
 from tealprint import TealPrint
@@ -31,7 +31,7 @@ class UnifiApi:
             self._update_user_groups()
             self._update_clients()
             self._update_last_active()
-        except:
+        except Exception:
             TealPrint.error("❗ Something went wrong connecting to UNIFI", print_exception=True)
 
     def _init_controller(self) -> None:
