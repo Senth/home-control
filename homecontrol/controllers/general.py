@@ -37,7 +37,7 @@ class ControlChristmasLightsWhenNotHome(Controller):
 
     def _get_interfaces(self) -> List[Enum]:
         if Date.has_christmas_lights():
-            return [Devices.billy, Devices.kitchen_christmas, Devices.window]
+            return [Devices.matteus_christmas, Devices.kitchen_christmas, Devices.window]
         else:
             return []
 

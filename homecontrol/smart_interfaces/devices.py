@@ -20,6 +20,7 @@ class Devices(Enum):
     speakers = HueLight("Matteus Speakers")
     window = HueLight("Window lights")
     kitchen_christmas = HueLight("Adventsstake köket")
+    matteus_christmas = HueLight("Adventsstake Matteus")
 
     @staticmethod
     def from_name(name: str) -> Union[Devices, None]:

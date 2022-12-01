@@ -24,7 +24,7 @@ class ControlMatteus(Controller):
         super().__init__("Matteus")
 
     def _get_interfaces(self) -> List[Enum]:
-        return [Devices.billy, Devices.cylinder]
+        return [Devices.billy, Devices.cylinder, Devices.matteus_christmas]
 
     def update(self):
         # Only when Matteus is home and between 10 and 03
