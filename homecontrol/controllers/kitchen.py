@@ -12,7 +12,7 @@ class ControlMicro(Controller):
         super().__init__("Kitchen Micro")
 
     def _get_interfaces(self) -> List[Enum]:
-        return [Devices.micro]
+        return [Devices.micro, Devices.kitchen_christmas]
 
     def update(self):
         if Sensors.kitchen_light.is_level_or_below(LightLevels.fully_dark):
