@@ -59,6 +59,9 @@ class ControlChristmasLightsWhenNotHome(Controller):
         if Sensors.livingroom_light.is_level_or_above(LightLevels.partially_dark):
             return
 
+        if Sensors.kitchen_light.is_level_or_above(LightLevels.partially_dark):
+            return
+
         # Start delayed turn on
         if not self.delayed_turn_on:
             self.delayed_turn_on = datetime.now()
@@ -67,5 +70,7 @@ class ControlChristmasLightsWhenNotHome(Controller):
 
     def turn_off(self) -> None:
         """Don't turn off if it was because someone came home. Then we want to leave it on"""
+        self.delayed_turn_on = None
+
         if not Network.is_someone_home():
             super().turn_off()
