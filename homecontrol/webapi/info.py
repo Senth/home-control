@@ -1,9 +1,10 @@
 from flask import Blueprint, jsonify
 from flask.wrappers import Response
-from homecontrol.data.network.guest_of import GuestOf
 
 from ..data.network import Network
+from ..data.network.guest_of import GuestOf
 from ..data.weather import Weather
+from ..smart_interfaces.sensors import Sensors
 
 get_info_blueprint = Blueprint("get_info", __package__)
 
@@ -14,6 +15,10 @@ def get_info() -> Response:
         "weather": {
             "is_raining": int(Weather.is_raining()),
             "cloud_cover": Weather.get_cloud_coverage(),
+        },
+        "sensor": {
+            "living_room": Sensors.livingroom_light.get_light_name_from_level().name,
+            "kitchen": Sensors.kitchen_light.get_light_name_from_level().name,
         },
         "network": {
             "guests": {
